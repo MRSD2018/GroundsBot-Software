@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
-project(gazebo_grudsby)
+project(grudsby_gazebo)
 
 # Find Gazebo
 find_package(gazebo REQUIRED)
