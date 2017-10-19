@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package>
+  <name>gazebo_grudsby</name>
+  <version>0.0.0</version>
+  <description>Gazebo Grudsby Velocity Control</description>
+
+  <maintainer email="todo@todo.todo">todo</maintainer>
+  <license>TODO</license>
+
+
+  <build_depend>roslaunch</build_depend>
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>gazebo</build_depend>
+  <run_depend>gazebo</run_depend>
+
+</package>
