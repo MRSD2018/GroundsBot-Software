@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<package>
+  <name>grudsby_lowlevel</name>
+  <version>0.0.0</version>
+  <description>Takes care of Serial Comms</description>
+
+  <maintainer email="zhenrychen@cmu.edu"c>henry</maintainer>
+  <license>GRUDSBY</license>
+
+
+  <build_depend>roslaunch</build_depend>
+  <buildtool_depend>catkin</buildtool_depend>
+
+</package>

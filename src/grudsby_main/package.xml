@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<package>
+  <name>grudsby_main</name>
+  <version>0.0.0</version>
+  <description>Grudsby main control - arbiters and missions and stuff</description>
+
+  <maintainer email="zhenrychen@cmu.edu">henry</maintainer>
+  <license>GRUDSBY</license>
+
+
+  <build_depend>roslaunch</build_depend>
+  <buildtool_depend>catkin</buildtool_depend>
+ 
+</package>
