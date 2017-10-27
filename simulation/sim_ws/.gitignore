@@ -1,5 +1,0 @@
-devel/
-build/
-*.vscode
-*.catkin_workspace
-src/CMakeLists.txt
