@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>grudsby_main</name>
+  <name>grudsby_autonomy</name>
   <version>0.0.0</version>
   <description>Grudsby main control - arbiters and missions and stuff</description>
 
