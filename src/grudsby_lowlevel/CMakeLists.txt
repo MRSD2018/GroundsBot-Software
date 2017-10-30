@@ -7,10 +7,11 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
 )
 
-## Generate messages in the 'msg' folder
-# add_message_files(
-#    FILES
-# )
+# Generate messages in the 'msg' folder
+add_message_files(
+   FILES
+   ArduinoVel.msg
+)
 
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
@@ -25,3 +26,6 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
+add_executable(${PROJECT_NAME} src/grudsby_lowlevel.cpp)
+add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} )
