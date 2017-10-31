@@ -6,6 +6,13 @@ Grudsby's Brains
 #### ROS:
 Grudsby uses ROS Kinetic, on Ubuntu 16.04.
 
+#### If using Anaconda:
+comment out the path anaconda PATH setting in ~/.bashrc
+```bash
+#export PATH="/home/"user"/"anaconda version"/bin:$PATH"
+```
+
+
 #### Necessary Packages:
 - rosserial 
 
