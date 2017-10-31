@@ -10,9 +10,34 @@ Grudsby uses ROS Kinetic, on Ubuntu 16.04.
 - rosserial 
 
 ```bash
-sudo apt-get install ros-indigo-rosserial-arduino
-sudo apt-get install ros-indigo-rosserial
+sudo apt-get install ros-kinetic-rosserial-arduino
+sudo apt-get install ros-kinetic-rosserial
 ```
 
+-rospack
+```bash
+sudo apt-get install ros-kinetic-rospack
+```
+
+-rospy
+```bash
+sudo apt-get install ros-kinetic-rospy
+```
+
+
+-ros teleop-tools
+```bash
+sudo apt-get install ros-kinetic-teleop-tools
+```
+
+-catkin_pkg
+```bash
+pip install catkin_pkg
+```
+
+-rospkg 
+```bash
+pip install rospkg
+```
 
 
