@@ -48,3 +48,12 @@ pip install rospkg
 ```
 
 
+### Configuring Rosserial:
+Making custom headers for rosserial-arduino:
+
+Source the sourceme file in Grudsby-Software
+
+then:
+```bash 
+ rosrun rosserial_arduino make_libraries.py ~/sketchbook/libraries/
+```

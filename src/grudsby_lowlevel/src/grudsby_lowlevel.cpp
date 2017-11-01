@@ -23,12 +23,33 @@ void arduinoTeleopCallback(const geometry_msgs::TwistConstPtr& msg)
   grudsby_lowlevel::ArduinoVel send_message;
 
   //max -255 to 255
-  send_message.leftvel = msg->linear.x * 255 - msg->angular.z * 125;
-  send_message.rightvel = msg->linear.x * 255 + msg->angular.z * 125;
+  //forward
+  if (msg->linear.x > 0) {
+    send_message.leftvel = 200;
+    send_message.rightvel = 200;
+  }
+  else if (msg->linear.x < 0) {
+    send_message.leftvel = -200;
+    send_message.rightvel = -200;
+  }
+  else {
+    //turn left
+    if (msg->angular.z > 0) 
+    {
+      send_message.leftvel = -100;
+      send_message.rightvel = 100;
+    }
+    else if (msg->angular.z < 0){
+      send_message.leftvel = 100;
+      send_message.rightvel = -100;
+    }
+    else {
+      send_message.leftvel = 0;
+      send_message.rightvel = 0;
+    }
+  }
   
   send_message.header.stamp = ros::Time::now();
-  
-
   arduino_vel_pub.publish(send_message);
 
 }
