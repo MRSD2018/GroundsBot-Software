@@ -14,6 +14,8 @@ const int MOTORA2 = 6;
 const int MOTORB2 = 7;
 const int ENABLE2 = 8;
 
+const int DIR2 = 6;
+const int PWM2 = 7;
 }
 
 
