@@ -14,7 +14,7 @@ static int lastrval;
 
 bool checkChangeDir(int val, char side);
 bool checkSafe(int val, char side);
-void writeDirPWM(int leftvel, int rightvel);
+void writeDirPWM(int lval, int rval);
 
 }
 
