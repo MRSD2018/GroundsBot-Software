@@ -32,8 +32,11 @@ bool is_autonomous()
 int get_RC_left_motor_velocity()
 {
   int compound_velocity = map(THROTTLE, 172, 1811, 0, 255);
+  
   //yes, this is correct. When joystick is to the right, subtract from left velocity
-  int right_val = map(TURN, 985, 1811, 0, 255);
+  //Don't let it go negative
+  //MIN_TURN is the mininum velocity a wheel can take when turning. 
+  int right_val = max(0, map(TURN, 985, 1811, 0, compound_velocity - MIN_TURN));
 
   int left_velocity = max(0, compound_velocity - right_val);
 
@@ -47,9 +50,12 @@ int get_RC_left_motor_velocity()
 
 int get_RC_right_motor_velocity()
 {
-  int compound_velocity = map(channels[2], 172, 1811, -255, 255);
+  int compound_velocity = map(THROTTLE, 172, 1811, 0, 255);
+  
   //yes, this is correct. When joystick is to the left, subtract from right velocity
-  int left_val = map(TURN, 985, 1811, 0, 255);
+  //Don't let it go negative
+  //MIN_TURN is the mininum velocity a wheel can take when turning. 
+  int left_val = max(0, map(TURN, 985, 172, 0, compound_velocity - MIN_TURN));
 
   int right_velocity = max(0, compound_velocity - left_val);
 
