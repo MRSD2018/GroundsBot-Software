@@ -1,21 +1,6 @@
 #include <Arduino.h>
 #include "SBUS.h"
-#include <Streaming.h>
-
-// a SBUS object, which is on Teensy hardware
-// serial port 1
-SBUS x8r(Serial1);
-
-// channel, fail safe, and lost frames data
-uint16_t channels[16];
-uint8_t failSafe;
-uint16_t lostFrames = 0;
-
-#define THROTTLE channels[2]
-#define TURN channels[0]
-#define KILL_SWITCH channels[5]
-#define CONTROL_MODE channels[4]
-#define REVERSE channels[6]
+#include "rc_control.h"
 
 void rc_init() {
   // begin the SBUS communication
