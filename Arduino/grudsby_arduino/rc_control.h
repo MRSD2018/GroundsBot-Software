@@ -20,7 +20,7 @@ static uint16_t lostFrames = 0;
 #define CONTROL_MODE channels[4]
 #define REVERSE channels[6]
 
-static int MIN_TURN = 10
+static int MIN_TURN = 10;
 
 
 //void init();
