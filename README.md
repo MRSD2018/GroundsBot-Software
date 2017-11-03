@@ -58,3 +58,11 @@ then:
  rm -rf ~/sketchbook/libraries/ros_lib/
  rosrun rosserial_arduino make_libraries.py ~/sketchbook/libraries/
 ```
+
+####Arduino
+####Librariess
+rc_control.cpp is dependent on a few librarires. Add the below libraries to the Arduino Libraries folder before compiling. These can be found in this repo.
+
+-SBUS
+-elapsedMillis
+
