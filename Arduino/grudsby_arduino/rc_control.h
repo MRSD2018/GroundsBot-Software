@@ -7,12 +7,12 @@
 
 // a SBUS object, which is on Teensy hardware
 // serial port 1
-SBUS x8r(Serial1);
+static SBUS x8r(Serial1);
 
 // channel, fail safe, and lost frames data
-uint16_t channels[16];
-uint8_t failSafe;
-uint16_t lostFrames = 0;
+static uint16_t channels[16];
+static uint8_t failSafe;
+static uint16_t lostFrames = 0;
 
 #define THROTTLE channels[2]
 #define TURN channels[0]

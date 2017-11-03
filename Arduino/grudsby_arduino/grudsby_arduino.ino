@@ -6,6 +6,7 @@
 
 #include "settings.h"
 #include "grudsby_motor.h"
+#include "rc_control.h"
 
 using namespace grudsby;
 

@@ -5,7 +5,6 @@
 void rc_init() {
   // begin the SBUS communication
   x8r.begin();
-  Serial.begin(115200);
 }
 
 //Making TRUE the default return for safety reasons. If the check fails for any reason everything dies.
