@@ -64,13 +64,18 @@ void grudsby::writeDirPWM(int lval, int rval) {
 			if (val > 0) {
 				digitalWrite(DIRPIN, HIGH);
 				analogWrite(PWMPIN, val);
+
+				cooldown_val = val;
 			}
 			else if (val < 0) {
 				digitalWrite(DIRPIN, LOW);
 				analogWrite(PWMPIN, abs(val));
+
+				cooldown_val = abs(val);
 			}
 			else {
-				analogWrite(PWMPIN, 0);
+				analogWrite(PWMPIN, cooldown_val);
+				cooldown_val = max(0, cooldown_val - 20);
 			}
 		}
 	}

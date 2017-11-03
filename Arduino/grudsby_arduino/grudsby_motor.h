@@ -12,6 +12,8 @@ static unsigned long rchangetime = 0;
 static int lastlval;
 static int lastrval;
 
+static int cooldown_val;
+
 bool checkChangeDir(int val, char side);
 bool checkSafe(int val, char side);
 void writeDirPWM(int lval, int rval);
