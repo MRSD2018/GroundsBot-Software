@@ -46,9 +46,17 @@ pip install catkin_pkg
 ```bash
 pip install rospkg
 ```
+-SBUS and elapsedMillis 
+```
+Move these from the Libraries folder to your Arduino sketchbook/libraries folder
+```
 
 
 ### Configuring Rosserial:
+The custom Ros-lib Arduino package has been included in the Libraries folder.
+Copy this library over to your Arduino sketchbook/libraries folder.
+
+If needed:
 Making custom headers for rosserial-arduino:
 
 Source the sourceme file in Grudsby-Software
@@ -59,10 +67,5 @@ then:
  rosrun rosserial_arduino make_libraries.py ~/sketchbook/libraries/
 ```
 
-####Arduino
-####Librariess
-rc_control.cpp is dependent on a few librarires. Add the below libraries to the Arduino Libraries folder before compiling. These can be found in this repo.
 
--SBUS
--elapsedMillis
 
