@@ -9,7 +9,7 @@ void rc_init() {
 }
 
 //Making TRUE the default return for safety reasons. If the check fails for any reason everything dies.
-bool is_killed()
+bool is_killed(uint16_t *channels)
 {
   if(channels[KILL_SWITCH] == 1811)
   {
@@ -20,7 +20,7 @@ bool is_killed()
 }
 
 //Making FALSE the default return for safety reasons. If something goes wrong switch back to manual mode
-bool is_autonomous()
+bool is_autonomous(uint16_t *channels)
 {
   if(channels[CONTROL_MODE] == 1811)
   {
@@ -70,29 +70,27 @@ int get_RC_right_motor_velocity(uint16_t *channels)
   return right_velocity;
 }
 
-int get_raw_throttle()
+int get_raw_throttle(uint16_t *channels)
 {
-  int throttle = 0;
-  throttle = THROTTLE;
-  return throttle;
+  return (int) channels[THROTTLE];
 }
 
-int get_raw_turn()
+int get_raw_turn(uint16_t *channels)
 {
-  return TURN;
+  return (int) channels[TURN];
 }
 
-int get_raw_reverse()
+int get_raw_reverse(uint16_t *channels)
 {
-  return REVERSE;
+  return (int) channels[REVERSE];
 }
 
-int get_raw_kill()
+int get_raw_kill(uint16_t *channels)
 {
-  return KILL_SWITCH;
+  return (int) channels[KILL_SWITCH];
 }
 
-int get_raw_mode()
+int get_raw_mode(uint16_t *channels)
 {
-  return CONTROL_MODE;
+  return (int) channels[CONTROL_MODE];
 }

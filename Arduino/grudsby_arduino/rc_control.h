@@ -20,18 +20,18 @@ static int KILL_SWITCH = 5;
 static int CONTROL_MODE = 4;
 static int REVERSE = 6;
 
-static int MIN_TURN = 10;
+static int MIN_TURN = 40;
 
 
 void rc_init();
-bool is_killed();
-bool is_autonomous();
+bool is_killed(uint16_t *channels);
+bool is_autonomous(uint16_t *channels);
 int get_RC_left_motor_velocity(uint16_t *channels);
 int get_RC_right_motor_velocity(uint16_t *channels);
-int get_raw_throttle();
-int get_raw_turn();
-int get_raw_reverse();
-int get_raw_kill();
-int get_raw_mode();
+int get_raw_throttle(uint16_t *channels);
+int get_raw_turn(uint16_t *channels);
+int get_raw_reverse(uint16_t *channels);
+int get_raw_kill(uint16_t *channels);
+int get_raw_mode(uint16_t *channels);
 
 #endif
