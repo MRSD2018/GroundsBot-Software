@@ -6,7 +6,6 @@
 #define Encoder_h
 #include "Arduino.h"
 
-namespace grudsby {
 
 class Encoder
 {
@@ -31,6 +30,4 @@ class Encoder
 };
 
 void init_timer(int frequency);
-
-}
 #endif
