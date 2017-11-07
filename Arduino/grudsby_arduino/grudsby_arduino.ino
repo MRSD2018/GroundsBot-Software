@@ -43,12 +43,9 @@ ISR(TIMER1_COMPA_vect)
   encoder2.velocity_update();  
 } 
 
-<<<<<<< HEAD
 
 ////////////ROSSERIAL/////////////////////
 
-=======
->>>>>>> key_teleop
 ros::NodeHandle nh;
 ros::Subscriber<grudsby_lowlevel::ArduinoVel> vel_sub("/arduino/vel", &velCallback);
 grudsby_lowlevel::ArduinoResponse response_msg;
