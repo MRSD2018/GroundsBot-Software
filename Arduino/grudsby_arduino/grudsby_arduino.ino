@@ -4,62 +4,60 @@
 #include <grudsby_lowlevel/ArduinoResponse.h>
 #include <SBUS.h>
 #include <elapsedMillis.h>
+#include <Servo.h> 
 
+#include "grudsby_arduino.h"
 #include "settings.h"
 #include "grudsby_motor.h"
 #include "rc_control.h"
-#include "Encoder.h"
+// #include "Encoder.h"
 
 using namespace grudsby;
 
-////////STATUS VARS////////////
+////////VARS////////////
 bool autonomous;
 bool kill;
-////////////CALLBACKS////////////////////////////////
 
-void velCallback(const grudsby_lowlevel::ArduinoVel& msg) {
+// Encoder encoder1(2, 4);
+// Encoder encoder2(3, 5);
 
-  writeDirPWM(msg.leftvel, msg.rightvel);
-}
-
-
-
-///////////ENCODERS/////////////////////////
-
-Encoder encoder1(2, 4);
-Encoder encoder2(3, 5);
-
-void ISR_1()
-{
- encoder1.encoder_update(); 
-}
-void ISR_2()
-{
- encoder2.encoder_update(); 
-}
-ISR(TIMER1_COMPA_vect) 
-{
-  encoder1.velocity_update(); 
-  encoder2.velocity_update();  
-} 
-
-
-////////////ROSSERIAL/////////////////////
+Motor* leftMotor;
+Motor* rightMotor;
 
 ros::NodeHandle nh;
 ros::Subscriber<grudsby_lowlevel::ArduinoVel> vel_sub("/arduino/vel", &velCallback);
 grudsby_lowlevel::ArduinoResponse response_msg;
 ros::Publisher status_pub("/arduino/status", &response_msg);
 
+// void ISR_1()
+// {
+//  encoder1.encoder_update(); 
+// }
+// void ISR_2()
+// {
+//  encoder2.encoder_update(); 
+// }
+// ISR(TIMER1_COMPA_vect) 
+// {
+//   encoder1.velocity_update(); 
+//   encoder2.velocity_update();  
+// } 
+
+void velCallback(const grudsby_lowlevel::ArduinoVel& msg) {
+
+  leftMotor->writeVal(msg.leftvel);
+  rightMotor->writeVal(msg.rightvel);
+}
+
 void publishStatus() {
-  response_msg.leftvel = encoder1.get_velocity();
-  response_msg.rightvel = encoder2.get_velocity();
-  response_msg.leftpos = encoder1.get_position();
-  response_msg.rightpos = encoder2.get_position();
+  // response_msg.leftvel = encoder1.get_velocity();
+  // response_msg.rightvel = encoder2.get_velocity();
+  // response_msg.leftpos = encoder1.get_position();
+  // response_msg.rightpos = encoder2.get_position();
   response_msg.autonomous = autonomous;
   response_msg.kill = kill;
 
-  status_pub.publish(response_msg);
+  status_pub.publish(&response_msg);
 }
 
 void setup()
@@ -69,27 +67,21 @@ void setup()
   nh.subscribe(vel_sub);
   nh.advertise(status_pub);
 
-
-  //set up pins
-  // pinMode(MOTORA1, OUTPUT);
-  // pinMode(MOTORB1, OUTPUT);
-  // pinMode(MOTORA2, OUTPUT);
-  // pinMode(MOTORB2, OUTPUT);
-  // pinMode(ENABLE1, OUTPUT);
-  // pinMode(ENABLE2, OUTPUT);
-
-  attachInterrupt(digitalPinToInterrupt(encoder1.channel_a_pin), ISR_1, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(encoder2.channel_a_pin), ISR_2, CHANGE);
+  // attachInterrupt(digitalPinToInterrupt(encoder1.channel_a_pin), ISR_1, CHANGE);
+  // attachInterrupt(digitalPinToInterrupt(encoder2.channel_a_pin), ISR_2, CHANGE);
   
   pinMode(DIR1, OUTPUT);
   pinMode(PWM1, OUTPUT);
   pinMode(DIR2, OUTPUT);
   pinMode(PWM2, OUTPUT);
 
+  leftMotor = new RCMotor(5);
+  rightMotor = new RCMotor(6);
+
   autonomous = true;
 
   rc_init();
-  init_timer(10);
+  // init_timer(10);
 }
 
 void loop()
@@ -106,7 +98,8 @@ void loop()
   {
     if(is_killed(&channels[0]))
     {
-      writeDirPWM(0,0);
+      leftMotor->writeVal(0);
+      rightMotor->writeVal(0);
     }
     else if(is_autonomous(&channels[0]))
     {
@@ -119,8 +112,9 @@ void loop()
       int rc_left_vel = get_RC_left_motor_velocity(&channels[0]);
       int rc_right_vel = get_RC_right_motor_velocity(&channels[0]);
       //Serial.println(get_raw_throttle());
-      Serial<<"left: "<<rc_left_vel<<"\tright: "<<rc_right_vel<<endl;
-      writeDirPWM(rc_left_vel, rc_right_vel);
+      //Serial<<"left: "<<rc_left_vel<<"\tright: "<<rc_right_vel<<endl;
+      leftMotor->writeVal(rc_left_vel);
+      rightMotor->writeVal(rc_right_vel);
       //delay(20);
       //Serial.println(channels[2]);
       //Serial.print("\t");
@@ -129,7 +123,8 @@ void loop()
     else
     {
       //have this twice because safety and spinning blade of death
-      writeDirPWM(0,0);
+      leftMotor->writeVal(0);
+      rightMotor->writeVal(0);
     }
   }
   

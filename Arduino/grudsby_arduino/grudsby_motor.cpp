@@ -2,25 +2,14 @@
 
 using namespace grudsby;
 
-bool grudsby::checkChangeDir(int val, char side) {
-	int* lastval = 0;
-	unsigned long* changetime;
-	if (side == 'l') {
-		lastval = &lastlval;
-		changetime = &lchangetime;
-	}
-	else if (side == 'r') {
-		lastval = &lastrval;
-		changetime = &rchangetime;
-	}
-
-
-	if ((val > 0 == *lastval > 0) && millis() > *changetime + timeout){
+bool Motor::checkChangeDir(int val) 
+{
+	if ((val > 0 == this->lastval > 0) && millis() > this->changetime + this->timeout){
 		return true;
 	}
-	else if (val > 0 != *lastval > 0) {
-		*lastval = val;
-		*changetime = millis();
+	else if (val > 0 != this->lastval > 0) {
+		this->lastval = val;
+		this->changetime = millis();
 	}
 
 
@@ -29,59 +18,79 @@ bool grudsby::checkChangeDir(int val, char side) {
 
 
 //true if safe
-bool grudsby::checkSafe(int val, char side) {
+bool Motor::checkSafe(int val) 
+{
 	bool isSafe = true;
 
-	isSafe = isSafe && checkChangeDir(val, side);
+	isSafe = isSafe && checkChangeDir(val);
 
 	return isSafe;
 }
 
-void grudsby::writeDirPWM(int lval, int rval) {
-	char side = 'n';
-	int DIRPIN = 0;
-	int PWMPIN = 0;
-	int val  = 0;
+DirPWMMotor::DirPWMMotor(int dirPin, int pwmPin){
+	this->DIRPIN = dirPin;
+	this->PWMPIN = pwmPin;
+}
 
-	for (int i=0; i < 2; i++) {
-		if (i == 0) {
-			//set to left vals 
-			side = 'l';
-			DIRPIN = DIR1;
-			PWMPIN = PWM1;
-			val = lval;
+void DirPWMMotor::writeVal(int val) 
+{
+	if (checkSafe(val)) {
+		if (val > 0) {
+			writeDirPWM(true, min(val, MAXPWM));
+			cooldown_val = val;
 		}
-		else if (i == 1) {
-			//set to right vals 
-			side = 'r';
-			DIRPIN = DIR2;
-			PWMPIN = PWM2;
-			val = rval;
+		else if (val < 0) {
+			writeDirPWM(false, max(val, MINPWM));
+			cooldown_val = abs(val);
 		}
-
-		//move motors 
-		if (checkSafe(val, side)) {
-			if (val > 0) {
-				digitalWrite(DIRPIN, HIGH);
-				analogWrite(PWMPIN, val);
-
-				cooldown_val = val;
-			}
-			else if (val < 0) {
-				digitalWrite(DIRPIN, LOW);
-				analogWrite(PWMPIN, abs(val));
-
-				cooldown_val = abs(val);
-			}
-			else {
-				analogWrite(PWMPIN, cooldown_val);
-				cooldown_val = max(0, cooldown_val - 20);
-			}
+		else {
+			writeDirPWM(true, cooldown_val); //direction is ignored
+			cooldown_val = max(0, cooldown_val - COOLDOWN_RATE);
 		}
 	}
 }
 
-void writeRC(int m1, int m2) {
+void DirPWMMotor::writeDirPWM(bool forward, int pwm) 
+{
+	if (abs(pwm) > 0) {
+		if (forward) {
+			digitalWrite(DIRPIN, HIGH);
+			analogWrite(PWMPIN, pwm);
+		}
+		else if (!forward) {
+			digitalWrite(DIRPIN, LOW);
+			analogWrite(PWMPIN, pwm);
+		}
+
+	}
+	else {
+		analogWrite(PWMPIN, pwm);
+	}
+}
+
+RCMotor::RCMotor(int pin) {
+	this->servo.attach(pin);
+}
+
+void RCMotor::writeVal(int val) 
+{
+	if (checkSafe(val)) {
+		if (val > 0) {
+			writeRC(min(RC_STOP + val, RC_MAX));
+		}
+		else if (val < 0) {
+			writeRC(max(RC_STOP - val, RC_MIN));
+		}
+		else {
+			writeRC(RC_STOP);
+		}
+	}
+} 
+
+void RCMotor::writeRC(int rc) 
+{
 	//1250 is full back, 1750 full forward
-	
+	if (servo.attached()) {
+		servo.writeMicroseconds(rc);
+	}
 }
