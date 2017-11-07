@@ -5,8 +5,6 @@
 #include "Arduino.h"
 #include "Encoder.h"
 
-using namespace grudsby;
-
 Encoder::Encoder(int channel_a, int channel_b)
 {
 	channel_a_pin = channel_a;
