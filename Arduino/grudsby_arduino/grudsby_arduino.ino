@@ -6,59 +6,15 @@
 #include <elapsedMillis.h>
 #include <Servo.h> 
 
-#include "grudsby_arduino.h"
 #include "settings.h"
 #include "grudsby_motor.h"
 #include "rc_control.h"
 // #include "Encoder.h"
 
+//must include last
+#include "grudsby_arduino.h"
+
 using namespace grudsby;
-
-////////VARS////////////
-bool autonomous;
-bool kill;
-
-// Encoder encoder1(2, 4);
-// Encoder encoder2(3, 5);
-
-Motor* leftMotor;
-Motor* rightMotor;
-
-ros::NodeHandle nh;
-ros::Subscriber<grudsby_lowlevel::ArduinoVel> vel_sub("/arduino/vel", &velCallback);
-grudsby_lowlevel::ArduinoResponse response_msg;
-ros::Publisher status_pub("/arduino/status", &response_msg);
-
-// void ISR_1()
-// {
-//  encoder1.encoder_update(); 
-// }
-// void ISR_2()
-// {
-//  encoder2.encoder_update(); 
-// }
-// ISR(TIMER1_COMPA_vect) 
-// {
-//   encoder1.velocity_update(); 
-//   encoder2.velocity_update();  
-// } 
-
-void velCallback(const grudsby_lowlevel::ArduinoVel& msg) {
-
-  leftMotor->writeVal(msg.leftvel);
-  rightMotor->writeVal(msg.rightvel);
-}
-
-void publishStatus() {
-  // response_msg.leftvel = encoder1.get_velocity();
-  // response_msg.rightvel = encoder2.get_velocity();
-  // response_msg.leftpos = encoder1.get_position();
-  // response_msg.rightpos = encoder2.get_position();
-  response_msg.autonomous = autonomous;
-  response_msg.kill = kill;
-
-  status_pub.publish(&response_msg);
-}
 
 void setup()
 {
@@ -131,4 +87,36 @@ void loop()
   publishStatus();
   nh.spinOnce();
 
+}
+
+
+// void ISR_1()
+// {
+//  encoder1.encoder_update(); 
+// }
+// void ISR_2()
+// {
+//  encoder2.encoder_update(); 
+// }
+// ISR(TIMER1_COMPA_vect) 
+// {
+//   encoder1.velocity_update(); 
+//   encoder2.velocity_update();  
+// } 
+
+void velCallback(const grudsby_lowlevel::ArduinoVel& msg) {
+
+  leftMotor->writeVal(msg.leftvel);
+  rightMotor->writeVal(msg.rightvel);
+}
+
+void publishStatus() {
+  // response_msg.leftvel = encoder1.get_velocity();
+  // response_msg.rightvel = encoder2.get_velocity();
+  // response_msg.leftpos = encoder1.get_position();
+  // response_msg.rightpos = encoder2.get_position();
+  response_msg.autonomous = autonomous;
+  response_msg.kill = kill;
+
+  status_pub.publish(&response_msg);
 }
