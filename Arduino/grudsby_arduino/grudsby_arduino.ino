@@ -23,10 +23,31 @@ void publishResponse() {
 
 }
 
+void moveGrudsby() {
+  if(x8r.read(&channels[0], &failSafe, &lostFrames)) {
+    if(is_killed(&channels[0])) {
+      writeDirPWM(0,0);
+    }
+    else if(is_autonomous(&channels[0])) {
+      nh.spinOnce();
+      delay(20);
+    }
+    else if(!(is_killed(&channels[0])) && !(is_autonomous(&channels[0]))) {
+      int rc_left_vel = get_RC_left_motor_velocity(&channels[0]);
+      int rc_right_vel = get_RC_right_motor_velocity(&channels[0]);
+      Serial<<"left: "<<rc_left_vel<<"\tright: "<<rc_right_vel<<endl;
+      writeDirPWM(rc_left_vel, rc_right_vel);
+    }
+    else {
+      //have this twice because safety and spinning blade of death
+      writeDirPWM(0,0);
+    }
+  }
+}
+
 ros::NodeHandle nh;
 ros::Subscriber<grudsby_lowlevel::ArduinoVel> vel_sub("/arduino/vel", &velCallback);
-void setup()
-{
+void setup() {
   //set up ros 
   //nh.initNode();
   //nh.subscribe(vel_sub);
@@ -49,43 +70,6 @@ void setup()
   rc_init();
 }
 
-void loop()
-{
-  //Serial<<"Kill status: "<<is_killed(&channels[0])<<"\tAutonomous status: "<<is_autonomous(&channels[0])<<endl;
-  //Serial<<"Raw kill: "<<channels[5]<<"\tRaw mode: "<<channels[4]<<endl;
-  //Serial<<"Raw throttle: "<<channels[3]<<endl;
-  //Serial<<get_RC_left_motor_velocity(&channels[0])<<endl;;
-  
-  
-    //Serial<<"No kill, not auto"<<endl;
-  if(x8r.read(&channels[0], &failSafe, &lostFrames))
-  {
-    if(is_killed(&channels[0]))
-    {
-      writeDirPWM(0,0);
-    }
-    else if(is_autonomous(&channels[0]))
-    {
-      nh.spinOnce();
-      delay(20);
-    }
-    else if(!(is_killed(&channels[0])) && !(is_autonomous(&channels[0])))
-    {
-      //nh.spinOnce();
-      int rc_left_vel = get_RC_left_motor_velocity(&channels[0]);
-      int rc_right_vel = get_RC_right_motor_velocity(&channels[0]);
-      //Serial.println(get_raw_throttle());
-      Serial<<"left: "<<rc_left_vel<<"\tright: "<<rc_right_vel<<endl;
-      writeDirPWM(rc_left_vel, rc_right_vel);
-      //delay(20);
-      //Serial.println(channels[2]);
-      //Serial.print("\t");
-      //Serial.println(THROTTLE);
-    }
-    else
-    {
-      //have this twice because safety and spinning blade of death
-      writeDirPWM(0,0);
-    }
-  }
+void loop() {
+  moveGrudsby();
 }

@@ -32,10 +32,8 @@ bool is_autonomous(uint16_t *channels)
 
 int get_RC_left_motor_velocity(uint16_t *channels)
 {
-  //Serial.println("getting velocity");
   int compound_velocity = map(channels[THROTTLE], 172, 1811, 0, 255);
-  //Serial.println(channels[THROTTLE]);
-  //Serial.println(compound_velocity);
+  
   //yes, this is correct. When joystick is to the right, subtract from left velocity
   //Don't let it go negative
   //MIN_TURN is the mininum velocity a wheel can take when turning. 
