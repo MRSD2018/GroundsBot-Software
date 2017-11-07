@@ -80,3 +80,8 @@ void grudsby::writeDirPWM(int lval, int rval) {
 		}
 	}
 }
+
+void writeRC(int m1, int m2) {
+	//1250 is full back, 1750 full forward
+	
+}
