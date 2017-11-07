@@ -97,11 +97,7 @@ void setup()
 
 void loop()
 {
-<<<<<<< HEAD
-  if(x8r.read(&channels[0], &failSafe, &lostFrames)){
-    kill = is_killed();
-    is_autonomous();
-=======
+
   //Serial<<"Kill status: "<<is_killed(&channels[0])<<"\tAutonomous status: "<<is_autonomous(&channels[0])<<endl;
   //Serial<<"Raw kill: "<<channels[5]<<"\tRaw mode: "<<channels[4]<<endl;
   //Serial<<"Raw throttle: "<<channels[3]<<endl;
@@ -138,7 +134,6 @@ void loop()
       //have this twice because safety and spinning blade of death
       writeDirPWM(0,0);
     }
->>>>>>> key_teleop
   }
   
   publishStatus();
