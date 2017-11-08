@@ -31,5 +31,6 @@ ros::Subscriber<grudsby_lowlevel::ArduinoVel> vel_sub("/arduino/vel", &velCallba
 grudsby_lowlevel::ArduinoResponse response_msg;
 ros::Publisher status_pub("/arduino/status", &response_msg);
 
+rc_control rc;
 
 #endif

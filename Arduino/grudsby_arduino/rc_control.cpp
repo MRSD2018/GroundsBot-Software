@@ -2,14 +2,23 @@
 #include "SBUS.h"
 #include "rc_control.h"
 
-void rc_init() {
+rc_control::rc_control() {
+  x8r = new SBUS(Serial1);
   // begin the SBUS communication
-  x8r.begin();
-  Serial.println("started receiver");
+  x8r->begin();
+  //Serial.println("started receiver");
+}
+
+bool rc_control::read_signal(){
+  //Serial.println(failSafe);
+  if (x8r->read(&channels[0], &failSafe, &lostFrames))
+  {
+    return !(failSafe);
+  }
 }
 
 //Making TRUE the default return for safety reasons. If the check fails for any reason everything dies.
-bool is_killed(uint16_t *channels)
+bool rc_control::is_killed()
 {
   if(channels[KILL_SWITCH] == 1811)
   {
@@ -20,7 +29,7 @@ bool is_killed(uint16_t *channels)
 }
 
 //Making FALSE the default return for safety reasons. If something goes wrong switch back to manual mode
-bool is_autonomous(uint16_t *channels)
+bool rc_control::is_autonomous()
 {
   if(channels[CONTROL_MODE] == 1811)
   {
@@ -30,7 +39,7 @@ bool is_autonomous(uint16_t *channels)
   return false;
 }
 
-int get_RC_left_motor_velocity(uint16_t *channels)
+int rc_control::get_RC_left_motor_velocity()
 {
   int compound_velocity = map(channels[THROTTLE], 172, 1811, 0, 255);
   
@@ -49,7 +58,7 @@ int get_RC_left_motor_velocity(uint16_t *channels)
   return left_velocity;
 }
 
-int get_RC_right_motor_velocity(uint16_t *channels)
+int rc_control::get_RC_right_motor_velocity()
 {
   int compound_velocity = map(channels[THROTTLE], 172, 1811, 0, 255);
   
@@ -68,27 +77,27 @@ int get_RC_right_motor_velocity(uint16_t *channels)
   return right_velocity;
 }
 
-int get_raw_throttle(uint16_t *channels)
+int rc_control::get_raw_throttle()
 {
   return (int) channels[THROTTLE];
 }
 
-int get_raw_turn(uint16_t *channels)
+int rc_control::get_raw_turn()
 {
   return (int) channels[TURN];
 }
 
-int get_raw_reverse(uint16_t *channels)
+int rc_control::get_raw_reverse()
 {
   return (int) channels[REVERSE];
 }
 
-int get_raw_kill(uint16_t *channels)
+int rc_control::get_raw_kill()
 {
   return (int) channels[KILL_SWITCH];
 }
 
-int get_raw_mode(uint16_t *channels)
+int rc_control::get_raw_mode()
 {
   return (int) channels[CONTROL_MODE];
 }

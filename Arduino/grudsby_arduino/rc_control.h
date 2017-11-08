@@ -5,33 +5,37 @@
 #include <Arduino.h>
 #include "SBUS.h"
 
-// a SBUS object, which is on Teensy hardware
-// serial port 1
-static SBUS x8r(Serial1);
+class rc_control
+{
+private:
+    SBUS *x8r;
 
-// channel, fail safe, and lost frames data
-static uint16_t channels[16];
-static uint8_t failSafe;
-static uint16_t lostFrames = 0;
+    // channel, fail safe, and lost frames data
+    uint16_t channels[16];
+    uint8_t failSafe;
+    uint16_t lostFrames = 0;
 
-static int THROTTLE = 2;
-static int TURN = 0;
-static int KILL_SWITCH = 5;
-static int CONTROL_MODE = 4;
-static int REVERSE = 6;
+    const int THROTTLE = 2;
+    const int TURN = 0;
+    const int KILL_SWITCH = 5;
+    const int CONTROL_MODE = 4;
+    const int REVERSE = 6;
 
-static int MIN_TURN = 40;
+    const int MIN_TURN = 40;
 
+public:
 
-void rc_init();
-bool is_killed(uint16_t *channels);
-bool is_autonomous(uint16_t *channels);
-int get_RC_left_motor_velocity(uint16_t *channels);
-int get_RC_right_motor_velocity(uint16_t *channels);
-int get_raw_throttle(uint16_t *channels);
-int get_raw_turn(uint16_t *channels);
-int get_raw_reverse(uint16_t *channels);
-int get_raw_kill(uint16_t *channels);
-int get_raw_mode(uint16_t *channels);
+    rc_control();
+    bool read_signal();
+    bool is_killed();
+    bool is_autonomous();
+    int get_RC_left_motor_velocity();
+    int get_RC_right_motor_velocity();
+    int get_raw_throttle();
+    int get_raw_turn();
+    int get_raw_reverse();
+    int get_raw_kill();
+    int get_raw_mode();
+};
 
 #endif
