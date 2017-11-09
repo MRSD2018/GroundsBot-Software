@@ -61,7 +61,7 @@ int rc_control::get_RC_left_motor_velocity()
   }
   else if (compound_velocity == 0) {
     //zero-point turn
-    left_velocity = map(channels[TURN], 172, 1811, -255, 255);
+    left_velocity = map(channels[TURN], 172, 1811, -127, 127);
     if(left_velocity > MIN_VEL*-1 && left_velocity < MIN_VEL){
       left_velocity = 0;
     }
@@ -92,7 +92,7 @@ int rc_control::get_RC_right_motor_velocity()
   }
   else if(compound_velocity == 0) {
     //zero-point turn
-    right_velocity = map(channels[TURN], 172, 1811, 255, -255);
+    right_velocity = map(channels[TURN], 172, 1811, 127, -127);
     if(right_velocity > MIN_VEL*-1 && right_velocity < MIN_VEL){
       right_velocity = 0;
     }
