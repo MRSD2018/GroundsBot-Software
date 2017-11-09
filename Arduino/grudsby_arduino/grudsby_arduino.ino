@@ -33,8 +33,8 @@ void setup()
   pinMode(DIR2, OUTPUT);
   pinMode(PWM2, OUTPUT);
 
-  leftMotor = new RCMotor(5);
-  rightMotor = new RCMotor(6);
+  leftMotor = new RCMotor(8);
+  rightMotor = new RCMotor(9);
 
   autonomous = true;
   Serial.begin(115200);

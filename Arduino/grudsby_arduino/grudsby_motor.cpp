@@ -40,7 +40,7 @@ void DirPWMMotor::writeVal(int val)
 			cooldown_val = val;
 		}
 		else if (val < 0) {
-			writeDirPWM(false, max(val, MINPWM));
+			writeDirPWM(false, max(abs(val), MINPWM));
 			cooldown_val = abs(val);
 		}
 		else {
@@ -79,7 +79,7 @@ void RCMotor::writeVal(int val)
 			writeRC(min(RC_STOP + val, RC_MAX));
 		}
 		else if (val < 0) {
-			writeRC(max(RC_STOP - val, RC_MIN));
+			writeRC(max(RC_STOP + val, RC_MIN));
 		}
 		else {
 			writeRC(RC_STOP);
