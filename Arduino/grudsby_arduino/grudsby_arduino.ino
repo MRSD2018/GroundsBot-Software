@@ -11,6 +11,8 @@
 // #include "Encoder.h"
 #include "rc_control.h"
 
+#include <Streaming.h>
+
 //must include last
 #include "grudsby_arduino.h"
 
@@ -80,8 +82,11 @@ void publishStatus() {
 
 void moveGrudsby() {
   if(rc.read_signal()) {
+    //Serial.println("read signal");
     kill = rc.is_killed();
     autonomous = rc.is_autonomous();
+    //Serial<<"Kill: "<<rc.get_raw_kill()<<"\tAutonomous: "<<rc.get_raw_mode()<<endl;
+    //Serial<<"Throttle: "<<rc.get_raw_throttle()<<"\tTurn: "<<rc.get_raw_turn()<<endl;
     if(kill) {
       leftMotor->writeVal(0);
       rightMotor->writeVal(0);
@@ -93,6 +98,7 @@ void moveGrudsby() {
     else if(!(kill) && !(autonomous)) {
       int rc_left_vel = rc.get_RC_left_motor_velocity();
       int rc_right_vel = rc.get_RC_right_motor_velocity();
+      Serial<<"Left: "<<rc_left_vel<<"\tRight: "<<rc_right_vel<<endl;
       leftMotor->writeVal(rc_left_vel);
       rightMotor->writeVal(rc_right_vel);
     }

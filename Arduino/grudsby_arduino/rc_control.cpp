@@ -41,18 +41,30 @@ bool rc_control::is_autonomous()
 
 int rc_control::get_RC_left_motor_velocity()
 {
-  int compound_velocity = map(channels[THROTTLE], 172, 1811, 0, 255);
-  
+  int left_velocity = 0;
+  int left_val = 0;
+
+  int compound_velocity = map(channels[THROTTLE], 1811, 172, -255, 255);
+  //Serial.println(compound_velocity);
+  if(compound_velocity > MIN_VEL*-1 && compound_velocity < MIN_VEL){
+    compound_velocity = 0;
+  }
+
   //yes, this is correct. When joystick is to the right, subtract from left velocity
-  //Don't let it go negative
-  //MIN_TURN is the mininum velocity a wheel can take when turning. 
-  int right_val = max(0, map(channels[TURN], 985, 1811, 0, compound_velocity - MIN_TURN));
-
-  int left_velocity = max(0, compound_velocity - right_val);
-
-  if(channels[REVERSE] == 1811)
-  {
-    return left_velocity * -1;
+  if(compound_velocity > 0) {
+    left_val = max(0, map(channels[TURN], 985, 172, 0, compound_velocity - MIN_VEL));
+    left_velocity = max(0, compound_velocity - left_val);
+  }
+  else if(compound_velocity < 0) {
+    left_val = min(0, map(channels[TURN], 985, 172, 0, compound_velocity + MIN_VEL));
+    left_velocity = min(0, compound_velocity - left_val);
+  }
+  else if (compound_velocity == 0) {
+    //zero-point turn
+    left_velocity = map(channels[TURN], 172, 1811, -255, 255);
+    if(left_velocity > MIN_VEL*-1 && left_velocity < MIN_VEL){
+      left_velocity = 0;
+    }
   }
 
   return left_velocity;
@@ -60,18 +72,30 @@ int rc_control::get_RC_left_motor_velocity()
 
 int rc_control::get_RC_right_motor_velocity()
 {
-  int compound_velocity = map(channels[THROTTLE], 172, 1811, 0, 255);
+  int right_velocity = 0;
+  int right_val = 0;
+
+  int compound_velocity = map(channels[THROTTLE], 1811, 172, -255, 255);
+
+  if(compound_velocity > MIN_VEL*-1 && compound_velocity < MIN_VEL){
+    compound_velocity = 0;
+  }
   
   //yes, this is correct. When joystick is to the left, subtract from right velocity
-  //Don't let it go negative
-  //MIN_TURN is the mininum velocity a wheel can take when turning. 
-  int left_val = max(0, map(channels[TURN], 985, 172, 0, compound_velocity - MIN_TURN));
-
-  int right_velocity = max(0, compound_velocity - left_val);
-
-  if(channels[REVERSE] == 1811)
-  {
-    return right_velocity * -1;
+  if(compound_velocity > 0) {
+    right_val = max(0, map(channels[TURN], 985, 1811, 0, compound_velocity - MIN_VEL));
+    right_velocity = max(0, compound_velocity - right_val);
+  }
+  else if(compound_velocity < 0) {
+    right_val = min(0, map(channels[TURN], 985, 1811, 0, compound_velocity + MIN_VEL));
+    right_velocity = min(0, compound_velocity - right_val);
+  }
+  else if(compound_velocity == 0) {
+    //zero-point turn
+    right_velocity = map(channels[TURN], 172, 1811, 255, -255);
+    if(right_velocity > MIN_VEL*-1 && right_velocity < MIN_VEL){
+      right_velocity = 0;
+    }
   }
 
   return right_velocity;

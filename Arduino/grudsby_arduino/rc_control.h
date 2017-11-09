@@ -15,13 +15,13 @@ private:
     uint8_t failSafe;
     uint16_t lostFrames = 0;
 
-    const int THROTTLE = 2;
+    const int THROTTLE = 1;
     const int TURN = 0;
     const int KILL_SWITCH = 5;
     const int CONTROL_MODE = 4;
     const int REVERSE = 6;
 
-    const int MIN_TURN = 40;
+    const int MIN_VEL= 40;
 
 public:
 
