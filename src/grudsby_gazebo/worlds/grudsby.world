@@ -7,7 +7,7 @@
     </include>
     <!-- A ground plane -->
     <include>
-      <uri>model://ground_plane</uri>
+      <uri>model://grass</uri>
     </include>
 
     <!-- A testing model that includes the Velodyne sensor model -->
