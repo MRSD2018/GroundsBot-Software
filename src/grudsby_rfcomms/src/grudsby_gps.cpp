@@ -14,18 +14,14 @@
 #include <grudsby_rfcomms/emlid_reach_gps.h>
 
 
-
-
 ////////////////////////////////////////////////////////////////////////////////
 ///Outgoing messages////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-#define LLH_MESSAGE_LENGTH 140
+#define LLH_MESSAGE_LENGTH 150
 
 std::vector<std::string> split_string_on_spaces(char * buf, int buf_size);
 bool validate_llh_format(std::vector<std::string> llh_vector);
-void format_gps_message(std::vector<std::string> llh_vector);
-
-grudsby_rfcomms::emlid_reach_gps gps_msg;
+void format_gps_message(grudsby_rfcomms::emlid_reach_gps & gps_msg, std::vector<std::string> llh_vector);
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -90,17 +86,17 @@ void set_mincount(int fd, int mcount)
 ////////////////////////////////////////////////////////////////////////////////
 ///You spin me right round//////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-//int main()
 int main(int argc, char **argv)
 {
-    char *portname = "/dev/ttyACM1";
+    grudsby_rfcomms::emlid_reach_gps gps_msg;
+    char *portname = "/dev/ttyACM0";
     int fd;
     int wlen;
     std::vector<std::string> strings;
     ros::init(argc, argv, "grudsby_rfcomms");
     ros::NodeHandle n;
     ros::Publisher  pub = n.advertise<grudsby_rfcomms::emlid_reach_gps>("grudsby_positioning_system",1000);
-    ros::Rate loop_rate(10);
+    ros::Rate loop_rate(5);
 
     fd = open(portname, O_RDWR | O_NOCTTY | O_SYNC);
     if (fd < 0) { printf("Error opening %s: %s\n", portname, strerror(errno)); return -1; }
@@ -114,8 +110,11 @@ int main(int argc, char **argv)
       rdlen = read(fd, buf, sizeof(buf) - 1);
       //if (rdlen > 0) {
       strings = split_string_on_spaces(buf,sizeof(buf));
-      if (validate_llh_format(strings)) format_gps_message(strings);
-      strings.clear();
+      if (validate_llh_format(strings)){ 
+        format_gps_message(gps_msg,strings);
+        strings.clear();
+        pub.publish(gps_msg);
+      }
       /*
       if (rdlen >= LLH_MESSAGE_LENGTH-5) {
           buf[rdlen] = 0;
@@ -125,131 +124,16 @@ int main(int argc, char **argv)
       }*/
       
       /* repeat read to get full message */
-      pub.publish(gps_msg);
       ros::spinOnce();
       loop_rate.sleep();
     }
 }
 
 
-/*
-#include <chatbot_node/reply_msg.h>
-#include <message_ui/sent_msg.h>
-#include <counter_node/counter.h>
-#include <arithmetic_node/arithmetic_reply.h>
-#include <string>
-#include <std_msgs/String.h>
 
-using namespace std;
-
-bool new_response = false;
-
-bool process_arithmetic_string(const std::string & str){
-  //////////////////////////////////////////////////////
-  ///Take a message from GUI and check if it is/////////
-  ////arithmetic. Process result and construct reply////
-  ////if so, do nothing otherwise///////////////////////
-  //////////////////////////////////////////////////////
-  std::string::size_type i = 0;
-  int operand1=0;
-  int operand2=0;
-  float result;
-  char operater;
-
-  if(!isdigit(str[0])){
-    ///Enforce first character is numeric///////////////
-    std::cout << "violation: non-integer start" << "\n";
-    return false;
-  }
-
-  do{
-    ///Parse first operand /////////////////////////////
-    if(isdigit(str[i])){
-      operand1 *= 10;
-      operand1 += (int) (str[i] - '0'); 
-    } else{
-      break;
-    }
-    i++;
-  } while(i < str.size());
-
-  ///Parse operator //////////////////////////////////
-  operater = str[i++];
-
-  do{
-    ///Parse second operand ////////////////////////////
-    if(isdigit(str[i])){
-      operand2 *= 10;
-      operand2 += (int) (str[i] - '0'); 
-    } else{
-      std::cout << "violation: end of string nonnumeric" << "\n";
-      return false;
-    }
-    i++;
-  } while(i < str.size());
-
-  ///Compute result based on operands and operator/////
-  if     (operater == '+'){
-    outgoing_reply_message.oper_type = "Add"; 
-    result = operand1 + operand2;
-    outgoing_reply_message.answer = operand1 + operand2;
-  }
-  else if(operater == '-'){
-    outgoing_reply_message.oper_type = "Subtract"; 
-    result = operand1 - operand2;
-    outgoing_reply_message.answer = operand1 - operand2;
-  }
-  else if(operater == '/'){
-    outgoing_reply_message.oper_type = "Divide"; 
-    result = operand1 / (float) operand2;
-    outgoing_reply_message.answer = operand1 / (float) operand2;
-  }
-  else if(operater == '*'){
-    outgoing_reply_message.oper_type = "Multiply"; 
-    result = operand1 * operand2;
-    outgoing_reply_message.answer = operand1 * operand2;
-  }else{
-    std::cout << "violation: invalid operator" << "\n";
-    return 0;
-  }
-  std::cout << "operand1:" << operand1 << " operand2:" << operand2 << " operator:" << operater << " result:" << result << "\n";
-  return 1;
-}
- 
-
-void message_callback(const message_ui::sent_msg data)
-{
-  outgoing_reply_message.time_received = ros::Time::now().toSec();
-  if( process_arithmetic_string(data.message) ){
-    new_response = true;
-  }
-}
-
-int main(int argc, char **argv) {
-  std::stringstream ss;
-  ros::init(argc, argv, "arithmetic_node");
-  ros::NodeHandle n;
-  ros::Publisher  pub = n.advertise<arithmetic_node::arithmetic_reply>("arithmetic_reply",1000);
-  ros::Subscriber sub = n.subscribe("sent_msg", 1000, message_callback);
-  ros::Rate loop_rate(20);
-
-  while(ros::ok()) {
-    if(new_response){
-      outgoing_reply_message.header.stamp = ros::Time::now();
-      outgoing_reply_message.time_answered = ros::Time::now().toSec();
-      outgoing_reply_message.process_time = outgoing_reply_message.time_answered - outgoing_reply_message.time_received;
-      pub.publish(outgoing_reply_message);
-      new_response = false;
-    }
-
-    ros::spinOnce();
-    loop_rate.sleep();
-  }
-
-  return 0;
-}*/
-
-
+////////////////////////////////////////////////////////////////////////////////
+///GPS UART MESSAGE PARSING AND VALIDATION//////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 std::vector<std::string> split_string_on_spaces(char * buf, int buf_size){
   //Split a char buf array on spaces, each sub-string added as a string vector entry
@@ -287,55 +171,24 @@ bool validate_llh_format(std::vector<std::string> llh_vector){
   return true;
 }
 
-void format_gps_message(std::vector<std::string> llh_vector){
-  std::cout << "lat:    " << std::atof(llh_vector.at(2).c_str()) << '\n'; 
-  std::cout << "long:   " << std::atof(llh_vector.at(3).c_str()) << '\n'; 
-  std::cout << "height: " << std::atof(llh_vector.at(4).c_str()) << '\n'; 
+void format_gps_message(grudsby_rfcomms::emlid_reach_gps & gps_msg, std::vector<std::string> llh_vector){
+  std::cout << "yes\n";
+  gps_msg.header.stamp = ros::Time::now();
+  gps_msg.gps_date = llh_vector.at(0);
+  gps_msg.gps_time = llh_vector.at(1);
+  gps_msg.latitude = std::atof(llh_vector.at(2).c_str());
+  gps_msg.longitude = std::atof(llh_vector.at(3).c_str());
+  gps_msg.height = std::atof(llh_vector.at(4).c_str());
+
+  gps_msg.quality_flag = std::atof(llh_vector.at(5).c_str()); //int8
+  gps_msg.n_satellites = std::atof(llh_vector.at(6).c_str()); //int8
+
+  gps_msg.sdn = std::atof(llh_vector.at(7).c_str());
+  gps_msg.sde = std::atof(llh_vector.at(8).c_str());
+  gps_msg.sdu = std::atof(llh_vector.at(9).c_str());
+  gps_msg.sdne = std::atof(llh_vector.at(10).c_str());
+  gps_msg.sdeu = std::atof(llh_vector.at(11).c_str());
+  gps_msg.sdun = std::atof(llh_vector.at(12).c_str());
+  gps_msg.differential_age = std::atof(llh_vector.at(13).c_str());
+  gps_msg.ratio = std::atof(llh_vector.at(14).c_str());
 }
-
-
-/*
-int main()
-{
-  //char buf[100] = "1.00 -2 3/3 -4.00 5";
-  char buf[]  ="2017/11/11 17:35:58.400   40.443584380  -79.945276827   258.8221   5   4   6.5600  16.2426  30.9935   8.9197 -21.5177 -12.8924   0.00    0.0";
-  char buf2[] ="2017/11/11 17:35:58.400   40.443584380  -79.945276827   258.8221   5   4   6.5600  16.2426  30.9935   8.9197 -21.5177 -12.8924   0.00  ";
-  char buf3[] ="2017/11/11 17:35:58.400   50.4z584380  -79.945276827   258.8221   5   4   6.5600  16.2426  30.9935   8.9197 -21.5177 -12.8924   0.00    0.0";
-  char buf4[] ="17:35:58.400   40.443584380  -79.945276827   258.8221   5   4   6.5600  16.2426  30.9935   8.9197 -21.5177 -12.8924   0.00    0.0";
-  char buf5[] ="2017/11/11 40.443584380  -79.945276827   258.8221   5   4   6.5600  16.2426  30.9935   8.9197 -21.5177 -12.8924   0.00    0.0";
-  char buf6[]  ="2017/11/11 17:35:58.400   60.443584380  -90.945276827   300.8221   5   4   6.5600  16.2426  30.9935   8.9197 -21.5177 -12.8924   0.00    0.0";
-  std::vector<std::string> strings;
-
-  std::cout << "buf\n";
-  strings = split_string_on_spaces(buf,sizeof(buf));
-  if (validate_llh_format(strings)) format_gps_message(strings);
-  strings.clear();
-
-  std::cout << "buf2\n";
-  strings = split_string_on_spaces(buf2,sizeof(buf2));
-  if (validate_llh_format(strings)) format_gps_message(strings);
-  strings.clear();
-
-  std::cout << "buf3\n";
-  strings = split_string_on_spaces(buf3,sizeof(buf3));
-  if (validate_llh_format(strings)) format_gps_message(strings);
-  strings.clear();
-
-  std::cout << "buf4\n";
-  strings = split_string_on_spaces(buf4,sizeof(buf4));
-  if (validate_llh_format(strings)) format_gps_message(strings);
-  strings.clear();
-
-  std::cout << "buf5\n";
-  strings = split_string_on_spaces(buf5,sizeof(buf5));
-  if (validate_llh_format(strings)) format_gps_message(strings);
-  strings.clear();
-
-  std::cout << "buf6\n";
-  strings = split_string_on_spaces(buf6,sizeof(buf6));
-  if (validate_llh_format(strings)) format_gps_message(strings);
-  strings.clear();
-
-
-}
-*/
