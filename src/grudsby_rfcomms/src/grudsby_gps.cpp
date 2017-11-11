@@ -96,6 +96,7 @@ int main(int argc, char **argv)
     char *portname = "/dev/ttyACM1";
     int fd;
     int wlen;
+    std::vector<std::string> strings;
     ros::init(argc, argv, "grudsby_rfcomms");
     ros::NodeHandle n;
     ros::Publisher  pub = n.advertise<grudsby_rfcomms::emlid_reach_gps>("grudsby_positioning_system",1000);
@@ -107,16 +108,21 @@ int main(int argc, char **argv)
     //set_mincount(fd, 0);                /* set to pure timed read */
 
     while(ros::ok()){
-      unsigned char buf[LLH_MESSAGE_LENGTH+1];
+      //unsigned char buf[LLH_MESSAGE_LENGTH+1];
+      char buf[LLH_MESSAGE_LENGTH+1];
       int rdlen;
       rdlen = read(fd, buf, sizeof(buf) - 1);
       //if (rdlen > 0) {
+      strings = split_string_on_spaces(buf,sizeof(buf));
+      if (validate_llh_format(strings)) format_gps_message(strings);
+      strings.clear();
+      /*
       if (rdlen >= LLH_MESSAGE_LENGTH-5) {
           buf[rdlen] = 0;
           printf("Read %d: \"%s\"\n", rdlen, buf);
       } else if (rdlen < 0) {
           printf("Error from read: %d: %s\n", rdlen, strerror(errno));
-      }
+      }*/
       
       /* repeat read to get full message */
       pub.publish(gps_msg);
