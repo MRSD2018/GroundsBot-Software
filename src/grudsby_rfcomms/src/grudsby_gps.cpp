@@ -17,7 +17,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 ///Outgoing messages////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-#define LLH_MESSAGE_LENGTH 150
+//#define LLH_MESSAGE_LENGTH 141
+#define LLH_MESSAGE_LENGTH 140
+//#define LLH_MESSAGE_LENGTH 500
 
 std::vector<std::string> split_string_on_spaces(char * buf, int buf_size);
 bool validate_llh_format(std::vector<std::string> llh_vector);
@@ -76,7 +78,8 @@ void set_mincount(int fd, int mcount)
     }
 
     tty.c_cc[VMIN] = mcount ? 1 : 0;
-    tty.c_cc[VTIME] = 5;        /* half second timer */
+    //tty.c_cc[VTIME] = 1;    //tenths of a second  timeout
+    tty.c_cc[VTIME] = 0;    //tenths of a second  timeout
 
     if (tcsetattr(fd, TCSANOW, &tty) < 0)
         printf("Error tcsetattr: %s\n", strerror(errno));
@@ -101,7 +104,7 @@ int main(int argc, char **argv)
     fd = open(portname, O_RDWR | O_NOCTTY | O_SYNC);
     if (fd < 0) { printf("Error opening %s: %s\n", portname, strerror(errno)); return -1; }
     set_interface_attribs(fd, B57600); //baudrate 115200, 8 bits, no parity, 1 stop bit
-    //set_mincount(fd, 0);                /* set to pure timed read */
+    set_mincount(fd, 0);                /* set to pure timed read */
 
     while(ros::ok()){
       //unsigned char buf[LLH_MESSAGE_LENGTH+1];
@@ -109,6 +112,7 @@ int main(int argc, char **argv)
       int rdlen;
       rdlen = read(fd, buf, sizeof(buf) - 1);
       //if (rdlen > 0) {
+      std::cout << buf << '\n';
       strings = split_string_on_spaces(buf,sizeof(buf));
       if (validate_llh_format(strings)){ 
         format_gps_message(gps_msg,strings);
@@ -124,6 +128,7 @@ int main(int argc, char **argv)
       }*/
       
       /* repeat read to get full message */
+      tcflush(fd, TCIOFLUSH);
       ros::spinOnce();
       loop_rate.sleep();
     }
@@ -172,7 +177,6 @@ bool validate_llh_format(std::vector<std::string> llh_vector){
 }
 
 void format_gps_message(grudsby_rfcomms::emlid_reach_gps & gps_msg, std::vector<std::string> llh_vector){
-  std::cout << "yes\n";
   gps_msg.header.stamp = ros::Time::now();
   gps_msg.gps_date = llh_vector.at(0);
   gps_msg.gps_time = llh_vector.at(1);
