@@ -11,11 +11,6 @@
 #include "Quaternion.hpp"
 #include "Matrix3x3.hpp"
 
-// Modify these frame IDs to tie into the appropriate TF2 frames used to describe the robot for localization
-
-std::string frameID = "Global_frame_id";
-std::string childFrameID = "Child_frame_id";
-
 // Adjust these update rates to correspond with the sensor data rates we plan to use - note, all are close to 1-2 per second currently for ease of visualization
 
 double poseUpdateRate = 0.4;//0.002; // delay between updates in seconds
@@ -31,8 +26,15 @@ geometry_msgs::Twist lastCmdVel;
 
 // Used to estimate the IMU data and track positions and orientations
 Matrix3x3 lastOrientation = Matrix3x3::Identity();
+Matrix3x3 lastImuOrientation = Matrix3x3::Identity();
 Vector3 lastPosition(0,0,0);
 Vector3 lastVelocity(0,0,0);
+Vector3 lastAngularVel(0,0,0);
+
+Vector3 lastImuPosition(0,0,0);
+Vector3 lastImuVelocity(0,0,0);
+
+Vector3 lastGpsPosition(0,0,0);
 
 // Basic position and rotation of the robot. These x and y positions are mapped onto a "hilly" terrain to simulate 3d motions.
 typedef struct {
@@ -87,11 +89,13 @@ int main(int argc, char **argv) {
 
   ros::NodeHandle n;
 
-  ros::Publisher gpsPub = n.advertise<sensor_msgs::NavSatFix>("GPS_PUB_TOPIC", 1000);
+  ros::Publisher gpsPub = n.advertise<sensor_msgs::NavSatFix>("fix", 1000);
 
-  ros::Publisher imuPub = n.advertise<sensor_msgs::Imu>("IMU_PUB_TOPIC", 1000);
+  ros::Publisher imuPub = n.advertise<sensor_msgs::Imu>("imu/data", 1000);
 
-  ros::Publisher encoderPub = n.advertise<nav_msgs::Odometry>("ENCODER_PUB_TOPIC", 1000);
+  ros::Publisher encoderPub = n.advertise<nav_msgs::Odometry>("grudsby/odometry", 1000);
+
+  ros::Publisher truePosePub = n.advertise<nav_msgs::Odometry>("grudsby/trueOdometry", 1000);
 
   ros::Subscriber wheelSub = n.subscribe("cmd_vel", 1000, wheelVelCallback);
 
@@ -129,27 +133,7 @@ int main(int argc, char **argv) {
         grudsbyPose.y += lastCmdVel.linear.x * poseUpdateRate * sin(grudsbyPose.yaw) * rand_normal(1, 0.02);
         grudsbyPose.yaw += lastCmdVel.angular.z * poseUpdateRate/2.0 * rand_normal(1, 0.03);
       } 
-    }
-  
-    // Execute the gps update code at a certain rate
-    if ((ros::Time::now() - lastGpsUpdate).toSec() > gpsUpdateRate) {
-      sensor_msgs::NavSatFix gps;
-      gps.header.stamp = ros::Time::now();
-      lastGpsUpdate = ros::Time::now();
-      gps.header.frame_id = frameID;
-      gps.status.status = gps.status.STATUS_GBAS_FIX;
-      gps.status.service = gps.status.SERVICE_GPS;
-      gps.longitude = (grudsbyPose.x + rand_normal(0, .01)) / 6371393.0;         gps.latitude = (grudsbyPose.y + rand_normal(0, .01)) / 6371393.0;  
-      gps.altitude = rand_normal(0, .015) + 1 * cos(fmod(grudsbyPose.x,8) / 4.0 * 3.1415 ) ;
-      gps.position_covariance[0] = 0.02; // NOTE: NEED TO ADJUST COVARIANCES
-      gps.position_covariance[4] = 0.02; // NOTE: NEED TO ADJUST COVARIANCES
-      gps.position_covariance[8] = 0.05; // NOTE: NEED TO ADJUST COVARIANCES
-      gps.position_covariance_type = gps.COVARIANCE_TYPE_APPROXIMATED;
-      gpsPub.publish(gps);
-    }
 
-    // Execute the imu update code at a certain rate
-    if ((ros::Time::now() - lastImuUpdate).toSec() > imuUpdateRate) {
       Vector3 vecAlongSlope = Vector3(1, 0, -1 * fmod(grudsbyPose.x,8) / 4.0 * 3.1415 * sin(fmod(grudsbyPose.x,8) / 4.0 * 3.1415));
       Vector3 vecZ = Vector3::Cross(Vector3(0,1,0), Vector3::Normalized(vecAlongSlope));
       Vector3 yawVec = Vector3(cos(grudsbyPose.yaw), sin(grudsbyPose.yaw), 0);
@@ -157,39 +141,86 @@ int main(int argc, char **argv) {
       Vector3 vecX = Vector3::Cross(vecY, vecZ);
 
       Matrix3x3 newOrientation = Matrix3x3(vecX, vecY, vecZ);
-      
+
       Quaternion deltaOrientation = Matrix3x3::ToQuaternion(Matrix3x3::Transpose(lastOrientation) * newOrientation);
       double angle;
       Vector3 axis;
       Quaternion::ToAngleAxis(deltaOrientation, angle, axis);
-      double angularVel = angle/imuUpdateRate;
-      
+      double angularVel = angle/poseUpdateRate;
+      lastAngularVel = angularVel*axis;
       Vector3 newPosition = Vector3(grudsbyPose.x, grudsbyPose.y, 1 * cos(fmod(grudsbyPose.x,8) / 4.0 * 3.1415 ));
 
       Vector3 deltaPosition = Matrix3x3::Transpose(newOrientation) * (newPosition - lastPosition);
 
-      Vector3 newVelocity = deltaPosition / imuUpdateRate;
+      Vector3 newVelocity = deltaPosition / poseUpdateRate;
 
-      Vector3 accel = (newVelocity - lastVelocity) / imuUpdateRate;
+      Vector3 accel = (newVelocity - lastVelocity) / poseUpdateRate;
 
       lastVelocity = newVelocity;
 
       lastPosition = newPosition;
 
       lastOrientation = newOrientation;
+    }
+  
+    // Execute the gps update code at a certain rate
+    if ((ros::Time::now() - lastGpsUpdate).toSec() > gpsUpdateRate) {
+      Vector3 GpsPosition = lastPosition + lastOrientation * Vector3(0.2475, 0.0, 0.2231);
+      sensor_msgs::NavSatFix gps;
+      gps.header.stamp = ros::Time::now();
+      lastGpsUpdate = ros::Time::now();
+      gps.header.frame_id = gps;
+      gps.status.status = gps.status.STATUS_GBAS_FIX;
+      gps.status.service = gps.status.SERVICE_GPS;
+      gps.longitude = (GpsPosition.x + rand_normal(0, .01)) / 6371393.0 * 180.0 / 3.1415;         
+      gps.latitude = (GpsPosition.y + rand_normal(0, .01)) / 6371393.0 * 180.0 / 3.1415;  
+      gps.altitude = rand_normal(0, .015) + GpsPosition;
+      gps.position_covariance[0] = 0.02; // NOTE: NEED TO ADJUST COVARIANCES
+      gps.position_covariance[4] = 0.02; // NOTE: NEED TO ADJUST COVARIANCES
+      gps.position_covariance[8] = 0.05; // NOTE: NEED TO ADJUST COVARIANCES
+      gps.position_covariance_type = gps.COVARIANCE_TYPE_APPROXIMATED;
+      gpsPub.publish(gps);
+      lastGpsPosition = GpsPosition;
+    }
+
+    // Execute the imu update code at a certain rate
+    if ((ros::Time::now() - lastImuUpdate).toSec() > imuUpdateRate) {
+  
+      
+      Matrix3x3 newImuOrientation = Matrix3x3::FromQuaternion(Quaternion(0.7071068, 0.7071068,0,0)) * Matrix3x3(vecX, vecY, vecZ);
+      
+      Quaternion deltaOrientation = Matrix3x3::ToQuaternion(Matrix3x3::Transpose(lastImuOrientation) * newImuOrientation);
+      double angle;
+      Vector3 axis;
+      Quaternion::ToAngleAxis(deltaOrientation, angle, axis);
+      double angularVel = angle/imuUpdateRate;
+
+      Vector3 newImuPosition = lastPosition + lastOrientation * Vector3(0.2351, -0.0687, 0.1919);
+
+      Vector3 deltaPosition = Matrix3x3::Transpose(newImuOrientation) * (newImuPosition - lastImuPosition);
+
+      Vector3 newImuVelocity = deltaPosition / imuUpdateRate;
+
+      Vector3 accel = (newImuVelocity - lastImuVelocity) / imuUpdateRate + Vector3(0,0,9.81);
+
+      lastImuVelocity = newImuVelocity;
+
+      lastImuPosition = newImuPosition;
+
+      lastImuOrientation = newImuOrientation;
 
       Vector3 noiseAxis = Vector3::Normalized(Vector3(rand_normal(0, 1), rand_normal(0, 1), rand_normal(0, 1)));
       double angularNoise = rand_normal(0,0.001);
       Matrix3x3 noiseMat = Matrix3x3::FromQuaternion(Quaternion::FromAngleAxis(angularNoise, noiseAxis));
 
 
-      Quaternion ori = Matrix3x3::ToQuaternion(noiseMat*newOrientation);
+      Quaternion ori = Matrix3x3::ToQuaternion(noiseMat*newImuOrientation);
       
       
       sensor_msgs::Imu imu;
       imu.header.stamp = ros::Time::now();
       lastImuUpdate = ros::Time::now();
-      imu.header.frame_id = frameID;
+      imu.header.frame_id = imu_link;
       imu.orientation.x = ori.X;
       imu.orientation.y = ori.Y;
       imu.orientation.z = ori.Z;
@@ -225,8 +256,8 @@ int main(int argc, char **argv) {
       nav_msgs::Odometry odom;
       odom.header.stamp = ros::Time::now();
       lastOdomUpdate = ros::Time::now();
-      odom.header.frame_id = frameID;
-      odom.child_frame_id = childFrameID;
+      odom.header.frame_id = base_link;
+      odom.child_frame_id = base_link;
       odom.pose.pose.orientation.x = lastOri.X;
       odom.pose.pose.orientation.y = lastOri.Y;
       odom.pose.pose.orientation.z = lastOri.Z;
@@ -240,7 +271,35 @@ int main(int argc, char **argv) {
       odom.pose.covariance[21] = 0.02; // NOTE: NEED TO ADJUST COVARIANCES
       odom.pose.covariance[28] = 0.02; // NOTE: NEED TO ADJUST COVARIANCES
       odom.pose.covariance[35] = 0.02; // NOTE: NEED TO ADJUST COVARIANCES
+      
+      
+
+      Matrix3x3::Transpose(lastOrientation) * lastVelocity
+
+      odom.twist.twist.angular.z = (Matrix3x3::Transpose(lastOrientation) * lastAngularVel).z + rand_normal(0, .01;
+      odom.twist.twist.linear.x = (Matrix3x3::Transpose(lastOrientation) * lastVelocity).x + rand_normal(0, .01;
+
+      odom.twist.covariance[0] = 0.001 // NOTE: NEED TO ADJUST COVARIANCES
+      odom.twist.covariance[7] = 0.001 // NOTE: NEED TO ADJUST COVARIANCES
+      odom.twist.covariance[14] = 0.001 // NOTE: NEED TO ADJUST COVARIANCES
+      odom.twist.covariance[21] = 0.001 // NOTE: NEED TO ADJUST COVARIANCES
+      odom.twist.covariance[28] = 0.001 // NOTE: NEED TO ADJUST COVARIANCES
+      odom.twist.covariance[35] = 0.001 // NOTE: NEED TO ADJUST COVARIANCES
+      
       encoderPub.publish(odom);
+
+
+      Quaternion trueOri = Matrix3x3::ToQuaternion(lastOrientation);
+
+      odom.pose.pose.orientation.x = trueOri.X;
+      odom.pose.pose.orientation.y = trueOri.Y;
+      odom.pose.pose.orientation.z = trueOri.Z;
+      odom.pose.pose.orientation.w = trueOri.W;
+      odom.pose.pose.position.x = lastPosition.X;
+      odom.pose.pose.position.y = lastPosition.Y;
+      odom.pose.pose.position.z = lastPosition.Z;
+
+      truePosePub.publish(odom);
     }
 
     ros::spinOnce();
