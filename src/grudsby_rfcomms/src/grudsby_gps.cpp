@@ -8,23 +8,11 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <iostream>
-#include <vector>
-#include <cstdlib>
 #include <grudsby_rfcomms/emlid_reach_gps.h>
-
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 ///Outgoing messages////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-#define LLH_MESSAGE_LENGTH 140
-
-std::vector<std::string> split_string_on_spaces(char * buf, int buf_size);
-bool validate_llh_format(std::vector<std::string> llh_vector);
-void format_gps_message(std::vector<std::string> llh_vector);
-
 grudsby_rfcomms::emlid_reach_gps gps_msg;
 
 
@@ -99,7 +87,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "grudsby_rfcomms");
     ros::NodeHandle n;
     ros::Publisher  pub = n.advertise<grudsby_rfcomms::emlid_reach_gps>("grudsby_positioning_system",1000);
-    ros::Rate loop_rate(10);
+    ros::Rate loop_rate(20);
 
     fd = open(portname, O_RDWR | O_NOCTTY | O_SYNC);
     if (fd < 0) { printf("Error opening %s: %s\n", portname, strerror(errno)); return -1; }
@@ -107,11 +95,12 @@ int main(int argc, char **argv)
     //set_mincount(fd, 0);                /* set to pure timed read */
 
     while(ros::ok()){
-      unsigned char buf[LLH_MESSAGE_LENGTH+1];
+      unsigned char buf[140];
       int rdlen;
+      printf("I'm in a loop aaaaan I'm going fast aaaaand \n");
+
       rdlen = read(fd, buf, sizeof(buf) - 1);
-      //if (rdlen > 0) {
-      if (rdlen >= LLH_MESSAGE_LENGTH-5) {
+      if (rdlen > 0) {
           buf[rdlen] = 0;
           printf("Read %d: \"%s\"\n", rdlen, buf);
       } else if (rdlen < 0) {
@@ -242,94 +231,3 @@ int main(int argc, char **argv) {
 
   return 0;
 }*/
-
-
-
-std::vector<std::string> split_string_on_spaces(char * buf, int buf_size){
-  //Split a char buf array on spaces, each sub-string added as a string vector entry
-  int i=0;
-  std::vector<std::string> output_string_vector;
-  std::string tmp_string;
-
-  for(i=0;i<buf_size;i++){
-    if(buf[i] == ' '){
-      if(tmp_string.size() > 0){
-        output_string_vector.push_back(tmp_string);
-      }
-      tmp_string = "";
-    }
-    else if(buf[i] == '\0'){
-      if(tmp_string.size() > 0){
-        output_string_vector.push_back(tmp_string);
-      }
-      break;
-    }
-    else {
-      tmp_string += buf[i];
-    }
-  }
-  return output_string_vector;
-}
-
-bool validate_llh_format(std::vector<std::string> llh_vector){
-  bool valid;
-  bool numeric_fields_ok;
-  bool date_ok;
-  if (llh_vector.size() != 15) return false;     //validate packet size
-  if (!llh_vector.at(0).find('/')) return false; //validate date format
-  if (!llh_vector.at(1).find(':')) return false; //validate timestamp format
-  return true;
-}
-
-void format_gps_message(std::vector<std::string> llh_vector){
-  std::cout << "lat:    " << std::atof(llh_vector.at(2).c_str()) << '\n'; 
-  std::cout << "long:   " << std::atof(llh_vector.at(3).c_str()) << '\n'; 
-  std::cout << "height: " << std::atof(llh_vector.at(4).c_str()) << '\n'; 
-}
-
-
-/*
-int main()
-{
-  //char buf[100] = "1.00 -2 3/3 -4.00 5";
-  char buf[]  ="2017/11/11 17:35:58.400   40.443584380  -79.945276827   258.8221   5   4   6.5600  16.2426  30.9935   8.9197 -21.5177 -12.8924   0.00    0.0";
-  char buf2[] ="2017/11/11 17:35:58.400   40.443584380  -79.945276827   258.8221   5   4   6.5600  16.2426  30.9935   8.9197 -21.5177 -12.8924   0.00  ";
-  char buf3[] ="2017/11/11 17:35:58.400   50.4z584380  -79.945276827   258.8221   5   4   6.5600  16.2426  30.9935   8.9197 -21.5177 -12.8924   0.00    0.0";
-  char buf4[] ="17:35:58.400   40.443584380  -79.945276827   258.8221   5   4   6.5600  16.2426  30.9935   8.9197 -21.5177 -12.8924   0.00    0.0";
-  char buf5[] ="2017/11/11 40.443584380  -79.945276827   258.8221   5   4   6.5600  16.2426  30.9935   8.9197 -21.5177 -12.8924   0.00    0.0";
-  char buf6[]  ="2017/11/11 17:35:58.400   60.443584380  -90.945276827   300.8221   5   4   6.5600  16.2426  30.9935   8.9197 -21.5177 -12.8924   0.00    0.0";
-  std::vector<std::string> strings;
-
-  std::cout << "buf\n";
-  strings = split_string_on_spaces(buf,sizeof(buf));
-  if (validate_llh_format(strings)) format_gps_message(strings);
-  strings.clear();
-
-  std::cout << "buf2\n";
-  strings = split_string_on_spaces(buf2,sizeof(buf2));
-  if (validate_llh_format(strings)) format_gps_message(strings);
-  strings.clear();
-
-  std::cout << "buf3\n";
-  strings = split_string_on_spaces(buf3,sizeof(buf3));
-  if (validate_llh_format(strings)) format_gps_message(strings);
-  strings.clear();
-
-  std::cout << "buf4\n";
-  strings = split_string_on_spaces(buf4,sizeof(buf4));
-  if (validate_llh_format(strings)) format_gps_message(strings);
-  strings.clear();
-
-  std::cout << "buf5\n";
-  strings = split_string_on_spaces(buf5,sizeof(buf5));
-  if (validate_llh_format(strings)) format_gps_message(strings);
-  strings.clear();
-
-  std::cout << "buf6\n";
-  strings = split_string_on_spaces(buf6,sizeof(buf6));
-  if (validate_llh_format(strings)) format_gps_message(strings);
-  strings.clear();
-
-
-}
-*/
