@@ -169,12 +169,12 @@ int main(int argc, char **argv) {
       sensor_msgs::NavSatFix gps;
       gps.header.stamp = ros::Time::now();
       lastGpsUpdate = ros::Time::now();
-      gps.header.frame_id = gps;
+      gps.header.frame_id = "gps";
       gps.status.status = gps.status.STATUS_GBAS_FIX;
       gps.status.service = gps.status.SERVICE_GPS;
-      gps.longitude = (GpsPosition.x + rand_normal(0, .01)) / 6371393.0 * 180.0 / 3.1415;         
-      gps.latitude = (GpsPosition.y + rand_normal(0, .01)) / 6371393.0 * 180.0 / 3.1415;  
-      gps.altitude = rand_normal(0, .015) + GpsPosition;
+      gps.longitude = (GpsPosition.X + rand_normal(0, .01)) / 6371393.0 * 180.0 / 3.1415;         
+      gps.latitude = (GpsPosition.Y + rand_normal(0, .01)) / 6371393.0 * 180.0 / 3.1415;  
+      gps.altitude = rand_normal(0, .015) + GpsPosition.Z;
       gps.position_covariance[0] = 0.02; // NOTE: NEED TO ADJUST COVARIANCES
       gps.position_covariance[4] = 0.02; // NOTE: NEED TO ADJUST COVARIANCES
       gps.position_covariance[8] = 0.05; // NOTE: NEED TO ADJUST COVARIANCES
@@ -187,7 +187,7 @@ int main(int argc, char **argv) {
     if ((ros::Time::now() - lastImuUpdate).toSec() > imuUpdateRate) {
   
       
-      Matrix3x3 newImuOrientation = Matrix3x3::FromQuaternion(Quaternion(0.7071068, 0.7071068,0,0)) * Matrix3x3(vecX, vecY, vecZ);
+      Matrix3x3 newImuOrientation = Matrix3x3::FromQuaternion(Quaternion(0.7071068, 0.7071068,0,0)) * lastOrientation;
       
       Quaternion deltaOrientation = Matrix3x3::ToQuaternion(Matrix3x3::Transpose(lastImuOrientation) * newImuOrientation);
       double angle;
@@ -220,7 +220,7 @@ int main(int argc, char **argv) {
       sensor_msgs::Imu imu;
       imu.header.stamp = ros::Time::now();
       lastImuUpdate = ros::Time::now();
-      imu.header.frame_id = imu_link;
+      imu.header.frame_id = "imu_link";
       imu.orientation.x = ori.X;
       imu.orientation.y = ori.Y;
       imu.orientation.z = ori.Z;
@@ -256,8 +256,8 @@ int main(int argc, char **argv) {
       nav_msgs::Odometry odom;
       odom.header.stamp = ros::Time::now();
       lastOdomUpdate = ros::Time::now();
-      odom.header.frame_id = base_link;
-      odom.child_frame_id = base_link;
+      odom.header.frame_id = "base_link";
+      odom.child_frame_id = "base_link";
       odom.pose.pose.orientation.x = lastOri.X;
       odom.pose.pose.orientation.y = lastOri.Y;
       odom.pose.pose.orientation.z = lastOri.Z;
@@ -274,17 +274,16 @@ int main(int argc, char **argv) {
       
       
 
-      Matrix3x3::Transpose(lastOrientation) * lastVelocity
 
-      odom.twist.twist.angular.z = (Matrix3x3::Transpose(lastOrientation) * lastAngularVel).z + rand_normal(0, .01;
-      odom.twist.twist.linear.x = (Matrix3x3::Transpose(lastOrientation) * lastVelocity).x + rand_normal(0, .01;
+      odom.twist.twist.angular.z = (Matrix3x3::Transpose(lastOrientation) * lastAngularVel).Z + rand_normal(0, .01);
+      odom.twist.twist.linear.x = (Matrix3x3::Transpose(lastOrientation) * lastVelocity).X + rand_normal(0, .01);
 
-      odom.twist.covariance[0] = 0.001 // NOTE: NEED TO ADJUST COVARIANCES
-      odom.twist.covariance[7] = 0.001 // NOTE: NEED TO ADJUST COVARIANCES
-      odom.twist.covariance[14] = 0.001 // NOTE: NEED TO ADJUST COVARIANCES
-      odom.twist.covariance[21] = 0.001 // NOTE: NEED TO ADJUST COVARIANCES
-      odom.twist.covariance[28] = 0.001 // NOTE: NEED TO ADJUST COVARIANCES
-      odom.twist.covariance[35] = 0.001 // NOTE: NEED TO ADJUST COVARIANCES
+      odom.twist.covariance[0] = 0.001; // NOTE: NEED TO ADJUST COVARIANCES
+      odom.twist.covariance[7] = 0.001; // NOTE: NEED TO ADJUST COVARIANCES
+      odom.twist.covariance[14] = 0.001; // NOTE: NEED TO ADJUST COVARIANCES
+      odom.twist.covariance[21] = 0.001; // NOTE: NEED TO ADJUST COVARIANCES
+      odom.twist.covariance[28] = 0.001; // NOTE: NEED TO ADJUST COVARIANCES
+      odom.twist.covariance[35] = 0.001; // NOTE: NEED TO ADJUST COVARIANCES
       
       encoderPub.publish(odom);
 
