@@ -8,10 +8,9 @@
 
 #include "settings.h"
 #include "grudsby_motor.h"
-// #include "Encoder.h"
+#include "Encoder.h"
 #include "rc_control.h"
 
-#include <Streaming.h>
 
 //must include last
 #include "grudsby_arduino.h"
@@ -25,8 +24,8 @@ void setup()
   //nh.subscribe(vel_sub);
   //nh.advertise(status_pub);
 
-  // attachInterrupt(digitalPinToInterrupt(encoder1.channel_a_pin), ISR_1, CHANGE);
-  // attachInterrupt(digitalPinToInterrupt(encoder2.channel_a_pin), ISR_2, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(leftEncoder.channel_a_pin), ISR_1, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(rightEncoder.channel_a_pin), ISR_2, CHANGE);
   
   pinMode(DIR1, OUTPUT);
   pinMode(PWM1, OUTPUT);
@@ -38,7 +37,7 @@ void setup()
 
   autonomous = true;
   Serial.begin(115200);
-  // init_timer(10);
+  init_timer(10);
 }
 
 void loop()
@@ -48,19 +47,23 @@ void loop()
   //nh.spinOnce();
 }
 
-// void ISR_1()
-// {
-//  encoder1.encoder_update(); 
-// }
-// void ISR_2()
-// {
-//  encoder2.encoder_update(); 
-// }
-// ISR(TIMER1_COMPA_vect) 
-// {
-//   encoder1.velocity_update(); 
-//   encoder2.velocity_update();  
-// } 
+void ISR_1()
+{
+ leftEncoder.encoder_update(); 
+}
+void ISR_2()
+{
+ rightEncoder.encoder_update(); 
+
+}
+ISR(TIMER2_COMPA_vect) 
+{
+  leftEncoder.velocity_update(); 
+
+  rightEncoder.velocity_update();  
+  //Serial.println(rightEncoder.get_velocity());
+
+} 
 
 void velCallback(const grudsby_lowlevel::ArduinoVel& msg) {
 
@@ -98,7 +101,7 @@ void moveGrudsby() {
     else if(!(kill) && !(autonomous)) {
       int rc_left_vel = rc.get_RC_left_motor_velocity();
       int rc_right_vel = rc.get_RC_right_motor_velocity();
-      Serial<<"Left: "<<rc_left_vel<<"\tRight: "<<rc_right_vel<<endl;
+      //Serial<<"Left: "<<rc_left_vel<<"\tRight: "<<rc_right_vel<<endl;
       leftMotor->writeVal(rc_left_vel);
       rightMotor->writeVal(rc_right_vel);
     }

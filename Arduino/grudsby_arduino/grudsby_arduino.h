@@ -16,12 +16,14 @@ void ISR_2();
 
 void publishStatus();
 
+void moveGrudsby();
+
 
 bool autonomous;
 bool kill;
 
-// Encoder encoder1(2, 4);
-// Encoder encoder2(3, 5);
+Encoder rightEncoder(2, 4);
+Encoder leftEncoder(3, 5);
 
 Motor* leftMotor;
 Motor* rightMotor;

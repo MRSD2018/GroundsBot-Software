@@ -31,11 +31,10 @@ Encoder::Encoder(int channel_a, int channel_b)
 void Encoder::encoder_update()
 {
   int aState = digitalRead(channel_a_pin);
+  int bState = digitalRead(channel_b_pin);
 
   if (aState != aLastState)
   {
-    int bState = digitalRead(channel_b_pin);
-
     if(bState != aState)
     {
       position++;
@@ -66,7 +65,7 @@ void Encoder::velocity_update()
 	params: void
 	return: the current position of the encoder in ticks from start
 */
-long Encoder::get_position()
+unsigned long Encoder::get_position()
 {
 	return position;
 }
@@ -92,18 +91,18 @@ int Encoder::get_velocity()
 */
 void init_timer(int frequency)
 {
-	// initialize Timer1
+	// initialize Timer2
   noInterrupts(); // disable all interrupts
-  TCCR1A = 0;
-  TCCR1B = 0;
-  TCNT1 = 0;
+  TCCR2A = 0;
+  TCCR2B = 0;
+  TCNT2 = 0;
   
   int prescaler = 256;
   int register_value = (16000000/prescaler)/frequency;
-  OCR1A = register_value; // equal to clock frequency/prescaler/frequency
-  TCCR1B |= (1 << WGM12); // CTC mode
-  TCCR1B |= (1 << CS12); // 256 prescaler
-  TIMSK1 |= (1 << OCIE1A); // enable timer compare interrupt
+  OCR2A = register_value; // equal to clock frequency/prescaler/frequency
+  TCCR2B |= (1 << WGM22); // CTC mode
+  TCCR2B |= (1 << CS12); // 256 prescaler
+  TIMSK2 |= (1 << OCIE2A); // enable timer compare interrupt
   interrupts(); // enable all interrupts
 
 }

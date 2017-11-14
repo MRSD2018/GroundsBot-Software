@@ -11,7 +11,7 @@ class Encoder
 {
 	public:
 		Encoder(int channel_a, int channel_b);
-		long get_position();
+		unsigned long get_position();
 		int get_velocity();
 
 		void encoder_update();
@@ -20,9 +20,9 @@ class Encoder
 		int channel_a_pin;
 		int channel_b_pin;
 	private:
-		long position;
+		unsigned long position;
 		int velocity;
-		long prev_timer_position;
+		unsigned long prev_timer_position;
 		
 
 		int aLastState;
