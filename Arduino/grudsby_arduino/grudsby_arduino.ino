@@ -4,11 +4,11 @@
 #include <grudsby_lowlevel/ArduinoResponse.h>
 #include <SBUS.h>
 #include <elapsedMillis.h>
-#include <Servo.h> 
+#include <Servo.h>
 
 #include "settings.h"
 #include "grudsby_motor.h"
-#include "Encoder.h"
+#include <Encoder.h>
 #include "rc_control.h"
 
 
@@ -20,50 +20,31 @@ using namespace grudsby;
 void setup()
 {
   //set up ros 
-  //nh.initNode();
-  //nh.subscribe(vel_sub);
-  //nh.advertise(status_pub);
+  nh.initNode();
+  nh.subscribe(vel_sub);
+  nh.advertise(status_pub);
 
-  attachInterrupt(digitalPinToInterrupt(leftEncoder.channel_a_pin), ISR_1, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(rightEncoder.channel_a_pin), ISR_2, CHANGE);
   
-  pinMode(DIR1, OUTPUT);
-  pinMode(PWM1, OUTPUT);
-  pinMode(DIR2, OUTPUT);
-  pinMode(PWM2, OUTPUT);
 
-  leftMotor = new RCMotor(8);
-  rightMotor = new RCMotor(9);
+  leftMotor = new RCMotor(11);
+  rightMotor = new RCMotor(12);
+
 
   autonomous = true;
   Serial.begin(115200);
-  init_timer(10);
 }
 
 void loop()
 {
   moveGrudsby();
-  //publishStatus();
-  //nh.spinOnce();
+  publishStatus();
+  nh.spinOnce();
+  //delay(1);
 }
 
-void ISR_1()
-{
- leftEncoder.encoder_update(); 
-}
-void ISR_2()
-{
- rightEncoder.encoder_update(); 
 
-}
-ISR(TIMER2_COMPA_vect) 
-{
-  leftEncoder.velocity_update(); 
 
-  rightEncoder.velocity_update();  
-  //Serial.println(rightEncoder.get_velocity());
-
-} 
+// } 
 
 void velCallback(const grudsby_lowlevel::ArduinoVel& msg) {
 
@@ -72,10 +53,8 @@ void velCallback(const grudsby_lowlevel::ArduinoVel& msg) {
 }
 
 void publishStatus() {
-  // response_msg.leftvel = encoder1.get_velocity();
-  // response_msg.rightvel = encoder2.get_velocity();
-  // response_msg.leftpos = encoder1.get_position();
-  // response_msg.rightpos = encoder2.get_position();
+  response_msg.leftpos = leftEncoder.read();
+  response_msg.rightpos = -1* rightEncoder.read();
   response_msg.autonomous = autonomous;
   response_msg.kill = kill;
 
@@ -95,7 +74,7 @@ void moveGrudsby() {
       rightMotor->writeVal(0);
     }
     else if(autonomous) {
-      nh.spinOnce();
+      //nh.spinOnce();
       delay(20);
     }
     else if(!(kill) && !(autonomous)) {

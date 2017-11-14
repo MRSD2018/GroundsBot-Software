@@ -11,10 +11,8 @@ using namespace grudsby;
 
 void velCallback(const grudsby_lowlevel::ArduinoVel& msg);
 
-void ISR_1();
-void ISR_2();
 
-void publishStatus();
+// void publishStatus();
 
 void moveGrudsby();
 
@@ -22,6 +20,7 @@ void moveGrudsby();
 bool autonomous;
 bool kill;
 
+//Right encoder gives negative values
 Encoder rightEncoder(2, 4);
 Encoder leftEncoder(3, 5);
 

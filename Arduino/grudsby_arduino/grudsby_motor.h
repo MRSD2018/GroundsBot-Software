@@ -3,7 +3,7 @@
 
 #include "settings.h"
 #include <Arduino.h>
-#include <Servo.h> 
+#include "Servo.h" 
 
 
 namespace grudsby {
