@@ -9,7 +9,7 @@
 
 using namespace grudsby;
 
-void initTimer(int freq);
+void initTimer();
 
 void velCallback(const grudsby_lowlevel::ArduinoVel& msg);
 
@@ -17,12 +17,14 @@ void velCallback(const grudsby_lowlevel::ArduinoVel& msg);
 void publishStatus();
 
 void moveGrudsby();
+int32_t lPos = 0;
+int32_t rPos = 0;
 
 int32_t prevLPos = -999;
 int32_t prevRPos = -999;
 
-int32_t prevLTimerPos =  0;
-int32_t prevRTimerPos =  0;
+int32_t  prevLTimerPos =  0;
+int32_t  prevRTimerPos =  0;
 
 int32_t leftVel = 0;
 int32_t rightVel = 0;
@@ -36,6 +38,8 @@ Encoder leftEncoder(3, 5);
 
 Motor* leftMotor;
 Motor* rightMotor;
+
+int test = 0;
 
 ros::NodeHandle nh;
 ros::Subscriber<grudsby_lowlevel::ArduinoVel> vel_sub("/arduino/vel", &velCallback);

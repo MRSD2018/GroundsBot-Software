@@ -3,6 +3,8 @@
 #include <std_msgs/Int32.h>
 #include <grudsby_lowlevel/ArduinoVel.h>
 #include <grudsby_lowlevel/ArduinoResponse.h>
+#define ENCODER_OPTIMIZE_INTERRUPTS
+
 #include <SBUS.h>
 #include <elapsedMillis.h>
 #include <Servo.h>
@@ -20,6 +22,7 @@ using namespace grudsby;
 
 void setup()
 {
+
   //set up ros 
   nh.initNode();
   nh.subscribe(vel_sub);
@@ -27,35 +30,45 @@ void setup()
   nh.advertise(rwheel_pub);
   
 
-  leftMotor = new RCMotor(8);
-  rightMotor = new RCMotor(9);
+
+  leftMotor = new RCMotor(6);
+  rightMotor = new RCMotor(7);
 
 
   autonomous = true;
   Serial.begin(1000000);
+
+  initTimer2();
+
+
+
 }
 
 void loop()
 {
   moveGrudsby();
-  publishStatus();
-  nh.spinOnce();
+  lPos = leftEncoder.read();
+  rPos = rightEncoder.read();
+  // publishStatus();
+  // nh.spinOnce();
   //delay(1);
+
   Serial.print(leftVel);
   Serial.print(" ");
-  Serial.println(rightVel);
+  Serial.print(-rightVel);
+  Serial.print(" ");
+  Serial.print(lPos);
+  Serial.print(" ");
+  Serial.println(-rPos);
 }
 
 ISR(TIMER2_COMPA_vect) {
-  int32_t leftEncoderVal = leftEncoder.read();
-  int32_t rightEncoderVal = rightEncoder.read();
 
-  leftVel = leftEncoderVal - prevLTimerPos;
-  rightVel = rightEncoderVal - prevRTimerPos;
+  leftVel = lPos - prevLTimerPos;
+  rightVel = rPos - prevRTimerPos;
 
-  prevLTimerPos = leftEncoderVal;
-  prevRTimerPos = rightEncoderVal;
-
+  prevLTimerPos = lPos;
+  prevRTimerPos = rPos;
 
 } 
 
@@ -102,10 +115,6 @@ void moveGrudsby() {
       int rc_left_vel = rc.get_RC_left_motor_velocity();
       int rc_right_vel = rc.get_RC_right_motor_velocity();
       //Serial<<"Left: "<<rc_left_vel<<"\tRight: "<<rc_right_vel<<endl;
-      Serial.print(rc_left_vel);
-      Serial.print(" ");
-      Serial.print(rc_right_vel);
-      Serial.println();
       leftMotor->writeVal(rc_left_vel);
       rightMotor->writeVal(rc_right_vel);
     }
@@ -121,17 +130,23 @@ void moveGrudsby() {
   }
 }
 
-void initTimer(int freq) {
+void initTimer2() {
+  noInterrupts();
   TCCR2B = 0x00; // Disable Timer 2 until set up
 
   TCNT2 = 0; // reset timer count to 0
   TIFR2 = 0x00; // clear flags
 
-  int register_value = (16000000/256/freq);
-  OCR2A = register_value;
+  OCR2A = 255; //max 8 bit int
+  
 
-  TIMSK2 = 0x02; //match A interrupt enable
-  TCCR2A = 0x02; //wave gen CTC to OCRA
-  TCCR2B = 0x06; // prescaler to 256
+  TCCR2A = 0; //reset tccr2a
 
+  TIMSK2 |= _BV(OCIE2A); //match A interrupt enable
+  TCCR2A |= _BV(WGM21) | _BV(WGM20) | _BV(COM2A1) | _BV(COM2A0); //wavegen to fastpwm and set oc2a on compare match
+  //TCCR2B |= (1 << CS21);
+  //TCCR2B = 4;
+  TCCR2B |= _BV(CS22) | _BV(CS21) | _BV(WGM22); //prescaler to 256 and wavegen to pwm mode
+
+  interrupts();
 }
