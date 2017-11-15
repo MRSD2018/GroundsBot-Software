@@ -30,6 +30,6 @@
   <remap from="gps/fix" to="fix"/>
   </node>
 
-<node pkg="rviz" type="rviz" name="rviz" args="-d rviz_config/rviz_localization.rviz"/>
+<node pkg="rviz" type="rviz" name="rviz"/>
 
 </launch>
