@@ -134,13 +134,18 @@ int main(int argc, char **argv) {
         grudsbyPose.yaw += lastCmdVel.angular.z * poseUpdateRate/2.0 * rand_normal(1, 0.03);
       } 
 
-      Vector3 vecAlongSlope = Vector3(1, 0, -1 * fmod(grudsbyPose.x,8) / 4.0 * 3.1415 * sin(fmod(grudsbyPose.x,8) / 4.0 * 3.1415));
-      Vector3 vecZ = Vector3::Cross(Vector3(0,1,0), Vector3::Normalized(vecAlongSlope));
-      Vector3 yawVec = Vector3(cos(grudsbyPose.yaw), sin(grudsbyPose.yaw), 0);
-      Vector3 vecY = Vector3::Normalized(Vector3::Cross(vecZ, yawVec));
+      Vector3 vecAlongSlope = Vector3(1, 0, -1 * 3.1415 / 4.0 * sin(fmod(grudsbyPose.x,8) / 4.0 * 3.1415));
+      Vector3 vecZ = Vector3::Cross( Vector3::Normalized(vecAlongSlope),Vector3(0,1,0));
+      Matrix3x3 rotAroundZ = Matrix3x3::FromQuaternion(Quaternion::FromAngleAxis(grudsbyPose.yaw, vecZ));
+      Vector3 vecY = rotAroundZ * Vector3(0,1,0);
       Vector3 vecX = Vector3::Cross(vecY, vecZ);
 
-      Matrix3x3 newOrientation = Matrix3x3(vecX, vecY, vecZ);
+
+      //Vector3 yawVec = Vector3(cos(grudsbyPose.yaw), sin(grudsbyPose.yaw), 0);
+      //Vector3 vecY = Vector3::Normalized(Vector3::Cross(vecZ, yawVec));
+      //Vector3 vecX = Vector3::Cross(vecY, vecZ);
+
+      Matrix3x3 newOrientation = Matrix3x3::Transpose(Matrix3x3(vecX, vecY, vecZ));
 
       Quaternion deltaOrientation = Matrix3x3::ToQuaternion(Matrix3x3::Transpose(lastOrientation) * newOrientation);
       double angle;
@@ -150,7 +155,7 @@ int main(int argc, char **argv) {
       lastAngularVel = angularVel*axis;
       Vector3 newPosition = Vector3(grudsbyPose.x, grudsbyPose.y, 1 * cos(fmod(grudsbyPose.x,8) / 4.0 * 3.1415 ));
 
-      Vector3 deltaPosition = Matrix3x3::Transpose(newOrientation) * (newPosition - lastPosition);
+      Vector3 deltaPosition = newPosition - lastPosition;
 
       Vector3 newVelocity = deltaPosition / poseUpdateRate;
 
@@ -187,7 +192,7 @@ int main(int argc, char **argv) {
     if ((ros::Time::now() - lastImuUpdate).toSec() > imuUpdateRate) {
   
       
-      Matrix3x3 newImuOrientation = Matrix3x3::FromQuaternion(Quaternion(0.7071068, 0.7071068,0,0)) * lastOrientation;
+      Matrix3x3 newImuOrientation = Matrix3x3::FromQuaternion(Quaternion(0, 0,0,1)) * lastOrientation;
       
       Quaternion deltaOrientation = Matrix3x3::ToQuaternion(Matrix3x3::Transpose(lastImuOrientation) * newImuOrientation);
       double angle;
@@ -201,7 +206,7 @@ int main(int argc, char **argv) {
 
       Vector3 newImuVelocity = deltaPosition / imuUpdateRate;
 
-      Vector3 accel = (newImuVelocity - lastImuVelocity) / imuUpdateRate + Vector3(0,0,9.81);
+      Vector3 accel = (newImuVelocity - lastImuVelocity) / imuUpdateRate;
 
       lastImuVelocity = newImuVelocity;
 
@@ -258,13 +263,13 @@ int main(int argc, char **argv) {
       lastOdomUpdate = ros::Time::now();
       odom.header.frame_id = "base_link";
       odom.child_frame_id = "base_link";
-      odom.pose.pose.orientation.x = lastOri.X;
-      odom.pose.pose.orientation.y = lastOri.Y;
-      odom.pose.pose.orientation.z = lastOri.Z;
-      odom.pose.pose.orientation.w = lastOri.W;
-      odom.pose.pose.position.x = lastPosition.X + rand_normal(0, .01);
-      odom.pose.pose.position.y = lastPosition.Y + rand_normal(0, .01);
-      odom.pose.pose.position.z = lastPosition.Z + rand_normal(0, .01);
+      odom.pose.pose.orientation.x = 0;//lastOri.X;
+      odom.pose.pose.orientation.y = 0;//lastOri.Y;
+      odom.pose.pose.orientation.z = 0;//lastOri.Z;
+      odom.pose.pose.orientation.w = 1;//lastOri.W;
+      odom.pose.pose.position.x = 0;//lastPosition.X + rand_normal(0, .01);
+      odom.pose.pose.position.y = 0;//lastPosition.Y + rand_normal(0, .01);
+      odom.pose.pose.position.z = 0;//lastPosition.Z + rand_normal(0, .01);
       odom.pose.covariance[0] = 0.001; // NOTE: NEED TO ADJUST COVARIANCES
       odom.pose.covariance[7] = 0.001; // NOTE: NEED TO ADJUST COVARIANCES
       odom.pose.covariance[14] = 0.001; // NOTE: NEED TO ADJUST COVARIANCES
@@ -278,6 +283,7 @@ int main(int argc, char **argv) {
       odom.twist.twist.angular.z = (Matrix3x3::Transpose(lastOrientation) * lastAngularVel).Z + rand_normal(0, .01);
       odom.twist.twist.linear.x = (Matrix3x3::Transpose(lastOrientation) * lastVelocity).X + rand_normal(0, .01);
 
+
       odom.twist.covariance[0] = 0.001; // NOTE: NEED TO ADJUST COVARIANCES
       odom.twist.covariance[7] = 0.001; // NOTE: NEED TO ADJUST COVARIANCES
       odom.twist.covariance[14] = 0.001; // NOTE: NEED TO ADJUST COVARIANCES
@@ -289,7 +295,9 @@ int main(int argc, char **argv) {
 
 
       Quaternion trueOri = Matrix3x3::ToQuaternion(lastOrientation);
-
+      odom.header.frame_id = "odom";
+      odom.child_frame_id = "odom";
+      
       odom.pose.pose.orientation.x = trueOri.X;
       odom.pose.pose.orientation.y = trueOri.Y;
       odom.pose.pose.orientation.z = trueOri.Z;
