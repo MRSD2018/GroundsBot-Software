@@ -16,6 +16,8 @@ void velCallback(const grudsby_lowlevel::ArduinoVel& msg);
 
 void moveGrudsby();
 
+int32_t prevLPos = -999;
+int32_t prevRPos = -999;
 
 bool autonomous;
 bool kill;
@@ -29,8 +31,11 @@ Motor* rightMotor;
 
 ros::NodeHandle nh;
 ros::Subscriber<grudsby_lowlevel::ArduinoVel> vel_sub("/arduino/vel", &velCallback);
-grudsby_lowlevel::ArduinoResponse response_msg;
-ros::Publisher status_pub("/arduino/status", &response_msg);
+
+std_msgs::Int32 lwheel_msg;
+std_msgs::Int32 rwheel_msg;
+ros::Publisher	lwheel_pub("lwheel", &lwheel_msg);
+ros::Publisher 	rwheel_pub("rwheel", &rwheel_msg);
 
 rc_control rc;
 

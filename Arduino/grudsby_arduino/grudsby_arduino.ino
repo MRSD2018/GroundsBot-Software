@@ -1,5 +1,6 @@
 #include <ros.h>
 #include <std_msgs/Float64.h>
+#include <std_msgs/Int32.h>
 #include <grudsby_lowlevel/ArduinoVel.h>
 #include <grudsby_lowlevel/ArduinoResponse.h>
 #include <SBUS.h>
@@ -22,16 +23,16 @@ void setup()
   //set up ros 
   nh.initNode();
   nh.subscribe(vel_sub);
-  nh.advertise(status_pub);
-
+  nh.advertise(lwheel_pub);
+  nh.advertise(rwheel_pub);
   
 
-  leftMotor = new RCMotor(11);
-  rightMotor = new RCMotor(12);
+  leftMotor = new RCMotor(8);
+  rightMotor = new RCMotor(9);
 
 
   autonomous = true;
-  Serial.begin(115200);
+  Serial.begin(1000000);
 }
 
 void loop()
@@ -53,12 +54,16 @@ void velCallback(const grudsby_lowlevel::ArduinoVel& msg) {
 }
 
 void publishStatus() {
-  response_msg.leftpos = leftEncoder.read();
-  response_msg.rightpos = -1* rightEncoder.read();
-  response_msg.autonomous = autonomous;
-  response_msg.kill = kill;
+  if (leftEncoder.read() !=  prevLPos) {
+    lwheel_msg.data = leftEncoder.read();
+    lwheel_pub.publish(&lwheel_msg);
+    delay(10);
+  }
 
-  status_pub.publish(&response_msg);
+  if (rightEncoder.read() != prevRPos) {
+    rwheel_msg.data = rightEncoder.read();
+    rwheel_pub.publish(&rwheel_msg);
+  }
 }
 
 
@@ -81,6 +86,10 @@ void moveGrudsby() {
       int rc_left_vel = rc.get_RC_left_motor_velocity();
       int rc_right_vel = rc.get_RC_right_motor_velocity();
       //Serial<<"Left: "<<rc_left_vel<<"\tRight: "<<rc_right_vel<<endl;
+      Serial.print(rc_left_vel);
+      Serial.print(" ");
+      Serial.print(rc_right_vel);
+      Serial.println();
       leftMotor->writeVal(rc_left_vel);
       rightMotor->writeVal(rc_right_vel);
     }
