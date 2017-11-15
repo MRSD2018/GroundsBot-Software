@@ -43,6 +43,15 @@ void loop()
   //delay(1);
 }
 
+ISR(TIMER2_COMPA_vect) {
+  int32_t leftEncoderVal = leftEncoder.read();
+  int32_t rightEncoderVal = rightEncoder.read();
+
+  leftVel = leftEncoderVal - prevLTimerPos;
+  rightVel = rightEncoderVal - prevRTimerPos;
+
+  prevLTimerPos = leftEncoderVal;
+  prevRTimerPos = rightEncoderVal;
 
 
 // } 
@@ -64,6 +73,10 @@ void publishStatus() {
     rwheel_msg.data = rightEncoder.read();
     rwheel_pub.publish(&rwheel_msg);
   }
+
+  prevLPos = leftEncoder.read();
+  prevRPos = rightEncoder.read();
+
 }
 
 
@@ -103,4 +116,19 @@ void moveGrudsby() {
     leftMotor->writeVal(0);
     rightMotor->writeVal(0);
   }
+}
+
+void initTimer(int freq) {
+  TCCR2B = 0x00; // Disable Timer 2 until set up
+
+  TCNT2 = 0; // reset timer count to 0
+  TIFR2 = 0x00; // clear flags
+
+  int register_value = (16000000/256/freq);
+  OCR2A = register_value;
+
+  TIMSK2 = 0x02; //match A interrupt enable
+  TCCR2A = 0x02; //wave gen CTC to OCRA
+  TCCR2B = 0x06; // prescaler to 256
+
 }

@@ -9,6 +9,8 @@
 
 using namespace grudsby;
 
+void initTimer(int freq);
+
 void velCallback(const grudsby_lowlevel::ArduinoVel& msg);
 
 
@@ -18,6 +20,12 @@ void moveGrudsby();
 
 int32_t prevLPos = -999;
 int32_t prevRPos = -999;
+
+int32_t prevLTimerPos =  0;
+int32_t prevRTimerPos =  0;
+
+int32_t leftVel = 0;
+int32_t rightVel = 0;
 
 bool autonomous;
 bool kill;
