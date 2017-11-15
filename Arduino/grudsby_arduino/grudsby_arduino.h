@@ -14,7 +14,7 @@ void initTimer(int freq);
 void velCallback(const grudsby_lowlevel::ArduinoVel& msg);
 
 
-// void publishStatus();
+void publishStatus();
 
 void moveGrudsby();
 

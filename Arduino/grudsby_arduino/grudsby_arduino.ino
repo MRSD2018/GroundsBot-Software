@@ -41,6 +41,9 @@ void loop()
   publishStatus();
   nh.spinOnce();
   //delay(1);
+  Serial.print(leftVel);
+  Serial.print(" ");
+  Serial.println(rightVel);
 }
 
 ISR(TIMER2_COMPA_vect) {
@@ -54,7 +57,7 @@ ISR(TIMER2_COMPA_vect) {
   prevRTimerPos = rightEncoderVal;
 
 
-// } 
+} 
 
 void velCallback(const grudsby_lowlevel::ArduinoVel& msg) {
 
