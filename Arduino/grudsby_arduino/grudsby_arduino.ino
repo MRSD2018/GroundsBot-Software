@@ -48,8 +48,8 @@ void loop()
   lPos = leftEncoder.read();
   rPos = rightEncoder.read();
   publishStatus();
-  // nh.spinOnce();
-  //delay(1);
+  nh.spinOnce();
+  delay(1);
 
 //   Serial.print(leftVel);
 //   Serial.print(" ");
@@ -90,9 +90,9 @@ void publishStatus() {
   
   odom_pub.publish(&odom_msg);
 
-  Serial.print(x_vel);
-  Serial.print(" ");
-  Serial.println(z_rot);
+  // Serial.print(x_vel);
+  // Serial.print(" ");
+  // Serial.println(z_rot);
 
   // if (leftEncoder.read() !=  prevLPos) {
   //   lwheel_msg.data = leftEncoder.read();
