@@ -14,9 +14,9 @@
 
   <rosparam command="load" file="dual_ekf_navsat_josh.yaml" />
 
- <node pkg="tf2_ros" type="static_transform_publisher" name="bl_imu" args="0.2351 -0.0687 0.1919 0 0 0 1 base_link imu_link" />
+ <node pkg="tf" type="static_transform_publisher" name="bl_imu" args="0.2351 -0.0687 0.1919 0 0 0 1 base_link imu_link 100"/>
  
- <node pkg="tf2_ros" type="static_transform_publisher" name="bl_gps" args="0.2475 0 0.2231 0 0 0 1 base_link gps" />
+ <node pkg="tf" type="static_transform_publisher" name="bl_gps" args="0.2475 0 0.2231 0 0 0 1 base_link gps 100"/>
 
  <node pkg="robot_localization" type="ekf_localization_node" name="ekf_se_odom" clear_params="true"/>
 
@@ -28,5 +28,7 @@
   <remap from="odometry/filtered" to="odometry/filtered_map"/>
   <remap from="gps/fix" to="fix"/>
   </node>
+
+<node pkg="rviz" type="rviz" name="rviz"/>
 
 </launch>

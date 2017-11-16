@@ -13,10 +13,10 @@
 
 // Adjust these update rates to correspond with the sensor data rates we plan to use - note, all are close to 1-2 per second currently for ease of visualization
 
-double poseUpdateRate = 0.4;//0.002; // delay between updates in seconds
-double imuUpdateRate = 0.4;//0.01; // delay between imu updates
+double poseUpdateRate = 0.002; // delay between updates in seconds
+double imuUpdateRate = 0.01; // delay between imu updates
 double gpsUpdateRate =  0.8; // delay between gps updates
-double odomUpdateRate = 0.4;//0.02; // delay between odometry updates
+double odomUpdateRate = 0.02; // delay between odometry updates
 
 // This timeout is to stop executing a cmd_vel command after not hearing any new ones for a certain period of time
 
@@ -170,19 +170,29 @@ int main(int argc, char **argv) {
   
     // Execute the gps update code at a certain rate
     if ((ros::Time::now() - lastGpsUpdate).toSec() > gpsUpdateRate) {
-      Vector3 GpsPosition = lastPosition + lastOrientation * Vector3(0.2475, 0.0, 0.2231);
+      Vector3 GpsPosition = lastPosition + Matrix3x3::Transpose(lastOrientation) * Vector3(0.2475, 0.0, 0.2231);
       sensor_msgs::NavSatFix gps;
       gps.header.stamp = ros::Time::now();
       lastGpsUpdate = ros::Time::now();
       gps.header.frame_id = "gps";
-      gps.status.status = gps.status.STATUS_GBAS_FIX;
+      gps.status.status = gps.status.STATUS_SBAS_FIX;
       gps.status.service = gps.status.SERVICE_GPS;
-      gps.longitude = (GpsPosition.X + rand_normal(0, .01)) / 6371393.0 * 180.0 / 3.1415;         
-      gps.latitude = (GpsPosition.Y + rand_normal(0, .01)) / 6371393.0 * 180.0 / 3.1415;  
-      gps.altitude = rand_normal(0, .015) + GpsPosition.Z;
-      gps.position_covariance[0] = 0.02; // NOTE: NEED TO ADJUST COVARIANCES
-      gps.position_covariance[4] = 0.02; // NOTE: NEED TO ADJUST COVARIANCES
-      gps.position_covariance[8] = 0.05; // NOTE: NEED TO ADJUST COVARIANCES
+     
+     // gps.longitude = (GpsPosition.X + rand_normal(0, .01)) / 6371393.0 * 180.0 / 3.1415;         
+     // gps.latitude = (GpsPosition.Y + rand_normal(0, .01)) / 6371393.0 * 180.0 / 3.1415;  
+     // gps.altitude = rand_normal(0, .015) + GpsPosition.Z;
+      
+      gps.longitude = (GpsPosition.X ) / 6378137.0 * 180.0 / 3.1415265359 + 10;         
+      gps.latitude = (GpsPosition.Y ) / 6378137.0 * 180.0 / 3.1415265359 + 10;  
+      gps.altitude = GpsPosition.Z;
+      
+      gps.position_covariance[0] = 0; // NOTE: NEED TO ADJUST COVARIANCES
+      gps.position_covariance[4] = 0; // NOTE: NEED TO ADJUST COVARIANCES
+      gps.position_covariance[8] = 0; // NOTE: NEED TO ADJUST COVARIANCES
+      
+     // gps.position_covariance[0] = 0.02; // NOTE: NEED TO ADJUST COVARIANCES
+     // gps.position_covariance[4] = 0.02; // NOTE: NEED TO ADJUST COVARIANCES
+     // gps.position_covariance[8] = 0.05; // NOTE: NEED TO ADJUST COVARIANCES
       gps.position_covariance_type = gps.COVARIANCE_TYPE_APPROXIMATED;
       gpsPub.publish(gps);
       lastGpsPosition = GpsPosition;
@@ -280,8 +290,8 @@ int main(int argc, char **argv) {
       
 
 
-      odom.twist.twist.angular.z = (Matrix3x3::Transpose(lastOrientation) * lastAngularVel).Z + rand_normal(0, .01);
-      odom.twist.twist.linear.x = (Matrix3x3::Transpose(lastOrientation) * lastVelocity).X + rand_normal(0, .01);
+      odom.twist.twist.angular.z = (Matrix3x3::Transpose(lastOrientation) * lastAngularVel).Z + rand_normal(0, .001);
+      odom.twist.twist.linear.x = (Matrix3x3::Transpose(lastOrientation) * lastVelocity).X + rand_normal(0, .001);
 
 
       odom.twist.covariance[0] = 0.001; // NOTE: NEED TO ADJUST COVARIANCES
