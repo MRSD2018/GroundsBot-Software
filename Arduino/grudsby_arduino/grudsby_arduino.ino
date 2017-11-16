@@ -1,8 +1,7 @@
 #include <ros.h>
-#include <std_msgs/Float64.h>
-#include <std_msgs/Int32.h>
-#include <grudsby_lowlevel/ArduinoVel.h>
-#include <grudsby_lowlevel/ArduinoResponse.h>
+
+#include <nav_msgs/Odometry.h>
+
 #define ENCODER_OPTIMIZE_INTERRUPTS
 
 #include <SBUS.h>
@@ -26,13 +25,12 @@ void setup()
   //set up ros 
   nh.initNode();
   nh.subscribe(vel_sub);
-  nh.advertise(lwheel_pub);
-  nh.advertise(rwheel_pub);
+  nh.advertise(odom_pub);
   
 
 
-  leftMotor = new RCMotor(6);
-  rightMotor = new RCMotor(7);
+  leftMotor = new RCMotor(22);
+  rightMotor = new RCMotor(23);
 
 
   autonomous = true;
@@ -49,17 +47,17 @@ void loop()
   moveGrudsby();
   lPos = leftEncoder.read();
   rPos = rightEncoder.read();
-  // publishStatus();
+  publishStatus();
   // nh.spinOnce();
   //delay(1);
 
-  Serial.print(leftVel);
-  Serial.print(" ");
-  Serial.print(-rightVel);
-  Serial.print(" ");
-  Serial.print(lPos);
-  Serial.print(" ");
-  Serial.println(-rPos);
+//   Serial.print(leftVel);
+//   Serial.print(" ");
+//   Serial.print(-rightVel);
+//   Serial.print(" ");
+//   Serial.print(lPos);
+//   Serial.print(" ");
+//   Serial.println(-rPos);
 }
 
 ISR(TIMER2_COMPA_vect) {
@@ -79,19 +77,36 @@ void velCallback(const grudsby_lowlevel::ArduinoVel& msg) {
 }
 
 void publishStatus() {
-  if (leftEncoder.read() !=  prevLPos) {
-    lwheel_msg.data = leftEncoder.read();
-    lwheel_pub.publish(&lwheel_msg);
-    delay(10);
-  }
+  // wheel rads = ticks_per_sec / ticks_per_rev  * 2pi
+  
+  double leftRadPerSec = ((leftVel * 250) / 4096.0) * 2 * 3.14157 ; // * 250 becuz sampled at 250 hz
+  double rightRadPerSec = ((rightVel * 250) / 4096.0) * 2 * 3.14157;
 
-  if (rightEncoder.read() != prevRPos) {
-    rwheel_msg.data = rightEncoder.read();
-    rwheel_pub.publish(&rwheel_msg);
-  }
+  double x_vel = (WHEEL_RAD/2.0) * (leftRadPerSec + rightRadPerSec);
+  double z_rot = (WHEEL_RAD / WHEELBASE_LEN) * (rightRadPerSec - leftRadPerSec);
 
-  prevLPos = leftEncoder.read();
-  prevRPos = rightEncoder.read();
+  odom_msg.twist.twist.linear.x = x_vel;
+  odom_msg.twist.twist.angular.z = z_rot;
+  
+  odom_pub.publish(&odom_msg);
+
+  Serial.print(x_vel);
+  Serial.print(" ");
+  Serial.println(z_rot);
+
+  // if (leftEncoder.read() !=  prevLPos) {
+  //   lwheel_msg.data = leftEncoder.read();
+  //   lwheel_pub.publish(&lwheel_msg);
+  //   delay(10);
+  // }
+
+  // if (rightEncoder.read() != prevRPos) {
+  //   rwheel_msg.data = rightEncoder.read();
+  //   rwheel_pub.publish(&rwheel_msg);
+  // }
+
+  // prevLPos = leftEncoder.read();
+  // prevRPos = rightEncoder.read();
 
 }
 

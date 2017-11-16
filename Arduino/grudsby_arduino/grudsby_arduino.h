@@ -32,22 +32,25 @@ int32_t rightVel = 0;
 bool autonomous;
 bool kill;
 
-//Right encoder gives negative values
+const float WHEELBASE_LEN = 0.508;
+const float WHEEL_RAD = 0.127;
+
+
 Encoder rightEncoder(2, 4);
 Encoder leftEncoder(3, 5);
 
 Motor* leftMotor;
 Motor* rightMotor;
 
-int test = 0;
+
+
 
 ros::NodeHandle nh;
 ros::Subscriber<grudsby_lowlevel::ArduinoVel> vel_sub("/arduino/vel", &velCallback);
 
-std_msgs::Int32 lwheel_msg;
-std_msgs::Int32 rwheel_msg;
-ros::Publisher	lwheel_pub("lwheel", &lwheel_msg);
-ros::Publisher 	rwheel_pub("rwheel", &rwheel_msg);
+nav_msgs::Odometry odom_msg;
+
+ros::Publisher odom_pub("grudsby/odometry", &odom_msg);
 
 rc_control rc;
 
