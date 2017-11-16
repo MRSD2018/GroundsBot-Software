@@ -2,7 +2,7 @@
 #define GrudsbyImuReg_H
 
 /* Accelerometer / Gyroscope */
-#define LSM9DS1_AG_ADDRESS     0x6A
+#define LSM9DS1_AG_ADDRESS     0x6B
 
 #define AG_WHO_AM_I            0x0F
 #define AG_WHO_AM_I_RETURN     0x68
@@ -28,7 +28,7 @@
 #define AG_GYR_Z_H             0x1D
 /* Magnetometer */
 
-#define LSM9DS1_M_ADDRESS      0x1C
+#define LSM9DS1_M_ADDRESS      0x1E
 
 #define M_WHO_AM_I            0x0F
 #define M_WHO_AM_I_RETURN     0x3D

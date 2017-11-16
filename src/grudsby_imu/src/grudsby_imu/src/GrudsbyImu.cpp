@@ -1,14 +1,16 @@
 // NOTE: Need to install i2c tools:
 // sudo apt-get install libi2c-dev i2c-tools
 #include "GrudsbyImu.h"
+#include "ros/ros.h"
 
 GrudsbyImuBase::GrudsbyImuBase(const unsigned int address) {
-  myI2CBus = 0; // sets the selected I2C bus
+  myI2CBus = 1; // sets the selected I2C bus
   myError = 0;
   myAddr = address;  
   x = 0;
   y = 0;
   z = 0;
+  init();
 }
 
 GrudsbyImuBase::~GrudsbyImuBase() {
@@ -39,6 +41,7 @@ bool GrudsbyImuBase::init() {
 
 int GrudsbyImuBase::readRegister(int regToRead) { 
   int toReturn ;
+  toReturn = i2c_smbus_write_byte(myI2CFileDescriptor, myAddr) ;
   toReturn = i2c_smbus_write_byte(myI2CFileDescriptor, regToRead) ;
   if (toReturn < 0) {
       myError = errno ;
