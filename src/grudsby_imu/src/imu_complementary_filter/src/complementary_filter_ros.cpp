@@ -100,8 +100,8 @@ void ComplementaryFilterROS::initializeParams()
     fixed_frame_ = "odom";
   if (!nh_private_.getParam ("use_mag", use_mag_))
     use_mag_ = false;
-  if (!nh_private_.getParam ("publish_tf", publish_tf_))
-    publish_tf_ = false;
+  //if (!nh_private_.getParam ("publish_tf", publish_tf_))
+  publish_tf_ = true;
   if (!nh_private_.getParam ("reverse_tf", reverse_tf_))
     reverse_tf_ = false;
   if (!nh_private_.getParam ("constant_dt", constant_dt_))

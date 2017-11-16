@@ -53,9 +53,9 @@ class GrudsbyImuAccel : GrudsbyImuBase {
     bool activate();
     bool deactivate();
     bool begin();
-    int readX();
-    int readY();
-    int readZ();
+    double readX();
+    double readY();
+    double readZ();
 };
 
 class GrudsbyImuMag : GrudsbyImuBase{
@@ -65,9 +65,9 @@ class GrudsbyImuMag : GrudsbyImuBase{
     bool activate();
     bool deactivate();
     bool begin();
-    int readX();
-    int readY();
-    int readZ();
+    double readX();
+    double readY();
+    double readZ();
 };
 
 class GrudsbyImuGyro : GrudsbyImuBase{
@@ -77,8 +77,8 @@ class GrudsbyImuGyro : GrudsbyImuBase{
     bool activate();
     bool deactivate();
     bool begin();
-    int readX();
-    int readY();
-    int readZ();
+    double readX();
+    double readY();
+    double readZ();
 };
 #endif //GrudsbyImu_H

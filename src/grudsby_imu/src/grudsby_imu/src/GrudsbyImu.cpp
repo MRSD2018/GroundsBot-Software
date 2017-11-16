@@ -57,6 +57,7 @@ int GrudsbyImuBase::readRegister(int regToRead) {
 
 int GrudsbyImuBase::writeRegister(int regtoWrite, int dataToWrite) {
   ioctl(myI2CFileDescriptor, I2C_SLAVE, myAddr);
+  i2c_smbus_write_byte(myI2CFileDescriptor, myAddr) ;
   int toReturn = i2c_smbus_write_byte_data(myI2CFileDescriptor, regtoWrite,  dataToWrite);
   if (toReturn < 0) {
       myError = errno ;
@@ -128,31 +129,31 @@ bool GrudsbyImuAccel::begin() {
   return false;
 }
 
-int GrudsbyImuAccel::readX() {
+double GrudsbyImuAccel::readX() {
   int data = 0;
   if (readInternal(AG_ACC_X_H, AG_ACC_X_L, &data)) {
       x = data;
   }
   // Decode Accel x-axis  [mdps measurement unit]
-  return (A_LSB_SENSIT_2MG * x);
+  return (9.81 * A_LSB_SENSIT_2MG * x /  1000.0 ) ;
 }
 
-int GrudsbyImuAccel::readY() {
+double GrudsbyImuAccel::readY() {
   int data = 0;
   if (readInternal(AG_ACC_Y_H, AG_ACC_Y_L, &data)) {
       y = data;
   }
   // Decode Accel x-axis  [mdps measurement unit]
-  return (A_LSB_SENSIT_2MG * y);
+  return (9.81 * A_LSB_SENSIT_2MG * y / -1000.0 );
 }
 
-int GrudsbyImuAccel::readZ() {
+double GrudsbyImuAccel::readZ() {
   int data = 0;
   if (readInternal(AG_ACC_Z_H, AG_ACC_Z_L, &data)) {
       z = data;
   }
   // Decode Accel x-axis  [mdps measurement unit]
-  return (A_LSB_SENSIT_2MG * z);
+  return (9.81 * A_LSB_SENSIT_2MG * z / 1000.0);
 }
 
 
@@ -198,31 +199,31 @@ bool GrudsbyImuMag::begin() {
   return false;
 }
 
-int GrudsbyImuMag::readX() {
+double GrudsbyImuMag::readX() {
   int data = 0;
   if (readInternal(M_X_H, M_X_L, &data)) {
       x = data;
   }
   // Decode magnetic x-axis  [mgauss measurement unit]
-  return (M_LSB_SENSIT_4MG * x);
+  return (M_LSB_SENSIT_4MG * x / 1000.0);
 }
 
-int GrudsbyImuMag::readY() {
+double GrudsbyImuMag::readY() {
   int data = 0;
   if (readInternal(M_Y_H, M_Y_L, &data)) {
       y = data;
   }
   // Decode magnetic x-axis  [mgauss measurement unit]
-  return (M_LSB_SENSIT_4MG * y);
+  return (M_LSB_SENSIT_4MG * y / -1000.0);
 }
 
-int GrudsbyImuMag::readZ() {
+double GrudsbyImuMag::readZ() {
   int data = 0;
   if (readInternal(M_Z_H, M_Z_L, &data)) {
       z = data;
   }
   // Decode magnetic x-axis  [mgauss measurement unit]
-  return (M_LSB_SENSIT_4MG * z);
+  return (M_LSB_SENSIT_4MG * z / 1000.0);
 }
 
 
@@ -263,29 +264,29 @@ bool GrudsbyImuGyro::begin() {
   return false;
 }
 
-int GrudsbyImuGyro::readX() {
+double GrudsbyImuGyro::readX() {
   int data = 0;
   if (readInternal(AG_GYR_X_H, AG_GYR_X_L, &data)) {
       x = data;
   }
   // Decode Gyroscope x-axis  [mdps measurement unit]
-  return (G_LSB_SENSIT_245MDPS * x);
+  return (G_LSB_SENSIT_245MDPS * x * 3.141592653 / (1000.0 * 180));
 }
 
-int GrudsbyImuGyro::readY() {
+double GrudsbyImuGyro::readY() {
   int data = 0;
   if (readInternal(AG_GYR_Y_H, AG_GYR_Y_L, &data)) {
       y = data;
   }
   // Decode Gyroscope x-axis  [mdps measurement unit]
-  return (G_LSB_SENSIT_245MDPS * y);
+  return (G_LSB_SENSIT_245MDPS * y * 3.141592653 / (-1000.0 * 180));
 }
 
-int GrudsbyImuGyro::readZ() {
+double GrudsbyImuGyro::readZ() {
   int data = 0;
   if (readInternal(AG_GYR_Z_H, AG_GYR_Z_L, &data)) {
       z = data;
   }
   // Decode Gyroscope x-axis  [mdps measurement unit]
-  return (G_LSB_SENSIT_245MDPS * z);
+  return (G_LSB_SENSIT_245MDPS * z * 3.141592653 / (1000.0 * 180));
 }
