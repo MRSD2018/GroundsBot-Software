@@ -66,6 +66,21 @@ void parseKMLFile()
   } 
 }
 
+bool inThreshold(double lat, double lon, double goal_lat, double goal_lon)
+{
+  double glat_plus = goal_lat + 0.000003;
+  double glat_minus = goal_lat - 0.000003;
+  double glon_plus = goal_lon + 0.000003;
+  double glon_minus = goal_lon - 0.000003;
+
+  if ( lat < glat_plus && lat > glat_minus &&
+        lon < glon_plus && lon > glon_minus)
+  {
+    return true;
+  }
+  return false;
+}
+
 void findWaypointCallback(const sensor_msgs::NavSatFix& msg)
 {
   double grudsby_lat = msg.latitude;
@@ -77,25 +92,25 @@ void findWaypointCallback(const sensor_msgs::NavSatFix& msg)
   goal.header.stamp = ros::Time::now();
   goal.header.frame_id = "utm";
 
+  double goal_lat = goals.front().latitude;
+  double goal_long = goals.front().longitude;
 
-  //PSEUDO CODE
-  //TODO: MAKE THIS REAL!!
-  /*if ( grudsby_lat == goal_lat && grudsby_long = goal_long )
+  if ( inThreshold(grudsby_lat, grudsby_long, goal_lat, goal_long) )
   {
-    goal_lat = next_waypoint_lat;
-    goal_long = next_waypoint_long;
-    goal_alt = next_waypoint_alt;
-
-    goal_easting_x = 0;
-    goal_northing_y = 0;
+    goals.erase( goals.begin() );
+    goal_lat = goals.front().latitude;
+    goal_long = goals.front().longitude;
+    
+    double goal_easting_x = 0;
+    double goal_northing_y = 0;
     std::string utm_zone_tmp;
 
     RobotLocalization::NavsatConversions::LLtoUTM(goal_lat, goal_long, goal_northing_y, goal_easting_x, utm_zone_tmp);
 
     goal.pose.position.x = goal_easting_x;
     goal.pose.position.y = goal_northing_y;
-    goal.pose.position.z = goal_alt;
-  }*/
+    goal.pose.position.z = grudsby_alt;
+  }
 
   waypoint_pub.publish(goal);
 }
