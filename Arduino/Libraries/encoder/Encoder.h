@@ -51,7 +51,8 @@
 #define ENCODER_ARGLIST_SIZE 0
 #endif
 
-
+extern unsigned long lastEncMicros0;
+extern unsigned long lastEncMicros1;
 
 // All the data needed by interrupts is consolidated into this ugly struct
 // to facilitate assembly language optimizing of the speed critical update.
@@ -731,10 +732,12 @@ private:
 
 #if defined(ENCODER_USE_INTERRUPTS) && !defined(ENCODER_OPTIMIZE_INTERRUPTS)
 	#ifdef CORE_INT0_PIN
-	static void isr0(void) { update(interruptArgs[0]); }
+	static void isr0(void) { lastEncMicros0 = micros();
+		update(interruptArgs[0]); }
 	#endif
 	#ifdef CORE_INT1_PIN
-	static void isr1(void) { update(interruptArgs[1]); }
+	static void isr1(void) { lastEncMicros1 = micros();
+		update(interruptArgs[1]); }
 	#endif
 	#ifdef CORE_INT2_PIN
 	static void isr2(void) { update(interruptArgs[2]); }

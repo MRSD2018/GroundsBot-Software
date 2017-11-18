@@ -7,4 +7,7 @@
 
 Encoder_internal_state_t * Encoder::interruptArgs[];
 
+volatile unsigned long lastEncMicros0 = 0;
+volatile unsigned long lastEncMicros1 = 0;
+
 

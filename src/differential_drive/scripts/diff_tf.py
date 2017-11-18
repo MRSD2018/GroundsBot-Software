@@ -75,7 +75,7 @@ class DiffTf:
         
         #### parameters #######
         self.rate = rospy.get_param('~rate',100.0)  # the rate at which to publish the transform
-        self.ticks_meter = float(rospy.get_param('ticks_meter', 5232))  # The number of wheel encoder ticks per meter of travel
+        self.ticks_meter = float(rospy.get_param('ticks_meter', 4096 / (10 * 3.14159 * 0.0254)))  # The number of wheel encoder ticks per meter of travel
         self.base_width = float(rospy.get_param('~base_width', 0.508)) # The wheel base width in meters
         
         self.base_frame_id = rospy.get_param('~base_frame_id','base_link') # the name of the base frame of the robot
@@ -83,8 +83,8 @@ class DiffTf:
         
         self.encoder_min = rospy.get_param('encoder_min', -2147483648)
         self.encoder_max = rospy.get_param('encoder_max', 2147483647)
-        self.encoder_low_wrap = rospy.get_param('wheel_low_wrap', (self.encoder_max - self.encoder_min) * 0.1 + self.encoder_min )
-        self.encoder_high_wrap = rospy.get_param('wheel_high_wrap', (self.encoder_max - self.encoder_min) * 0.9 + self.encoder_min )
+        self.encoder_low_wrap = rospy.get_param('wheel_low_wrap', (self.encoder_max - self.encoder_min) * 0.3 + self.encoder_min )
+        self.encoder_high_wrap = rospy.get_param('wheel_high_wrap', (self.encoder_max - self.encoder_min) * 0.7 + self.encoder_min )
  
         self.t_delta = rospy.Duration(1.0/self.rate)
         self.t_next = rospy.Time.now() + self.t_delta
@@ -140,8 +140,7 @@ class DiffTf:
             self.enc_right = self.right
            
             # distance traveled is the average of the two wheels 
-            d = ( d_left + d_right ) / 2
-	    print(d)
+            d = ( d_left + d_right ) / 2.0
             # this approximation works (in radians) for small angles
             th = ( d_right - d_left ) / self.base_width
             # calculate velocities

@@ -1,8 +1,7 @@
 #include <ros.h>
 
 #include <nav_msgs/Odometry.h>
-
-#define ENCODER_OPTIMIZE_INTERRUPTS
+#include <std_msgs/Int32.h>
 
 #include <SBUS.h>
 #include <elapsedMillis.h>
@@ -20,23 +19,27 @@
 using namespace grudsby;
 
 void setup()
+
 {
 
   //set up ros 
   nh.initNode();
   nh.subscribe(vel_sub);
   nh.advertise(odom_pub);
+
+  nh.advertise(lwheel_pub);
+  nh.advertise(rwheel_pub);
   
 
 
-  leftMotor = new RCMotor(22);
-  rightMotor = new RCMotor(23);
+  leftMotor = new RCMotor(4);
+  rightMotor = new RCMotor(6);
 
 
   autonomous = true;
   Serial.begin(1000000);
 
-  initTimer2();
+  // initTimer2();
 
 
 
@@ -44,13 +47,13 @@ void setup()
 
 void loop()
 {
-  moveGrudsby();
-  lPos = leftEncoder.read();
-  rPos = rightEncoder.read();
+  moveGrudsby();  
   publishStatus();
   nh.spinOnce();
-  delay(1);
+  delay(5);
 
+  // leftMotor->writeVal(255);
+  // rightMotor->writeVal(255);
 //   Serial.print(leftVel);
 //   Serial.print(" ");
 //   Serial.print(-rightVel);
@@ -60,15 +63,16 @@ void loop()
 //   Serial.println(-rPos);
 }
 
-ISR(TIMER2_COMPA_vect) {
+// ISR(TIMER2_COMPA_vect) {
 
-  leftVel = lPos - prevLTimerPos;
-  rightVel = rPos - prevRTimerPos;
+//   // leftVel = lPos - prevLTimerPos;
+//   // rightVel = rPos - prevRTimerPos;
 
-  prevLTimerPos = lPos;
-  prevRTimerPos = rPos;
+//   // prevLTimerPos = lPos;
+//   // prevRTimerPos = rPos;
 
-} 
+
+// } 
 
 void velCallback(const grudsby_lowlevel::ArduinoVel& msg) {
 
@@ -78,35 +82,63 @@ void velCallback(const grudsby_lowlevel::ArduinoVel& msg) {
 
 void publishStatus() {
   // wheel rads = ticks_per_sec / ticks_per_rev  * 2pi
-  
-  double leftRadPerSec = ((leftVel * 250) / 4096.0) * 2 * 3.14157 ; // * 250 becuz sampled at 250 hz
-  double rightRadPerSec = ((rightVel * 250) / 4096.0) * 2 * 3.14157;
 
-  double x_vel = (WHEEL_RAD/2.0) * (leftRadPerSec + rightRadPerSec);
-  double z_rot = (WHEEL_RAD / WHEELBASE_LEN) * (rightRadPerSec - leftRadPerSec);
+  //extern from encoder.h
+  if (publishVel%20 == 0) {
+    noInterrupts();
+    unsigned long lastEncMicros1_curr = lastEncMicros1;
+    unsigned long lastEncMicros0_curr = lastEncMicros0;
+    int32_t lPos = leftEncoder.read();
+    int32_t rPos = rightEncoder.read();
+    interrupts();
 
-  odom_msg.twist.twist.linear.x = x_vel;
-  odom_msg.twist.twist.angular.z = z_rot;
-  
-  odom_pub.publish(&odom_msg);
+    //pub vels //
+    // double leftRadPerSec = 0;
+    // double rightRadPerSec = 0;
 
-  // Serial.print(x_vel);
-  // Serial.print(" ");
-  // Serial.println(z_rot);
+    // int lPosDiff = int(lPos) - int(last_lPos);
+    // int rPosDiff = int(rPos) - int(last_rPos);
 
-  // if (leftEncoder.read() !=  prevLPos) {
-  //   lwheel_msg.data = leftEncoder.read();
-  //   lwheel_pub.publish(&lwheel_msg);
-  //   delay(10);
-  // }
+    // if (lastEncMicros1_curr != last_lastEncMicros1)
+    //   leftRadPerSec = ((lPosDiff) / (double(lastEncMicros1_curr - last_lastEncMicros1))) * 2 * 3.14159 ; 
+    // if (lastEncMicros0_curr != last_lastEncMicros0)
+    //   rightRadPerSec = ((rPosDiff) / (double(lastEncMicros0_curr - last_lastEncMicros0))) * 2 * 3.14159;
 
-  // if (rightEncoder.read() != prevRPos) {
-  //   rwheel_msg.data = rightEncoder.read();
-  //   rwheel_pub.publish(&rwheel_msg);
-  // }
 
-  // prevLPos = leftEncoder.read();
-  // prevRPos = rightEncoder.read();
+    // double x_vel = (WHEEL_RAD/2.0) * (leftRadPerSec + rightRadPerSec) * (1e6/ 4096.0);
+    // double z_rot = (WHEEL_RAD / WHEELBASE_LEN) * (rightRadPerSec - leftRadPerSec) * (1e6/4096.0);
+
+    // odom_msg.twist.twist.linear.x = x_vel;
+    // odom_msg.twist.twist.angular.z = z_rot;
+    
+    // odom_pub.publish(&odom_msg);
+    // Serial.print(x_vel, 3);
+    // Serial.print(" ");
+    // Serial.println(z_rot, 3);
+
+
+    last_lastEncMicros0 = lastEncMicros0_curr;
+    last_lastEncMicros1 = lastEncMicros1_curr;
+    last_lPos = lPos;
+    last_rPos = rPos;
+
+
+    //pub positions///
+    // lwheel_msg.data = lPos;
+    // rwheel_msg.data = rPos;
+
+    // lwheel_pub.publish(&lwheel_msg);
+    // rwheel_pub.publish(&rwheel_msg);
+
+    Serial.print(lPos);
+    Serial.print(" ");
+    Serial.println(rPos);
+
+    //reset timeout count
+    publishVel = 1;
+  }
+
+  publishVel++;
 
 }
 
@@ -130,6 +162,7 @@ void moveGrudsby() {
       int rc_left_vel = rc.get_RC_left_motor_velocity();
       int rc_right_vel = rc.get_RC_right_motor_velocity();
       //Serial<<"Left: "<<rc_left_vel<<"\tRight: "<<rc_right_vel<<endl;
+      Serial.println(rc_left_vel);
       leftMotor->writeVal(rc_left_vel);
       rightMotor->writeVal(rc_right_vel);
     }

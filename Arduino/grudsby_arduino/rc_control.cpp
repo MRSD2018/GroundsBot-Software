@@ -3,7 +3,7 @@
 #include "rc_control.h"
 
 rc_control::rc_control() {
-  x8r = new SBUS(Serial1);
+  x8r = new SBUS(Serial2);
   // begin the SBUS communication
   x8r->begin();
   //Serial.println("started receiver");
