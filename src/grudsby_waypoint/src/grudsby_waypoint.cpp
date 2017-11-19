@@ -9,7 +9,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <cstdlib> // for exit()
+#include <ros/console.h>// for logging
 
 ros::Publisher waypoint_pub;
 
@@ -30,13 +30,13 @@ void parseKMLFile()
   if (!infile)
   {
       // Print an error and exit
-      std::cerr << "Uh oh, mower_path could not be opened for reading!" << std::endl;
-      exit(1);
+      ROS_ERROR("Cannot open mower_path file for parsing! No goal waypoints created!");
   }
 
   std::string line;
   while ( std::getline(infile, line) )
   {
+    ROS_INFO("Parsing mower_path file to get waypoints.");
     std::stringstream ss;
     ss << line;
     char ch;
@@ -83,6 +83,7 @@ bool inThreshold(double lat, double lon, double goal_lat, double goal_lon)
 
 void findWaypointCallback(const sensor_msgs::NavSatFix& msg)
 {
+  ROS_INFO("Building new goal message");
   double grudsby_lat = msg.latitude;
   double grudsby_long = msg.longitude;
   double grudsby_alt = msg.altitude;
@@ -97,20 +98,22 @@ void findWaypointCallback(const sensor_msgs::NavSatFix& msg)
 
   if ( inThreshold(grudsby_lat, grudsby_long, goal_lat, goal_long) )
   {
+    ROS_INFO("Updating goal waypoint");
     goals.erase( goals.begin() );
     goal_lat = goals.front().latitude;
     goal_long = goals.front().longitude;
-    
-    double goal_easting_x = 0;
-    double goal_northing_y = 0;
-    std::string utm_zone_tmp;
-
-    RobotLocalization::NavsatConversions::LLtoUTM(goal_lat, goal_long, goal_northing_y, goal_easting_x, utm_zone_tmp);
-
-    goal.pose.position.x = goal_easting_x;
-    goal.pose.position.y = goal_northing_y;
-    goal.pose.position.z = grudsby_alt;
   }
+
+  double goal_easting_x = 0;
+  double goal_northing_y = 0;
+  std::string utm_zone_tmp;
+
+  RobotLocalization::NavsatConversions::LLtoUTM(goal_lat, goal_long, goal_northing_y, goal_easting_x, utm_zone_tmp);
+
+  goal.pose.position.x = goal_easting_x;
+  goal.pose.position.y = goal_northing_y;
+  goal.pose.position.z = grudsby_alt;
+  ROS_INFO("UTM Goal: Northing: %f, Easting: %f", goal_northing_y, goal_easting_x);
 
   waypoint_pub.publish(goal);
 }
