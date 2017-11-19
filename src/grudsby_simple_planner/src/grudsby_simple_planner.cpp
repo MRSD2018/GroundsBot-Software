@@ -7,11 +7,14 @@
 #include "Quaternion.hpp"
 #include "Matrix3x3.hpp"
 #include "Vector2.hpp"
+#include "tf/transform_listener.h"
 
 
-
-geometry_msgs::PoseStamped goal_odom;
+geometry_msgs::PoseStamped goal_pose_in_odom;
 nav_msgs::Odometry curr_odom;
+
+
+tf::TransformListener listener;
 
 double max_x_vel = 1;
 double max_theta_vel = 4;
@@ -48,7 +51,12 @@ void goal_received(const geometry_msgs::PoseStamped::ConstPtr& goal_msg)
 
   goal_set = true;
 
-  goal_odom = *goal_msg; 
+  geometry_msgs::PoseStamped goal_pose_in_gps;
+
+  goal_pose_in_gps = *goal_msg;
+  
+  listener.transformPose("odom", goal_pose_in_gps, goal_pose_in_odom);
+ 
 }
 
 int sign(double d)
@@ -71,6 +79,11 @@ int main(int argc, char **argv) {
   ros::Publisher velPub = n.advertise<geometry_msgs::Twist>("cmd_vel", 100);
   ros::Subscriber odomSub = n.subscribe("odometry/filtered", 100, odom_received);
   ros::Subscriber goalSub = n.subscribe("goal", 100, goal_received);  
+
+  
+ 
+    
+
   while (ros::ok())
   {
     //DEBUGGING
@@ -103,8 +116,8 @@ int main(int argc, char **argv) {
 
  
       //Find vector between start and goal
-      double delta_x = goal_odom.pose.position.x - curr_odom.pose.pose.position.x;   
-      double delta_y = goal_odom.pose.position.y - curr_odom.pose.pose.position.y;   
+      double delta_x = goal_pose_in_odom.pose.position.x - curr_odom.pose.pose.position.x;   
+      double delta_y = goal_pose_in_odom.pose.position.y - curr_odom.pose.pose.position.y;   
     
       Vector3 v_vec(delta_x, delta_y, 0);
 
