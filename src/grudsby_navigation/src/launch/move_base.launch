@@ -1,20 +1,23 @@
 <launch>
   <master auto="start"/>
 
-  <!-- Run the map server-->
-  <node name="map_server" pkg="map_server" type="map_server" args="/tmp/test_map.yaml"/>
+  <!-- Run the map server
+  <node name="map_server" pkg="map_server" type="map_server" args="/tmp/test_map.yaml"/>-->
 
-  <!--- Run AMCL
+  <node pkg="tf" type="static_transform_publisher" name="map_odom" args="0 0 0 0 0 0 1 map odom 100" />
+
+  <!-- Run AMCL
   <include file="$(find amcl)/examples/amcl_diff.launch" />-->
 
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
-    <rosparam file="$(find grudsby_navigation)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
-    <rosparam file="$(find grudsby_navigation)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
-    <rosparam file="$(find grudsby_navigation)/config/local_costmap_params.yaml" command="load" />
-    <rosparam file="$(find turtle_2dnav)/config/global_costmap_params.yaml" command="load" />
-    <rosparam file="$(find grudsby_navigation)/config/base_local_planner_params.yaml" command="load" />
+    <rosparam file="src/grudsby_navigation/src/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="src/grudsby_navigation/src/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="src/grudsby_navigation/src/config/local_costmap_params.yaml" command="load" />
+    <rosparam file="src/grudsby_navigation/src/config/global_costmap_params.yaml" command="load" />
+    <rosparam file="src/grudsby_navigation/src/config/base_local_planner_params.yaml" command="load" />
+
+   <!-- <remap from="/odom" to="/odometry/filtered"/>-->
   </node>
 
- <remap from="/cmd_vel_mux/input/teleop" to="/cmd_vel"/>
 
 </launch>
