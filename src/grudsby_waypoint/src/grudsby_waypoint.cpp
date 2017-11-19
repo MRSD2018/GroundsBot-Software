@@ -9,6 +9,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <math.h>
 #include <ros/console.h>// for logging
 
 ros::Publisher waypoint_pub;
@@ -66,9 +67,30 @@ void parseKMLFile()
   } 
 }
 
+double deg2rad(double deg) {
+  return deg * (M_PI/180);
+}
+
 bool inThreshold(double lat, double lon, double goal_lat, double goal_lon)
 {
-  double glat_plus = goal_lat + 0.000003;
+  int R = 6371; // Radius of the earth in km
+  double dLat = deg2rad(goal_lat - lat);  // deg2rad below
+  double dLon = deg2rad(goal_lon - lon); 
+  double a = 
+    sin(dLat/2) * sin(dLat/2) +
+    cos(deg2rad(lat)) * cos(deg2rad(goal_lat)) * 
+    sin(dLon/2) * sin(dLon/2)
+    ; 
+  double c = 2 * atan2(sqrt(a), sqrt(1-a)); 
+  double d = R * c; // Distance in km
+  
+  if ( d <= 0.0003 ) {
+    return true;
+  }
+  return false;
+  
+  //Dumb version incase smart version doesn't work
+  /*double glat_plus = goal_lat + 0.000003;
   double glat_minus = goal_lat - 0.000003;
   double glon_plus = goal_lon + 0.000003;
   double glon_minus = goal_lon - 0.000003;
@@ -78,7 +100,7 @@ bool inThreshold(double lat, double lon, double goal_lat, double goal_lon)
   {
     return true;
   }
-  return false;
+  return false;*/
 }
 
 void findWaypointCallback(const sensor_msgs::NavSatFix& msg)
