@@ -14,6 +14,13 @@ RUN SOLO
 ---
 rosrun nmea_navsat_driver nmea_serial_driver _port:=/dev/ttyACM0 _baud:=57600
 
+SETUP
+---
+#modemmanager conflicts with uart for no good reason. We dont use it, remove
+sudo apt-get remove modemmanager
+#Need permissions for dialout group
+sudo adduser nvidia dialout
+
 EMLID REACH Configuration
 ---
 
