@@ -51,8 +51,8 @@
 #define ENCODER_ARGLIST_SIZE 0
 #endif
 
-extern unsigned long lastEncMicros0;
-extern unsigned long lastEncMicros1;
+extern volatile unsigned long lastEncMicros0;
+extern volatile unsigned long lastEncMicros1;
 
 // All the data needed by interrupts is consolidated into this ugly struct
 // to facilitate assembly language optimizing of the speed critical update.
