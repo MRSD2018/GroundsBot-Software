@@ -26,7 +26,7 @@ static std::vector<waypoint> goals;
 
 void parseKMLFile()
 {
-  std::ifstream infile("/home/adam/GroundsBot/GroundsBot-Software/src/grudsby_waypoint/src/mower_path.kml");
+  std::ifstream infile("src/grudsby_waypoint/src/mower_path.kml");
 
   if (!infile)
   {
@@ -148,10 +148,10 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "waypoint_pub");
   ros::NodeHandle n;
   
-  waypoint_pub = n.advertise<geometry_msgs::PoseStamped>("move_base_simple/goal", 1000);
+  waypoint_pub = n.advertise<geometry_msgs::PoseStamped>("/goal", 1000);
 
   ros::Subscriber navsat_sub;
-  navsat_sub = n.subscribe("gps/fix", 100, findWaypointCallback);
+  navsat_sub = n.subscribe("/fix", 100, findWaypointCallback);
 
   parseKMLFile();
   ROS_INFO("Waypoint file done parsing");
