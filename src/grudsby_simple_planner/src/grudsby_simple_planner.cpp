@@ -14,7 +14,6 @@ geometry_msgs::PoseStamped goal_pose_in_odom;
 nav_msgs::Odometry curr_odom;
 
 
-tf::TransformListener listener;
 
 double max_x_vel = 1;
 double max_theta_vel = 4;
@@ -43,6 +42,8 @@ void odom_received(const nav_msgs::Odometry::ConstPtr& odom_msg)
 //receive a goal position
 void goal_received(const geometry_msgs::PoseStamped::ConstPtr& goal_msg)
 {
+  
+  static tf::TransformListener listener;
   total_lin_error = 0;
   total_ang_error = 0;
  
@@ -54,9 +55,19 @@ void goal_received(const geometry_msgs::PoseStamped::ConstPtr& goal_msg)
   geometry_msgs::PoseStamped goal_pose_in_gps;
 
   goal_pose_in_gps = *goal_msg;
-  
-  listener.transformPose("odom", goal_pose_in_gps, goal_pose_in_odom);
- 
+
+
+  listener.waitForTransform("/odom","/utm",ros::Time::now(),ros::Duration(1.0));   
+  try
+  {  
+    listener.transformPose("/odom", goal_pose_in_gps, goal_pose_in_odom);
+  }
+  catch (tf::TransformException ex)
+  {
+    ROS_ERROR("%s", ex.what());
+    ros::Duration(1.0).sleep();
+    goal_set = false;
+  }
 }
 
 int sign(double d)
@@ -114,6 +125,9 @@ int main(int argc, char **argv) {
       Vector3 x_vec(cos(rpy.Z), sin(rpy.Z), 0);
       Vector3 z_vec(0, 0, 1);
 
+     //DEBUGGING
+      //      ROS_INFO("%f, %f, %f", x_vec.X, x_vec.Y, x_vec.Z);
+      //      ROS_INFO("%f, %f, %f", v_vec.X, v_vec.Y, v_vec.Z);
  
       //Find vector between start and goal
       double delta_x = goal_pose_in_odom.pose.position.x - curr_odom.pose.pose.position.x;   
