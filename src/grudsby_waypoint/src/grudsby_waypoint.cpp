@@ -63,6 +63,7 @@ void parseKMLFile()
         count ++;
       }
       goals.push_back(tmp);
+      ROS_INFO("Added GPS waypoint: %f, %f, %f", tmp.latitude, tmp.longitude, tmp.altitude);
     }
   } 
 }
@@ -114,6 +115,7 @@ void findWaypointCallback(const sensor_msgs::NavSatFix& msg)
   
   goal.header.stamp = ros::Time::now();
   goal.header.frame_id = "utm";
+  goal.pose.orientation.w = 1.0;
 
   double goal_lat = goals.front().latitude;
   double goal_long = goals.front().longitude;
@@ -152,12 +154,7 @@ int main(int argc, char **argv)
   navsat_sub = n.subscribe("gps/fix", 100, findWaypointCallback);
 
   parseKMLFile();
-  std::cout << "done parsing" << std::endl;
-  std::cout.precision(17);
-  for ( const waypoint &point : goals )
-  {
-    std::cout << point.latitude << ", " << point.longitude << std::endl;
-  }
+  ROS_INFO("Waypoint file done parsing");
 
   ros::Rate loop_rate(10);
 
