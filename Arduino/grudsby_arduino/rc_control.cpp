@@ -84,13 +84,16 @@ void rc_control::get_RC_exponential_outputs(int &outL, int &outR)
   long joy_y_val = map(channels[THROTTLE], 1811, 172, -255, 255);
   long joy_x_val = map(channels[TURN], 172, 1811, -255, 255);
 
-  joy_y_val = map(joy_y_val^5, -255^5, 255^5, -255, 255);
-  joy_x_val = map(joy_x_val^5, -255^5, 255^5, -255, 255);
+  joy_y_val = joy_y_val^5;
+  joy_x_val = joy_x_val^5;
+
+  joy_y_val = map(joy_y_val, -255^5, 255^5, -255, 255);
+  joy_x_val = map(joy_x_val, -255^5, 255^5, -255, 255);
 
   float premix_left;
   float premix_right;
 
-  float pivotlimit = 100; 
+  float pivotlimit = 60; 
 
   if (joy_y_val >= 0) {
     //Forward
