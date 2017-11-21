@@ -4,6 +4,7 @@ project(grudsby_lowlevel)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
+  rospy
   geometry_msgs
   message_generation
 )
