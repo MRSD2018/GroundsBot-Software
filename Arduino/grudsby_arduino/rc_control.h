@@ -39,6 +39,7 @@ public:
     int get_raw_kill();
     int get_raw_mode();
     void rc_control::get_RC_motor_outputs(int &outL, int &outR);
+    void rc_control::get_RC_exponential_outputs(int &outL, int &outR);
 
 };
 

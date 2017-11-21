@@ -169,7 +169,7 @@ void moveGrudsby() {
       autonomous = false;
       int velL; 
       int velR;
-      rc.get_RC_motor_outputs(velL, velR);
+      rc.get_RC_exponential_outputs(velL, velR);
       leftMotor->writeVal(velL);
       rightMotor->writeVal(velR);
         

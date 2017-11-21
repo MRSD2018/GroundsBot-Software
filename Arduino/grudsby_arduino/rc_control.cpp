@@ -79,6 +79,22 @@ void rc_control::get_RC_motor_outputs(int &outL, int &outR)
 
 }
 
+void rc_control::get_RC_exponential_outputs(int &outL, int &outR)
+{
+  int left_unscaled;
+  int right_unscaled;
+
+  rc_control::get_RC_motor_outputs(left_unscaled, right_unscaled);
+
+  long left_scaled = left_unscaled^5;
+  long right_scaled = right_unscaled^5;
+
+  outL = map(left_unscaled, (-255)^5, 255^5, -255, 255);
+  outR = map(right_unscaled, (-255)^5, 255^5, -255, 255);
+
+
+}
+
 int rc_control::get_RC_left_motor_velocity()
 {
 
