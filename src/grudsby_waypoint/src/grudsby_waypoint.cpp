@@ -123,9 +123,13 @@ void findWaypointCallback(const sensor_msgs::NavSatFix& msg)
   if ( inThreshold(grudsby_lat, grudsby_long, goal_lat, goal_long) )
   {
     ROS_INFO("Updating goal waypoint");
-    goals.erase( goals.begin() );
-    goal_lat = goals.front().latitude;
-    goal_long = goals.front().longitude;
+    if( goals.size() > 0)
+    {
+      goals.erase( goals.begin() );
+      goal_lat = goals.front().latitude;
+      goal_long = goals.front().longitude;
+    }
+    else ROS_WARN("No new waypoints. Repeating previous waypoint.");
   }
 
   double goal_easting_x = 0;
