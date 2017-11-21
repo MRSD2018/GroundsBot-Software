@@ -1,4 +1,6 @@
 <launch>
+  <include file="$(find grudsby_localization)/launch/grudsby_localization_ekf.launch"/>
+
   <node name="grudsby_simple_planner" pkg="grudsby_simple_planner" type="grudsby_simple_planner"/>
 
 
