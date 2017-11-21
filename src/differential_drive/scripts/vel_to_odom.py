@@ -58,7 +58,7 @@ class DiffTf:
         odom_msg = Odometry()
         odom_msg.twist.twist.linear.x = msg.linearX
         odom_msg.twist.twist.angular.z = msg.angularZ
-        odomPub.publish(odom_msg)
+        self.odomPub.publish(odom_msg)
         
     #############################################################################
     def rwheelCallback(self, msg):
