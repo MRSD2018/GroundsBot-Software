@@ -105,16 +105,18 @@ void publishStatus() {
     interrupts();
 
     // //pub vels //
-    double leftRadPerSec = 0;
-    double rightRadPerSec = 0;
+    float leftRadPerSec = 0;
+    float rightRadPerSec = 0;
 
     int lPosDiff = int(lPos) - int(last_lPos);
     int rPosDiff = int(rPos) - int(last_rPos);
 
-    if (lastEncMicros1_curr != last_lastEncMicros1)
+    if (lastEncMicros1_curr != last_lastEncMicros1) {
       leftRadPerSec = ((lPosDiff) / (float(lastEncMicros1_curr - last_lastEncMicros1))) * 2 * 3.14159 ; 
-    if (lastEncMicros0_curr != last_lastEncMicros0)
+    }
+    if (lastEncMicros0_curr != last_lastEncMicros0){
       rightRadPerSec = ((rPosDiff) / (float(lastEncMicros0_curr - last_lastEncMicros0))) * 2 * 3.14159;
+    }
 
 
     float x_vel = (WHEEL_RAD/2.0) * (leftRadPerSec + rightRadPerSec) * (1e6/ 4096.0);
