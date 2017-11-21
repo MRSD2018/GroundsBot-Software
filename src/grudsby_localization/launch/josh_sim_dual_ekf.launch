@@ -106,7 +106,7 @@
     </node>
 
 <node pkg="robot_localization" type="navsat_transform_node" name="navsat_transform" clear_params="true">
-  <remap from="gps/fix" to="fix"/>
+  <!--<remap from="gps/fix" to="fix"/>-->
   <param name="frequency" value="30"/>
   <param name="delay" value="0"/>
   <param name="magnetic_declination_radians" value="0"/>
@@ -119,6 +119,8 @@
 
 
   </node>
+
+<node pkg="rviz" type="rviz" name="rviz"/>
     
 
 </launch>
