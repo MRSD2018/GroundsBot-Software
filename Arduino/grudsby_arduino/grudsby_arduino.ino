@@ -84,7 +84,7 @@ void publishStatus() {
   // wheel rads = ticks_per_sec / ticks_per_rev  * 2pi
 
   //extern from encoder.h
-  if (publishVel%20 == 0) {
+  if (publishVel%15 == 0) {
     noInterrupts();
     unsigned long lastEncMicros1_curr = lastEncMicros1;
     unsigned long lastEncMicros0_curr = lastEncMicros0;
@@ -93,25 +93,25 @@ void publishStatus() {
     interrupts();
 
     //pub vels //
-    // double leftRadPerSec = 0;
-    // double rightRadPerSec = 0;
+    double leftRadPerSec = 0;
+    double rightRadPerSec = 0;
 
-    // int lPosDiff = int(lPos) - int(last_lPos);
-    // int rPosDiff = int(rPos) - int(last_rPos);
+    int lPosDiff = int(lPos) - int(last_lPos);
+    int rPosDiff = int(rPos) - int(last_rPos);
 
-    // if (lastEncMicros1_curr != last_lastEncMicros1)
-    //   leftRadPerSec = ((lPosDiff) / (double(lastEncMicros1_curr - last_lastEncMicros1))) * 2 * 3.14159 ; 
-    // if (lastEncMicros0_curr != last_lastEncMicros0)
-    //   rightRadPerSec = ((rPosDiff) / (double(lastEncMicros0_curr - last_lastEncMicros0))) * 2 * 3.14159;
+    if (lastEncMicros1_curr != last_lastEncMicros1)
+      leftRadPerSec = ((lPosDiff) / (double(lastEncMicros1_curr - last_lastEncMicros1))) * 2 * 3.14159 ; 
+    if (lastEncMicros0_curr != last_lastEncMicros0)
+      rightRadPerSec = ((rPosDiff) / (double(lastEncMicros0_curr - last_lastEncMicros0))) * 2 * 3.14159;
 
 
-    // double x_vel = (WHEEL_RAD/2.0) * (leftRadPerSec + rightRadPerSec) * (1e6/ 4096.0);
-    // double z_rot = (WHEEL_RAD / WHEELBASE_LEN) * (rightRadPerSec - leftRadPerSec) * (1e6/4096.0);
+    double x_vel = (WHEEL_RAD/2.0) * (leftRadPerSec + rightRadPerSec) * (1e6/ 4096.0);
+    double z_rot = (WHEEL_RAD / WHEELBASE_LEN) * (rightRadPerSec - leftRadPerSec) * (1e6/4096.0);
 
-    // odom_msg.twist.twist.linear.x = x_vel;
-    // odom_msg.twist.twist.angular.z = z_rot;
+    odom_msg.twist.twist.linear.x = x_vel;
+    odom_msg.twist.twist.angular.z = z_rot;
     
-    // odom_pub.publish(&odom_msg);
+    odom_pub.publish(&odom_msg);
     // Serial.print(x_vel, 3);
     // Serial.print(" ");
     // Serial.println(z_rot, 3);
@@ -130,9 +130,9 @@ void publishStatus() {
     // lwheel_pub.publish(&lwheel_msg);
     // rwheel_pub.publish(&rwheel_msg);
 
-    Serial.print(lPos);
-    Serial.print(" ");
-    Serial.println(rPos);
+    // Serial.print(lPos);
+    // Serial.print(" ");
+    // Serial.println(rPos);
 
     //reset timeout count
     publishVel = 1;
@@ -159,12 +159,10 @@ void moveGrudsby() {
       delay(20);
     }
     else if(!(kill) && !(autonomous)) {
-      int rc_left_vel = rc.get_RC_left_motor_velocity();
-      int rc_right_vel = rc.get_RC_right_motor_velocity();
+      // std::vector<int> motorvals = rc.get_RC_motor_outputs();
       //Serial<<"Left: "<<rc_left_vel<<"\tRight: "<<rc_right_vel<<endl;
-      Serial.println(rc_left_vel);
-      leftMotor->writeVal(rc_left_vel);
-      rightMotor->writeVal(rc_right_vel);
+      leftMotor->writeVal(rc.get_RC_left_motor_velocity());
+      rightMotor->writeVal(rc.get_RC_right_motor_velocity());
     }
     else {
       //have this twice because safety and spinning blade of death
