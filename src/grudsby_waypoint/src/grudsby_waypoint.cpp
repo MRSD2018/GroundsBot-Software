@@ -26,7 +26,7 @@ static std::vector<waypoint> goals;
 
 void parseKMLFile()
 {
-  std::ifstream infile("src/grudsby_waypoint/src/mower_path.kml");
+  std::ifstream infile("../src/grudsby_waypoint/src/mower_path.kml");
 
   if (!infile)
   {
