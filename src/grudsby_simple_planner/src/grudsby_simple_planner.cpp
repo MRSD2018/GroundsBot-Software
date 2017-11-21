@@ -8,7 +8,7 @@
 #include "Matrix3x3.hpp"
 #include "Vector2.hpp"
 #include "tf/transform_listener.h"
-
+#include "math.h"
 
 geometry_msgs::PoseStamped goal_pose_in_odom;
 nav_msgs::Odometry curr_odom;
@@ -24,11 +24,13 @@ float Kd_lin = 0;
 double total_lin_error = 0;
 double prev_x_towards_g = 0;  
 
-float Kp_ang = 1.0;
+float Kp_ang = 7.0;
 float Ki_ang = 0;
 float Kd_ang = 0;    
 double total_ang_error = 0;
 double prev_theta = 0;
+
+double tuner = 2; //tuning factor
 
 bool goal_set = false;
 
@@ -162,7 +164,7 @@ int main(int argc, char **argv) {
       double x_towards_g;
       if (Vector3::Magnitude(v_vec)>deadband)
       {
-        x_towards_g = cos(theta);
+        x_towards_g = Vector3::Magnitude(v_vec)*pow(cos(theta),tuner);
       }
       else
       {
