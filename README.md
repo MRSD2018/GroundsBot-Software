@@ -11,6 +11,8 @@ comment out the path anaconda PATH setting in ~/.bashrc
 ```bash
 #export PATH="/home/"user"/"anaconda version"/bin:$PATH"
 ```
+#### Arduino
+Install the Arduino IDE from the Arduino site. Do not install with apt-get. 
 
 
 #### Necessary Packages:
@@ -46,23 +48,26 @@ pip install catkin_pkg
 ```bash
 pip install rospkg
 ```
+-SBUS and elapsedMillis 
+```
+Move these from the Libraries folder to your Arduino/libraries folder
+```
 
 
 ### Configuring Rosserial:
+The custom Ros-lib Arduino package has been included in the Libraries folder.
+Copy this library over to your Arduino/libraries folder.
+
+If needed:
 Making custom headers for rosserial-arduino:
 
 Source the sourceme file in Grudsby-Software
 
 then:
 ```bash 
- rm -rf ~/sketchbook/libraries/ros_lib/
- rosrun rosserial_arduino make_libraries.py ~/sketchbook/libraries/
+ rm -rf ~/Arduino/libraries/ros_lib/
+ rosrun rosserial_arduino make_libraries.py ~/Arduino/libraries/
 ```
 
-####Arduino
-####Librariess
-rc_control.cpp is dependent on a few librarires. Add the below libraries to the Arduino Libraries folder before compiling. These can be found in this repo.
 
--SBUS
--elapsedMillis
 
