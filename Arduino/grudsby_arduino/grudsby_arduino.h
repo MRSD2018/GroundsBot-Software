@@ -3,15 +3,14 @@
 
 #include <Arduino.h>
 #include <ros.h>
-#include <grudsby_lowlevel/ArduinoVel.h>
-#include <grudsby_lowlevel/ArduinoResponse.h>
 #include "grudsby_motor.h"
+#include <nav_msgs/Odometry.h>
+#include <std_msgs/Int32.h>
 
 using namespace grudsby;
 
 void initTimer();
 
-void velCallback(const grudsby_lowlevel::ArduinoVel& msg);
 
 
 void publishStatus();
@@ -48,16 +47,12 @@ int32_t last_rPos = 0;
 int publishVel = 1;
 
 ros::NodeHandle nh;
-ros::Subscriber<grudsby_lowlevel::ArduinoVel> vel_sub("/arduino/vel", &velCallback);
 
-nav_msgs::Odometry odom_msg;
-ros::Publisher odom_pub("grudsby/odometry", &odom_msg);
+grudsby_lowlevel::ArduinoResponse response_msg;
 
-std_msgs::Int32 lwheel_msg;
-ros::Publisher lwheel_pub("lwheel", &lwheel_msg);
+ros::Publisher response_pub("grudsby/arduino_response", &response_msg);
 
-std_msgs::Int32 rwheel_msg;
-ros::Publisher rwheel_pub("rwheel", &rwheel_msg);
+
 
 rc_control rc;
 

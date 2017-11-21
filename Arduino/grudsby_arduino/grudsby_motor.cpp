@@ -69,7 +69,7 @@ void DirPWMMotor::writeDirPWM(bool forward, int pwm)
 }
 
 RCMotor::RCMotor(int pin) {
-	this->servo.attach(pin);
+	this->servo.attach(pin,1250, 1750);
 }
 
 void RCMotor::writeVal(int val) 

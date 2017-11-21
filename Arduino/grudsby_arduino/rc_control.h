@@ -38,7 +38,7 @@ public:
     int get_raw_reverse();
     int get_raw_kill();
     int get_raw_mode();
-    // std::vector<int> rc_control::get_RC_motor_outputs();
+    void rc_control::get_RC_motor_outputs(int &outL, int &outR);
 
 };
 

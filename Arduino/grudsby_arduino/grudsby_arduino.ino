@@ -2,6 +2,7 @@
 
 #include <nav_msgs/Odometry.h>
 #include <std_msgs/Int32.h>
+#include <grudsby_lowlevel/ArduinoResponse.h>
 
 #include <SBUS.h>
 #include <elapsedMillis.h>
@@ -22,14 +23,12 @@ void setup()
 
 {
 
+
   //set up ros 
   nh.initNode();
-  nh.subscribe(vel_sub);
-  nh.advertise(odom_pub);
-
-  nh.advertise(lwheel_pub);
-  nh.advertise(rwheel_pub);
-  
+  // nh.subscribe(vel_sub);
+  // nh.advertise(odom_pub);
+  nh.advertise(response_pub);
 
 
   leftMotor = new RCMotor(4);
@@ -37,7 +36,7 @@ void setup()
 
 
   autonomous = true;
-  Serial.begin(1000000);
+
 
   // initTimer2();
 
@@ -49,8 +48,10 @@ void loop()
 {
   moveGrudsby();  
   publishStatus();
+
   nh.spinOnce();
-  delay(5);
+
+  //delay(10);
 
   // leftMotor->writeVal(255);
   // rightMotor->writeVal(255);
@@ -74,17 +75,13 @@ void loop()
 
 // } 
 
-void velCallback(const grudsby_lowlevel::ArduinoVel& msg) {
-
-  leftMotor->writeVal(msg.leftvel);
-  rightMotor->writeVal(msg.rightvel);
-}
 
 void publishStatus() {
   // wheel rads = ticks_per_sec / ticks_per_rev  * 2pi
 
   //extern from encoder.h
-  if (publishVel%15 == 0) {
+  //if (publishVel%20 == 0) {
+  if (true) {
     noInterrupts();
     unsigned long lastEncMicros1_curr = lastEncMicros1;
     unsigned long lastEncMicros0_curr = lastEncMicros0;
@@ -92,7 +89,7 @@ void publishStatus() {
     int32_t rPos = rightEncoder.read();
     interrupts();
 
-    //pub vels //
+    // //pub vels //
     double leftRadPerSec = 0;
     double rightRadPerSec = 0;
 
@@ -100,21 +97,14 @@ void publishStatus() {
     int rPosDiff = int(rPos) - int(last_rPos);
 
     if (lastEncMicros1_curr != last_lastEncMicros1)
-      leftRadPerSec = ((lPosDiff) / (double(lastEncMicros1_curr - last_lastEncMicros1))) * 2 * 3.14159 ; 
+      leftRadPerSec = ((lPosDiff) / (float(lastEncMicros1_curr - last_lastEncMicros1))) * 2 * 3.14159 ; 
     if (lastEncMicros0_curr != last_lastEncMicros0)
-      rightRadPerSec = ((rPosDiff) / (double(lastEncMicros0_curr - last_lastEncMicros0))) * 2 * 3.14159;
+      rightRadPerSec = ((rPosDiff) / (float(lastEncMicros0_curr - last_lastEncMicros0))) * 2 * 3.14159;
 
 
-    double x_vel = (WHEEL_RAD/2.0) * (leftRadPerSec + rightRadPerSec) * (1e6/ 4096.0);
-    double z_rot = (WHEEL_RAD / WHEELBASE_LEN) * (rightRadPerSec - leftRadPerSec) * (1e6/4096.0);
+    float x_vel = (WHEEL_RAD/2.0) * (leftRadPerSec + rightRadPerSec) * (1e6/ 4096.0);
+    float z_rot = (WHEEL_RAD / WHEELBASE_LEN) * (rightRadPerSec - leftRadPerSec) * (1e6/4096.0);
 
-    odom_msg.twist.twist.linear.x = x_vel;
-    odom_msg.twist.twist.angular.z = z_rot;
-    
-    odom_pub.publish(&odom_msg);
-    // Serial.print(x_vel, 3);
-    // Serial.print(" ");
-    // Serial.println(z_rot, 3);
 
 
     last_lastEncMicros0 = lastEncMicros0_curr;
@@ -122,17 +112,16 @@ void publishStatus() {
     last_lPos = lPos;
     last_rPos = rPos;
 
+    response_msg.linearX = x_vel;
+    response_msg.angularZ = z_rot;
+    response_msg.encoderLeft = lPos;
+    response_msg.encoderRight = rPos;
+    response_msg.velLeft = leftRadPerSec;
+    response_msg.velRight = rightRadPerSec;
 
-    //pub positions///
-    // lwheel_msg.data = lPos;
-    // rwheel_msg.data = rPos;
 
-    // lwheel_pub.publish(&lwheel_msg);
-    // rwheel_pub.publish(&rwheel_msg);
 
-    // Serial.print(lPos);
-    // Serial.print(" ");
-    // Serial.println(rPos);
+    response_pub.publish(&response_msg);
 
     //reset timeout count
     publishVel = 1;
@@ -161,8 +150,11 @@ void moveGrudsby() {
     else if(!(kill) && !(autonomous)) {
       // std::vector<int> motorvals = rc.get_RC_motor_outputs();
       //Serial<<"Left: "<<rc_left_vel<<"\tRight: "<<rc_right_vel<<endl;
-      leftMotor->writeVal(rc.get_RC_left_motor_velocity());
-      rightMotor->writeVal(rc.get_RC_right_motor_velocity());
+      int velL; 
+      int velR;
+      rc.get_RC_motor_outputs(velL, velR);
+      leftMotor->writeVal(velL);
+      rightMotor->writeVal(velR);
     }
     else {
       //have this twice because safety and spinning blade of death
