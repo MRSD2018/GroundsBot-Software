@@ -1,0 +1,6 @@
+<launch>
+  <node name="grudsby_simple_planner" pkg="grudsby_simple_planner" type="grudsby_simple_planner"/>
+  
+  <node name="grudsby_waypoint" pkg="grudsby_waypoint" type="grudsby_waypoint"/>
+
+</launch>
