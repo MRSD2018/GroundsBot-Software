@@ -10,4 +10,6 @@ void writeCmdVel(float vel, float angle, Motor& left_motor, Motor& right_motor);
 
 }
 
+//rostopic pub /topic_name std_msgs/String hello
+
 #endif

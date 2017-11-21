@@ -2,7 +2,9 @@
 
 #include <nav_msgs/Odometry.h>
 #include <std_msgs/Int32.h>
+#include <std_msgs/Float32.h>
 #include <grudsby_lowlevel/ArduinoResponse.h>
+#include <grudsby_lowlevel/ArduinoVel.h>
 
 #include <SBUS.h>
 #include <elapsedMillis.h>
@@ -19,6 +21,19 @@
 
 using namespace grudsby;
 
+
+
+void left_callback(const std_msgs::Float32& msg) {
+  if (autonomous)
+    leftMotor->writeVal(int(msg.data));
+}
+
+void right_callback(const std_msgs::Float32& msg) {
+  if (autonomous)
+    rightMotor->writeVal(int(msg.data));
+}
+
+
 void setup()
 
 {
@@ -26,8 +41,8 @@ void setup()
 
   //set up ros 
   nh.initNode();
-  // nh.subscribe(vel_sub);
-  // nh.advertise(odom_pub);
+  nh.subscribe(left_sub);
+  nh.subscribe(right_sub);
   nh.advertise(response_pub);
 
 
@@ -144,27 +159,26 @@ void moveGrudsby() {
       rightMotor->writeVal(0);
     }
     else if(autonomous) {
-      //nh.spinOnce();
-      delay(20);
+      autonomous = true;
     }
     else if(!(kill) && !(autonomous)) {
       // std::vector<int> motorvals = rc.get_RC_motor_outputs();
       //Serial<<"Left: "<<rc_left_vel<<"\tRight: "<<rc_right_vel<<endl;
+      autonomous = false;
       int velL; 
       int velR;
       rc.get_RC_motor_outputs(velL, velR);
       leftMotor->writeVal(velL);
       rightMotor->writeVal(velR);
+        
     }
     else {
-      //have this twice because safety and spinning blade of death
       leftMotor->writeVal(0);
       rightMotor->writeVal(0);
     }
   }
   else {
-    leftMotor->writeVal(0);
-    rightMotor->writeVal(0);
+    autonomous = true;
   }
 }
 

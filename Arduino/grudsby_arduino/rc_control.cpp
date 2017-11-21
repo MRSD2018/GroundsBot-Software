@@ -72,9 +72,6 @@ void rc_control::get_RC_motor_outputs(int &outL, int &outR)
   int mixed_left = (1.0 - pivScale) * premix_left + pivScale * pivSpeed;
   int mixed_right = (1.0 - pivScale) * premix_right + pivScale * -pivSpeed;
 
-  Serial.print(mixed_left);
-  Serial.print(" ");
-  Serial.println(mixed_right);
 
   outL = mixed_left;
   outR = mixed_right;

@@ -12,6 +12,9 @@ using namespace grudsby;
 void initTimer();
 
 
+void left_callback(const std_msgs::Float32& msg);
+void right_callback(const std_msgs::Float32& msg);
+
 
 void publishStatus();
 
@@ -51,6 +54,9 @@ ros::NodeHandle nh;
 grudsby_lowlevel::ArduinoResponse response_msg;
 
 ros::Publisher response_pub("grudsby/arduino_response", &response_msg);
+ros::Subscriber<std_msgs::Float32> left_sub("arduino/lwheel_vtarget", &left_callback);
+ros::Subscriber<std_msgs::Float32> right_sub("arduino/rwheel_vtarget", &right_callback);
+
 
 
 
