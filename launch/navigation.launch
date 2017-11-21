@@ -1,6 +1,9 @@
 <launch>
   <node name="grudsby_simple_planner" pkg="grudsby_simple_planner" type="grudsby_simple_planner"/>
-  
-  <node name="grudsby_waypoint" pkg="grudsby_waypoint" type="grudsby_waypoint"/>
 
+
+  <node name="grudsby_waypoint" pkg="grudsby_waypoint" type="grudsby_waypoint"/>
+<!-- 
+	<node name="gucci_gang" pkg="gucci_gang" type="gucci_gang"/>
+-->
 </launch>
