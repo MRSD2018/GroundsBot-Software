@@ -33,13 +33,24 @@ double prev_theta = 0;
 bool goal_set = false;
 
 double deadband = .2;
-//receive the current position
+
+/*
+  odom_received: Callback function called when msg received on /odometry/filtered topic. 
+  Receives a goal odom broadcasted by grudsby_localization
+  
+  @param geometry_msgs/PoseStamped odom_msg: the odom pose being broadcasted
+*/
 void odom_received(const nav_msgs::Odometry::ConstPtr& odom_msg)
 {
   curr_odom = *odom_msg; 
 }
 
-//receive a goal position
+/*
+  goal_received: Callback function called when msg received on /goal topic. 
+  Receives a goal pose broadcasted by grudsby_waypoints
+  
+  @param geometry_msgs/PoseStamped goal_msg: the goal pose being broadcasted
+*/
 void goal_received(const geometry_msgs::PoseStamped::ConstPtr& goal_msg)
 {
   
@@ -70,6 +81,14 @@ void goal_received(const geometry_msgs::PoseStamped::ConstPtr& goal_msg)
   }
 }
 
+/*
+  sign: homemade sign function that returns the sign of a given double
+
+  @param double d: Double you want sign of
+  
+  @return: -1 if d<0, 1 if d>=0
+*/
+
 int sign(double d)
 {
   if (d < 0)
@@ -81,7 +100,11 @@ int sign(double d)
     return 1;
   }
 }
+
+
+
 int main(int argc, char **argv) {
+
   ros::init(argc, argv, "grudsby_simple_planner");
 
   ros::NodeHandle n;
@@ -89,22 +112,19 @@ int main(int argc, char **argv) {
 
   ros::Publisher velPub = n.advertise<geometry_msgs::Twist>("cmd_vel", 100);
   ros::Subscriber odomSub = n.subscribe("odometry/filtered", 100, odom_received);
-  ros::Subscriber goalSub = n.subscribe("goal", 100, goal_received);  
-
-  
- 
+  ros::Subscriber goalSub = n.subscribe("goal", 100, goal_received);   
     
 
   while (ros::ok())
   {
     //DEBUGGING
-/*   
+    /*   
       goal_set = true;
-      //read goal pose
+      //goal pose
       goal_odom.pose.pose.position.x = 8;
       goal_odom.pose.pose.position.y = 0;
       goal_odom.pose.pose.position.z = 0;
-   //read start pose
+      //start pose
       curr_odom.pose.pose.position.x = 2;
       curr_odom.pose.pose.position.y = 4;
       curr_odom.pose.pose.position.z = 0;
@@ -114,21 +134,18 @@ int main(int argc, char **argv) {
       curr_odom.pose.pose.orientation.z = .354;
       curr_odom.pose.pose.orientation.w = .854;
     */
+
+    //Don't try to navigate unless a goal has been broadcasted
     if(goal_set)
     {
 
 
-    
+      //Determine current heading
       Quaternion q(curr_odom.pose.pose.orientation.x,curr_odom.pose.pose.orientation.y,curr_odom.pose.pose.orientation.z,curr_odom.pose.pose.orientation.w);
         
       Vector3 rpy = Quaternion::ToEuler(q);
       Vector3 x_vec(cos(rpy.Z), sin(rpy.Z), 0);
-      Vector3 z_vec(0, 0, 1);
 
-     //DEBUGGING
-      //      ROS_INFO("%f, %f, %f", x_vec.X, x_vec.Y, x_vec.Z);
-      //      ROS_INFO("%f, %f, %f", v_vec.X, v_vec.Y, v_vec.Z);
- 
       //Find vector between start and goal
       double delta_x = goal_pose_in_odom.pose.position.x - curr_odom.pose.pose.position.x;   
       double delta_y = goal_pose_in_odom.pose.position.y - curr_odom.pose.pose.position.y;   
@@ -153,7 +170,8 @@ int main(int argc, char **argv) {
         x_towards_g = 0;
         theta = 0;
       }
-      //Bound if negative, we want GroundsBot going forwards to goal, not reverse
+
+      //Bound if negative.  We want GroundsBot going forwards to goal, not reverse
       if (x_towards_g < 0)
       {
         x_towards_g = 0;
@@ -173,12 +191,6 @@ int main(int argc, char **argv) {
       double x_vel = Kp_lin*x_towards_g + Ki_lin*total_lin_error + Kd_lin*delta_lin_error;
       double theta_vel = Kp_ang*theta + Ki_ang*total_ang_error + Kd_ang*delta_ang_error;
 
-    //DEBUGGING
-//      ROS_INFO("%f, %f, %f", x_vec.X, x_vec.Y, x_vec.Z);
-//      ROS_INFO("%f, %f, %f", v_vec.X, v_vec.Y, v_vec.Z);
-   
-      ROS_INFO("%f",theta_d);
-    
 
       ///Bound x_vel and theta_vel
       if(abs(x_vel)>max_x_vel)
@@ -191,9 +203,10 @@ int main(int argc, char **argv) {
         theta_vel = sign(theta_vel)*max_theta_vel;
       }
       
-      ROS_INFO("%f", theta_vel);
-      ROS_INFO("%f", x_vel);
+      ROS_INFO("Angular Velocity: %f", theta_vel);
+      ROS_INFO("Linear Velocity: %f", x_vel);
 
+      //Publish /cmd_vel
       geometry_msgs::Twist msg;
       msg.linear.x = x_vel;
       msg.linear.y = 0;
@@ -206,12 +219,9 @@ int main(int argc, char **argv) {
       velPub.publish(msg); 
 
     }   
-// Vector2 startToGoal(goal_odom.pose.pose.position.x - curr_odom.pose.pose.position.x, goal_odom.pose.pose.position.y - curr_odom.pose.pose.position.y);
-
     
 
 
-    //publish cmd_vel
     ros::spinOnce();
     loop_rate.sleep();
   }
