@@ -1,12 +1,13 @@
 <launch>
 
+<!-- Low level Arduino launch file -->
+  <include file="$(find grudsby_lowlevel)/launch/grudsby_arduino.launch"/>  
 
-  <!-- INSERT ROS SERIAL LAUNCH FILE HERE-->
- 
 <!-- Sensor nodes -->
    <include file="$(find grudsby_imu)/launch/grudsby_imu.launch"/>
 
-  <!-- INSERT GPS LAUNCH FILE HERE-->
+  <!-- GPS launch file-->
+  <include file="$(find nmea_navsat_driver)/launch/launch_nmea_driver.launch"/>:
 
 <!-- Navigation nodes -->
   <include file="$(find grudsby_localization)/launch/grudsby_localization_ekf.launch"/>
