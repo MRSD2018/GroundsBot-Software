@@ -2,8 +2,10 @@
 #include "SBUS.h"
 #include "rc_control.h"
 
+// using namespace std;
+
 rc_control::rc_control() {
-  x8r = new SBUS(Serial1);
+  x8r = new SBUS(Serial2);
   // begin the SBUS communication
   x8r->begin();
   //Serial.println("started receiver");
@@ -39,8 +41,92 @@ bool rc_control::is_autonomous()
   return false;
 }
 
+
+void rc_control::get_RC_motor_outputs(int &outL, int &outR) 
+{
+  int joy_y_val = map(channels[THROTTLE], 1811, 172, -255, 255);
+  int joy_x_val = map(channels[TURN], 172, 1811, -255, 255);
+
+  float premix_left;
+  float premix_right;
+
+  float pivotlimit = 100; 
+
+  if (joy_y_val >= 0) {
+    //Forward
+    premix_left = (joy_x_val>=0)? 255 : (255 + joy_x_val);
+    premix_right = (joy_x_val>=0)? (255 - joy_x_val) : 255;
+  }
+  else {
+    //Reverse
+    premix_left = (joy_x_val>=0)? (255 - joy_x_val) : 255;
+    premix_right = (joy_x_val>=0)? 255: 255+joy_x_val;
+  }
+
+  premix_left = premix_left * (joy_y_val/255.0);
+  premix_right = premix_right * (joy_y_val/255.0);
+
+  float pivSpeed = joy_x_val;
+  float pivScale = (abs(joy_y_val)>pivotlimit)? 0.0 : (1.0 - abs(joy_y_val)/pivotlimit);
+
+  int mixed_left = (1.0 - pivScale) * premix_left + pivScale * pivSpeed;
+  int mixed_right = (1.0 - pivScale) * premix_right + pivScale * -pivSpeed;
+
+
+  outL = mixed_left;
+  outR = mixed_right;
+
+
+}
+
+void rc_control::get_RC_exponential_outputs(int &outL, int &outR)
+{
+  long joy_y_val = map(channels[THROTTLE], 1811, 172, -255, 255);
+  long joy_x_val = map(channels[TURN], 172, 1811, -255, 255);
+
+  joy_y_val = joy_y_val^5;
+  joy_x_val = joy_x_val^5;
+
+  joy_y_val = map(joy_y_val, -255^5, 255^5, -255, 255);
+  joy_x_val = map(joy_x_val, -255^5, 255^5, -255, 255);
+
+  float premix_left;
+  float premix_right;
+
+  float pivotlimit = 60; 
+
+  if (joy_y_val >= 0) {
+    //Forward
+    premix_left = (joy_x_val>=0)? 255 : (255 + joy_x_val);
+    premix_right = (joy_x_val>=0)? (255 - joy_x_val) : 255;
+  }
+  else {
+    //Reverse
+    premix_left = (joy_x_val>=0)? (255 - joy_x_val) : 255;
+    premix_right = (joy_x_val>=0)? 255: 255+joy_x_val;
+  }
+
+  premix_left = premix_left * (joy_y_val/255.0);
+  premix_right = premix_right * (joy_y_val/255.0);
+
+  float pivSpeed = joy_x_val;
+  float pivScale = (abs(joy_y_val)>pivotlimit)? 0.0 : (1.0 - abs(joy_y_val)/pivotlimit);
+
+  int mixed_left = (1.0 - pivScale) * premix_left + pivScale * pivSpeed;
+  int mixed_right = (1.0 - pivScale) * premix_right + pivScale * -pivSpeed;
+
+
+  outL = mixed_left;
+  outR = mixed_right;
+
+
+
+
+}
+
 int rc_control::get_RC_left_motor_velocity()
 {
+
   int left_velocity = 0;
   int left_val = 0;
 

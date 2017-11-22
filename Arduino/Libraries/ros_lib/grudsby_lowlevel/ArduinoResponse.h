@@ -12,26 +12,26 @@ namespace grudsby_lowlevel
   class ArduinoResponse : public ros::Msg
   {
     public:
-      typedef int32_t _leftvel_type;
-      _leftvel_type leftvel;
-      typedef int32_t _rightvel_type;
-      _rightvel_type rightvel;
-      typedef int32_t _leftpos_type;
-      _leftpos_type leftpos;
-      typedef int32_t _rightpos_type;
-      _rightpos_type rightpos;
-      typedef bool _autonomous_type;
-      _autonomous_type autonomous;
-      typedef bool _kill_type;
-      _kill_type kill;
+      typedef float _linearX_type;
+      _linearX_type linearX;
+      typedef float _angularZ_type;
+      _angularZ_type angularZ;
+      typedef uint32_t _encoderLeft_type;
+      _encoderLeft_type encoderLeft;
+      typedef uint32_t _encoderRight_type;
+      _encoderRight_type encoderRight;
+      typedef float _velLeft_type;
+      _velLeft_type velLeft;
+      typedef float _velRight_type;
+      _velRight_type velRight;
 
     ArduinoResponse():
-      leftvel(0),
-      rightvel(0),
-      leftpos(0),
-      rightpos(0),
-      autonomous(0),
-      kill(0)
+      linearX(0),
+      angularZ(0),
+      encoderLeft(0),
+      encoderRight(0),
+      velLeft(0),
+      velRight(0)
     {
     }
 
@@ -39,59 +39,55 @@ namespace grudsby_lowlevel
     {
       int offset = 0;
       union {
-        int32_t real;
+        float real;
         uint32_t base;
-      } u_leftvel;
-      u_leftvel.real = this->leftvel;
-      *(outbuffer + offset + 0) = (u_leftvel.base >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (u_leftvel.base >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (u_leftvel.base >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (u_leftvel.base >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->leftvel);
+      } u_linearX;
+      u_linearX.real = this->linearX;
+      *(outbuffer + offset + 0) = (u_linearX.base >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (u_linearX.base >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (u_linearX.base >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (u_linearX.base >> (8 * 3)) & 0xFF;
+      offset += sizeof(this->linearX);
       union {
-        int32_t real;
+        float real;
         uint32_t base;
-      } u_rightvel;
-      u_rightvel.real = this->rightvel;
-      *(outbuffer + offset + 0) = (u_rightvel.base >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (u_rightvel.base >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (u_rightvel.base >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (u_rightvel.base >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->rightvel);
+      } u_angularZ;
+      u_angularZ.real = this->angularZ;
+      *(outbuffer + offset + 0) = (u_angularZ.base >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (u_angularZ.base >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (u_angularZ.base >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (u_angularZ.base >> (8 * 3)) & 0xFF;
+      offset += sizeof(this->angularZ);
+      *(outbuffer + offset + 0) = (this->encoderLeft >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (this->encoderLeft >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (this->encoderLeft >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (this->encoderLeft >> (8 * 3)) & 0xFF;
+      offset += sizeof(this->encoderLeft);
+      *(outbuffer + offset + 0) = (this->encoderRight >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (this->encoderRight >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (this->encoderRight >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (this->encoderRight >> (8 * 3)) & 0xFF;
+      offset += sizeof(this->encoderRight);
       union {
-        int32_t real;
+        float real;
         uint32_t base;
-      } u_leftpos;
-      u_leftpos.real = this->leftpos;
-      *(outbuffer + offset + 0) = (u_leftpos.base >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (u_leftpos.base >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (u_leftpos.base >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (u_leftpos.base >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->leftpos);
+      } u_velLeft;
+      u_velLeft.real = this->velLeft;
+      *(outbuffer + offset + 0) = (u_velLeft.base >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (u_velLeft.base >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (u_velLeft.base >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (u_velLeft.base >> (8 * 3)) & 0xFF;
+      offset += sizeof(this->velLeft);
       union {
-        int32_t real;
+        float real;
         uint32_t base;
-      } u_rightpos;
-      u_rightpos.real = this->rightpos;
-      *(outbuffer + offset + 0) = (u_rightpos.base >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (u_rightpos.base >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (u_rightpos.base >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (u_rightpos.base >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->rightpos);
-      union {
-        bool real;
-        uint8_t base;
-      } u_autonomous;
-      u_autonomous.real = this->autonomous;
-      *(outbuffer + offset + 0) = (u_autonomous.base >> (8 * 0)) & 0xFF;
-      offset += sizeof(this->autonomous);
-      union {
-        bool real;
-        uint8_t base;
-      } u_kill;
-      u_kill.real = this->kill;
-      *(outbuffer + offset + 0) = (u_kill.base >> (8 * 0)) & 0xFF;
-      offset += sizeof(this->kill);
+      } u_velRight;
+      u_velRight.real = this->velRight;
+      *(outbuffer + offset + 0) = (u_velRight.base >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (u_velRight.base >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (u_velRight.base >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (u_velRight.base >> (8 * 3)) & 0xFF;
+      offset += sizeof(this->velRight);
       return offset;
     }
 
@@ -99,70 +95,64 @@ namespace grudsby_lowlevel
     {
       int offset = 0;
       union {
-        int32_t real;
+        float real;
         uint32_t base;
-      } u_leftvel;
-      u_leftvel.base = 0;
-      u_leftvel.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
-      u_leftvel.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
-      u_leftvel.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
-      u_leftvel.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
-      this->leftvel = u_leftvel.real;
-      offset += sizeof(this->leftvel);
+      } u_linearX;
+      u_linearX.base = 0;
+      u_linearX.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
+      u_linearX.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
+      u_linearX.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
+      u_linearX.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
+      this->linearX = u_linearX.real;
+      offset += sizeof(this->linearX);
       union {
-        int32_t real;
+        float real;
         uint32_t base;
-      } u_rightvel;
-      u_rightvel.base = 0;
-      u_rightvel.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
-      u_rightvel.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
-      u_rightvel.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
-      u_rightvel.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
-      this->rightvel = u_rightvel.real;
-      offset += sizeof(this->rightvel);
+      } u_angularZ;
+      u_angularZ.base = 0;
+      u_angularZ.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
+      u_angularZ.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
+      u_angularZ.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
+      u_angularZ.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
+      this->angularZ = u_angularZ.real;
+      offset += sizeof(this->angularZ);
+      this->encoderLeft =  ((uint32_t) (*(inbuffer + offset)));
+      this->encoderLeft |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
+      this->encoderLeft |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
+      this->encoderLeft |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
+      offset += sizeof(this->encoderLeft);
+      this->encoderRight =  ((uint32_t) (*(inbuffer + offset)));
+      this->encoderRight |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
+      this->encoderRight |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
+      this->encoderRight |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
+      offset += sizeof(this->encoderRight);
       union {
-        int32_t real;
+        float real;
         uint32_t base;
-      } u_leftpos;
-      u_leftpos.base = 0;
-      u_leftpos.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
-      u_leftpos.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
-      u_leftpos.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
-      u_leftpos.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
-      this->leftpos = u_leftpos.real;
-      offset += sizeof(this->leftpos);
+      } u_velLeft;
+      u_velLeft.base = 0;
+      u_velLeft.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
+      u_velLeft.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
+      u_velLeft.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
+      u_velLeft.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
+      this->velLeft = u_velLeft.real;
+      offset += sizeof(this->velLeft);
       union {
-        int32_t real;
+        float real;
         uint32_t base;
-      } u_rightpos;
-      u_rightpos.base = 0;
-      u_rightpos.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
-      u_rightpos.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
-      u_rightpos.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
-      u_rightpos.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
-      this->rightpos = u_rightpos.real;
-      offset += sizeof(this->rightpos);
-      union {
-        bool real;
-        uint8_t base;
-      } u_autonomous;
-      u_autonomous.base = 0;
-      u_autonomous.base |= ((uint8_t) (*(inbuffer + offset + 0))) << (8 * 0);
-      this->autonomous = u_autonomous.real;
-      offset += sizeof(this->autonomous);
-      union {
-        bool real;
-        uint8_t base;
-      } u_kill;
-      u_kill.base = 0;
-      u_kill.base |= ((uint8_t) (*(inbuffer + offset + 0))) << (8 * 0);
-      this->kill = u_kill.real;
-      offset += sizeof(this->kill);
+      } u_velRight;
+      u_velRight.base = 0;
+      u_velRight.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
+      u_velRight.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
+      u_velRight.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
+      u_velRight.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
+      this->velRight = u_velRight.real;
+      offset += sizeof(this->velRight);
      return offset;
     }
 
     const char * getType(){ return "grudsby_lowlevel/ArduinoResponse"; };
-    const char * getMD5(){ return "3b37d13e3d0c6dfe64b43bd0871fb240"; };
+    const char * getMD5(){ return "3d4ac294fa6ba254aec0d9d6416fb8b5"; };
 
   };
 

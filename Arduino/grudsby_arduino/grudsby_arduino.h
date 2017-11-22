@@ -3,33 +3,62 @@
 
 #include <Arduino.h>
 #include <ros.h>
-#include <grudsby_lowlevel/ArduinoVel.h>
-#include <grudsby_lowlevel/ArduinoResponse.h>
 #include "grudsby_motor.h"
+#include <nav_msgs/Odometry.h>
+#include <std_msgs/Int32.h>
 
 using namespace grudsby;
 
-void velCallback(const grudsby_lowlevel::ArduinoVel& msg);
+void initTimer();
 
-void ISR_1();
-void ISR_2();
+
+void left_callback(const std_msgs::Float32& msg);
+void right_callback(const std_msgs::Float32& msg);
+
 
 void publishStatus();
 
+void moveGrudsby();
+
+int32_t prevLPos = -999;
+int32_t prevRPos = -999;
+
+int32_t  prevLTimerPos =  0;
+int32_t  prevRTimerPos =  0;
+
+int32_t leftVel = 0;
+int32_t rightVel = 0;
 
 bool autonomous;
 bool kill;
 
-// Encoder encoder1(2, 4);
-// Encoder encoder2(3, 5);
+const float WHEELBASE_LEN = 0.508;
+const float WHEEL_RAD = 0.127;
+
+
+Encoder rightEncoder(3, 27);
+Encoder leftEncoder(2, 24);
 
 Motor* leftMotor;
 Motor* rightMotor;
 
+unsigned long last_lastEncMicros1 = 0;
+unsigned long last_lastEncMicros0 = 0;
+int32_t last_lPos = 0;
+int32_t last_rPos = 0;
+
+int publishVel = 1;
+
 ros::NodeHandle nh;
-ros::Subscriber<grudsby_lowlevel::ArduinoVel> vel_sub("/arduino/vel", &velCallback);
+
 grudsby_lowlevel::ArduinoResponse response_msg;
-ros::Publisher status_pub("/arduino/status", &response_msg);
+
+ros::Publisher response_pub("grudsby/arduino_response", &response_msg);
+ros::Subscriber<std_msgs::Float32> left_sub("arduino/lwheel_vtarget", &left_callback);
+ros::Subscriber<std_msgs::Float32> right_sub("arduino/rwheel_vtarget", &right_callback);
+
+
+
 
 rc_control rc;
 

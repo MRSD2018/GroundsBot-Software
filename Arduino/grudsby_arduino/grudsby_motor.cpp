@@ -4,10 +4,10 @@ using namespace grudsby;
 
 bool Motor::checkChangeDir(int val) 
 {
-	if ((val > 0 == this->lastval > 0) && millis() > this->changetime + this->timeout){
+	if (((val > 0) == (this->lastval > 0)) && (millis() > (this->changetime + this->timeout))){
 		return true;
 	}
-	else if (val > 0 != this->lastval > 0) {
+	else if ((val > 0) !=(this->lastval > 0)) {
 		this->lastval = val;
 		this->changetime = millis();
 	}
@@ -74,21 +74,19 @@ RCMotor::RCMotor(int pin) {
 
 void RCMotor::writeVal(int val) 
 {
-	if (checkSafe(val)) {
-		if (val > 0) {
-			writeRC(min(RC_STOP + val, RC_MAX));
-		}
-		else if (val < 0) {
-			writeRC(max(RC_STOP + val, RC_MIN));
-		}
-		else {
-			writeRC(RC_STOP);
-		}
+	if (val > 0) {
+		writeRC(min(RC_STOP + val, RC_MAX));
 	}
+	else if (val < 0) {
+		writeRC(max(RC_STOP + val, RC_MIN));
+	}
+	else {
+		writeRC(RC_STOP);
+	}
+
 } 
 
-void RCMotor::writeRC(int rc) 
-{
+void RCMotor::writeRC(int rc){
 	//1250 is full back, 1750 full forward
 	if (servo.attached()) {
 		servo.writeMicroseconds(rc);

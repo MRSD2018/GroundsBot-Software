@@ -16,6 +16,8 @@ const int ENABLE2 = 8;
 
 const int DIR2 = 5;
 const int PWM2 = 6;
+
+const float WHEEL_DIST = 1;
 }
 
 

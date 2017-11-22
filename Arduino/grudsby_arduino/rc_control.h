@@ -4,6 +4,8 @@
 
 #include <Arduino.h>
 #include "SBUS.h"
+// #include <StandardCplusplus.h>
+// #include <vector>
 
 class rc_control
 {
@@ -36,6 +38,9 @@ public:
     int get_raw_reverse();
     int get_raw_kill();
     int get_raw_mode();
+    void get_RC_motor_outputs(int &outL, int &outR);
+    void get_RC_exponential_outputs(int &outL, int &outR);
+
 };
 
 #endif
