@@ -39,6 +39,27 @@ sudo apt-get install ros-kinetic-rospy
 sudo apt-get install ros-kinetic-teleop-tools
 ```
 
+-uuid-msgs
+```bash
+sudo apt-get install ros-kinetic-uuid-msgs
+```
+
+-i2c tools 
+```bash
+sudo apt-get install libi2c-dev i2c-tools
+```
+
+-tf2 geometry msgs
+```bash
+sudo apt-get install ros-kinetic-tf2-geometry-msgs 
+```
+
+-unique-id
+```bash
+sudo apt-get install ros-kinetic-unique-id
+```
+
+
 -catkin_pkg
 ```bash
 pip install catkin_pkg
