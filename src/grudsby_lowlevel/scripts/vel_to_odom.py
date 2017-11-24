@@ -58,12 +58,12 @@ class DiffTf:
         odom_msg = Odometry()
         odom_msg.twist.twist.linear.x = msg.linearX
         odom_msg.twist.twist.angular.z = msg.angularZ
-        odom_msg.twist.covariance[0] = 0.0001
-	odom_msg.twist.covariance[7] = 0.0001
-        odom_msg.twist.covariance[14] = 0.0001
-	odom_msg.twist.covariance[21] = 0.0001
-        odom_msg.twist.covariance[28] = 0.0001
-        odom_msg.twist.covariance[35] = 0.0001
+        odom_msg.twist.covariance[0] = 0.0004
+	odom_msg.twist.covariance[7] = 0.0004
+        odom_msg.twist.covariance[14] = 0.0004
+	odom_msg.twist.covariance[21] = 0.0004
+        odom_msg.twist.covariance[28] = 0.0004
+        odom_msg.twist.covariance[35] = 0.0004
 
 	self.odomPub.publish(odom_msg)
         
