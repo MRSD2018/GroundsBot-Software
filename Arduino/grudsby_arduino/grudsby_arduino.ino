@@ -21,16 +21,20 @@
 
 using namespace grudsby;
 
-
+//12000 ticks per second = 2.92968 revs/sec max speed  -- set in roboclaw
 
 void left_callback(const std_msgs::Float32& msg) {
   if (autonomous)
-    leftMotor->writeVal(int(msg.data));
+    maxvel = (12000/4096.0) * WHEEL_RAD* 2 * 3.14159;
+    int val = map(msg.data, -maxvel, maxvel, -255, 255);
+    leftMotor->writeVal(val);
 }
 
 void right_callback(const std_msgs::Float32& msg) {
   if (autonomous)
-    rightMotor->writeVal(int(msg.data));
+    maxvel = (12000/4096.0) * WHEEL_RAD* 2 * 3.14159;
+    int val = map(msg.data, -maxvel, maxvel, -255, 255);
+    rightMotor->writeVal(val);
 }
 
 

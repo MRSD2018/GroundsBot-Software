@@ -26,15 +26,18 @@ class DiffTf:
         #### parameters #######
         self.rate = 100
         
-  
+        self.w = 0.508 #wheelbase len
+        
         
         
         # subscriptions
         rospy.Subscriber("/grudsby/arduino_response", ArduinoResponse, self.responseCallback)
-        rospy.Subscriber("rwheel", Int32, self.rwheelCallback)
+        
+        rospy.Subscriber("/cmd_vel", Twist, self.cmdCallback)
 
         self.odomPub = rospy.Publisher("/grudsby/odometry", Odometry, queue_size=10)
-        
+        self.lMotorPub = rospy.Publisher('/arduino/lwheel_vtarget', Float32, queue_size=10)
+        self.rMotorPub = rospy.Publisher('/arduino/rwheel_vtarget', Float32, queue_size=10)
     #############################################################################
     def spin(self):
     #############################################################################
@@ -61,18 +64,16 @@ class DiffTf:
         self.odomPub.publish(odom_msg)
         
     #############################################################################
-    def rwheelCallback(self, msg):
+    def cmdCallback(self, msg):
     #############################################################################
-        enc = msg.data
-        if(enc < self.encoder_low_wrap and self.prev_rencoder > self.encoder_high_wrap):
-            self.rmult = self.rmult + 1
+        self.dx = msg.linear.x
+        self.dr = msg.angular.z
+        self.dy = msg.linear.y
+        self.right = 1.0 * self.dx + self.dr * self.w / 2 
+        self.left = 1.0 * self.dx - self.dr * self.w / 2
+        self.pub_lmotor.publish(self.left)
+        self.pub_rmotor.publish(self.right)
         
-        if(enc > self.encoder_high_wrap and self.prev_rencoder < self.encoder_low_wrap):
-            self.rmult = self.rmult - 1
-            
-        self.right = 1.0 * (enc + self.rmult * (self.encoder_max - self.encoder_min))
-        self.prev_rencoder = enc
-
 #############################################################################
 #############################################################################
 if __name__ == '__main__':
