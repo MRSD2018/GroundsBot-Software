@@ -29,6 +29,8 @@ int32_t  prevRTimerPos =  0;
 int32_t leftVel = 0;
 int32_t rightVel = 0;
 
+unsigned long lastPublish = 0;
+
 bool autonomous;
 bool kill;
 

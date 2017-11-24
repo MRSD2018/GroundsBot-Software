@@ -93,10 +93,11 @@ void loop()
 
 void publishStatus() {
   // wheel rads = ticks_per_sec / ticks_per_rev  * 2pi
-
+  
   //extern from encoder.h
   //if (publishVel%20 == 0) {
-  if (true) {
+  if ((millis()-lastPublish) > PUBLISH_RATE) {
+    lastPublish = millis();
     noInterrupts();
     unsigned long lastEncMicros1_curr = lastEncMicros1;
     unsigned long lastEncMicros0_curr = lastEncMicros0;
