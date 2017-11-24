@@ -46,15 +46,15 @@ int main (int argc, char **argv)
       imu.angular_velocity.x = Gyro.readX();
       imu.angular_velocity.y = Gyro.readY();
       imu.angular_velocity.z = Gyro.readZ();
-      imu.angular_velocity_covariance[0] = 0.01; // NOTE: NEED TO ADJUST COVARIANCES
-      imu.angular_velocity_covariance[4] = 0.01; // NOTE: NEED TO ADJUST COVARIANCES
-      imu.angular_velocity_covariance[8] = 0.01; // NOTE: NEED TO ADJUST COVARIANCES
+      imu.angular_velocity_covariance[0] = 0.000001; // NOTE: NEED TO ADJUST COVARIANCES
+      imu.angular_velocity_covariance[4] = 0.000001; // NOTE: NEED TO ADJUST COVARIANCES
+      imu.angular_velocity_covariance[8] = 0.000001; // NOTE: NEED TO ADJUST COVARIANCES
       imu.linear_acceleration.x = Accel.readX();
       imu.linear_acceleration.y = Accel.readY();
       imu.linear_acceleration.z = Accel.readZ();
-      imu.linear_acceleration_covariance[0] = 0.2; // NOTE: NEED TO ADJUST COVARIANCES
-      imu.linear_acceleration_covariance[4] = 0.2; // NOTE: NEED TO ADJUST COVARIANCES
-      imu.linear_acceleration_covariance[8] = 0.2; // NOTE: NEED TO ADJUST COVARIANCES
+      imu.linear_acceleration_covariance[0] = 0.0001; // NOTE: NEED TO ADJUST COVARIANCES
+      imu.linear_acceleration_covariance[4] = 0.0001; // NOTE: NEED TO ADJUST COVARIANCES
+      imu.linear_acceleration_covariance[8] = 0.0001; // NOTE: NEED TO ADJUST COVARIANCES
       imuRawPub.publish(imu);
 
       sensor_msgs::MagneticField mag;
@@ -63,9 +63,9 @@ int main (int argc, char **argv)
       mag.magnetic_field.x = Mag.readX(); // Convert to Gauss from mG
       mag.magnetic_field.y = Mag.readY();
       mag.magnetic_field.z = Mag.readZ();
-      mag.magnetic_field_covariance[0] = 0.000001;
-      mag.magnetic_field_covariance[4] = 0.000001;
-      mag.magnetic_field_covariance[8] = 0.000001;
+      mag.magnetic_field_covariance[0] = 0.0001;
+      mag.magnetic_field_covariance[4] = 0.0001;
+      mag.magnetic_field_covariance[8] = 0.0001;
       magPub.publish(mag);
 
       ros::spinOnce();
