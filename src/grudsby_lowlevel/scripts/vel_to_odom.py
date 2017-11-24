@@ -10,6 +10,7 @@ from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from tf.broadcaster import TransformBroadcaster
 from std_msgs.msg import Int32
+from std_msgs.msg import Float32
 from grudsby_lowlevel.msg import ArduinoResponse
 
 #############################################################################
@@ -71,8 +72,8 @@ class DiffTf:
         self.dy = msg.linear.y
         self.right = 1.0 * self.dx + self.dr * self.w / 2 
         self.left = 1.0 * self.dx - self.dr * self.w / 2
-        self.pub_lmotor.publish(self.left)
-        self.pub_rmotor.publish(self.right)
+        self.lMotorPub.publish(self.left)
+        self.rMotorPub.publish(self.right)
         
 #############################################################################
 #############################################################################
