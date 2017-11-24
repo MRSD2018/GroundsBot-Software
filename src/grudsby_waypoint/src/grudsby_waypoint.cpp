@@ -26,7 +26,7 @@ static std::vector<waypoint> goals;
 
 void parseKMLFile()
 {
-  std::ifstream infile("../src/grudsby_waypoint/src/mower_path.kml");
+  std::ifstream infile("/home/nvidia/GroundsBot-Software/data/mower_path.kml");
 
   if (!infile)
   {
