@@ -68,7 +68,8 @@ class DiffTf:
 	odom_msg.twist.covariance[21] = 0.0004
         odom_msg.twist.covariance[28] = 0.0004
         odom_msg.twist.covariance[35] = 0.0004
-
+	odom_msg.header.frame_id = "base_link"
+        odom_msg.child_frame_id = "base_link"
 	self.odomPub.publish(odom_msg)
         
     #############################################################################
