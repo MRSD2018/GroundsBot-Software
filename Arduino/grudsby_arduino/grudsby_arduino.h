@@ -60,6 +60,9 @@ ros::Subscriber<std_msgs::Float32> left_sub("arduino/lwheel_vtarget", &left_call
 ros::Subscriber<std_msgs::Float32> right_sub("arduino/rwheel_vtarget", &right_callback);
 
 
+long lastAutonomousTime = 0;
+bool lastAutonomous = false;
+
 
 
 rc_control rc;

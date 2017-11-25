@@ -160,15 +160,24 @@ void moveGrudsby() {
   if(rc.read_signal()) {
     //Serial.println("read signal");
     kill = rc.is_killed();
-    autonomous = rc.is_autonomous();
+
+    if (lastAutonomous != rc.is_autonomous()) {
+      lastAutonomousTime = millis();
+    }
+
+    if ((millis() - lastAutonomousTime) > 20) {
+      if (lastAutonomous != rc.is_autonomous()) {
+        autonomous = rc.is_autonomous();
+      }
+    }
+    lastAutonomous = rc.is_autonomous();
+
     //Serial<<"Kill: "<<rc.get_raw_kill()<<"\tAutonomous: "<<rc.get_raw_mode()<<endl;
     //Serial<<"Throttle: "<<rc.get_raw_throttle()<<"\tTurn: "<<rc.get_raw_turn()<<endl;
     if(kill) {
+      autonomous = false;
       leftMotor->writeVal(0);
       rightMotor->writeVal(0);
-    }
-    else if(autonomous) {
-      autonomous = true;
     }
     else if(!(kill) && !(autonomous)) {
       // std::vector<int> motorvals = rc.get_RC_motor_outputs();
