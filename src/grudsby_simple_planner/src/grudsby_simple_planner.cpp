@@ -16,7 +16,7 @@ nav_msgs::Odometry curr_odom;
 
 
 double max_x_vel = 1;
-double max_theta_vel = 4;
+double max_theta_vel = 1;
 
 float Kp_lin = 1.0;
 float Ki_lin = 0;
