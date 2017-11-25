@@ -60,7 +60,7 @@
       <param name="odom1_relative" value="false"/>
       <param name="imu0_relative" value="false"/>
 
-      <param name="imu0_remove_gravitational_acceleration" value="false"/>
+      <param name="imu0_remove_gravitational_acceleration" value="true"/>
 
       <param name="print_diagnostics" value="true"/>
 
