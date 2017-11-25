@@ -114,9 +114,9 @@ class RosNMEADriver(object):
             current_fix.longitude = longitude
 
             hdop = data['hdop']
-            current_fix.position_covariance[0] = hdop ** 2
-            current_fix.position_covariance[4] = hdop ** 2
-            current_fix.position_covariance[8] = (2 * hdop) ** 2  # FIXME
+            current_fix.position_covariance[0] = 0.0004 #hdop ** 2
+            current_fix.position_covariance[4] = 0.0004 #hdop ** 2
+            current_fix.position_covariance[8] = 0.0016 #(2 * hdop) ** 2  # FIXME
             current_fix.position_covariance_type = \
                 NavSatFix.COVARIANCE_TYPE_APPROXIMATED
 
@@ -180,14 +180,4 @@ class RosNMEADriver(object):
     @staticmethod
     def get_frame_id():
         frame_id = rospy.get_param('~frame_id', 'gps')
-        if frame_id[0] != "/":
-            """Add the TF prefix"""
-            prefix = ""
-            prefix_param = rospy.search_param('tf_prefix')
-            if prefix_param:
-                prefix = rospy.get_param(prefix_param)
-                if prefix[0] != "/":
-                    prefix = "/%s" % prefix
-            return "%s/%s" % (prefix, frame_id)
-        else:
-            return frame_id
+        return frame_id
