@@ -74,7 +74,7 @@ RCMotor::RCMotor(int pin) {
 
 void RCMotor::writeVal(int val) 
 {
-	int command = map(val, -255, 255 RC_MIN, RC_MAX);
+	int command = map(val, -255, 255, RC_MIN, RC_MAX);
 	if (val > 0) {
 		writeRC(min(command, RC_MAX));
 	}
