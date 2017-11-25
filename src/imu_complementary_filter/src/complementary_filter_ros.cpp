@@ -97,7 +97,7 @@ void ComplementaryFilterROS::initializeParams()
   bool do_adaptive_gain;
 
   if (!nh_private_.getParam ("fixed_frame", fixed_frame_))
-    fixed_frame_ = "odom";
+    fixed_frame_ = "base_link";
   if (!nh_private_.getParam ("use_mag", use_mag_))
     use_mag_ = false;
   //if (!nh_private_.getParam ("publish_tf", publish_tf_))
