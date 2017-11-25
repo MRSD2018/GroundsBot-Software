@@ -164,9 +164,6 @@ void moveGrudsby() {
       leftMotor->writeVal(0);
       rightMotor->writeVal(0);
     }
-    else if(autonomous) {
-      autonomous = true;
-    }
     else if(!(kill) && !(autonomous)) {
       // std::vector<int> motorvals = rc.get_RC_motor_outputs();
       //Serial<<"Left: "<<rc_left_vel<<"\tRight: "<<rc_right_vel<<endl;
