@@ -27,7 +27,7 @@ void left_callback(const std_msgs::Float32& msg) {
   if (autonomous){
     float maxvel = (12000/4096.0) * WHEEL_RAD* 2 * 3.14159;
     int val = map(msg.data, -maxvel, maxvel, -255, 255);
-    leftMotor->writeVal(val);
+    leftAutoVal = val;
   }
 }
 
@@ -35,7 +35,7 @@ void right_callback(const std_msgs::Float32& msg) {
   if (autonomous) {
     float maxvel = (12000/4096.0) * WHEEL_RAD* 2 * 3.14159;
     int val = map(msg.data, -maxvel, maxvel, -255, 255);
-    rightMotor->writeVal(val);
+    rightAutoVal = val;
   }
 }
 
@@ -166,7 +166,7 @@ void moveGrudsby() {
     }
 
     if ((millis() - lastAutonomousTime) > 20) {
-      if (lastAutonomous != rc.is_autonomous()) {
+      if (autonomous != rc.is_autonomous()) {
         autonomous = rc.is_autonomous();
       }
     }
@@ -190,10 +190,11 @@ void moveGrudsby() {
       rightMotor->writeVal(velR);
         
     }
-    else {
-      leftMotor->writeVal(0);
-      rightMotor->writeVal(0);
+    else if (autonomous) {
+      leftMotor->writeVal(leftAutoVal);
+      rightMotor->writeVal(rightAutoVal);
     }
+
   }
   else {
     autonomous = true;
