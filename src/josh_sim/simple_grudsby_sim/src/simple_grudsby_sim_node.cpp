@@ -216,7 +216,7 @@ int main(int argc, char **argv) {
 
       Vector3 newImuVelocity = deltaPosition / imuUpdateRate;
 
-      Vector3 accel = (newImuVelocity - lastImuVelocity) / imuUpdateRate;
+      Vector3 accel = (newImuVelocity - lastImuVelocity) / imuUpdateRate + Matrix3x3::Transpose(newImuOrientation) * Vector3(0,0,9.81);
 
       lastImuVelocity = newImuVelocity;
 
