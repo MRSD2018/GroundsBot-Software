@@ -44,7 +44,7 @@ int main (int argc, char **argv)
     run_calibration_ = false;
   }
   if (run_calibration_) {
-    velPub = n.advertise<geometry_msgs::Twist>("/cmd_vel", 100);
+    velPub = n.advertise<geometry_msgs::Twist>("cmd_vel", 100);
   }
 
   if (!n.getParam ("ImuDriver/calibration_file_location", calib_location_)) {
@@ -125,11 +125,12 @@ int main (int argc, char **argv)
         }
         else {
           if (num_magn_readings < max_magn_readings) {
+              geometry_msgs::Twist msg;
+              msg.angular.z = 1.89;
+              velPub.publish(msg);
+
             if (num_magn_readings == 0) {
               ROS_ERROR("Finished Gyro Readings");
-              geometry_msgs::Twist msg;
-              msg.angular.z = 0.1;
-              velPub.publish(msg);
 	    }
             double tempX = Mag.readX();
             double tempY = Mag.readY();

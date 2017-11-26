@@ -78,8 +78,8 @@ class DiffTf:
         self.dx = msg.linear.x
         self.dr = msg.angular.z
         self.dy = msg.linear.y
-        self.right = 1.0 * self.dx + self.dr * self.w / 2 
-        self.left = 1.0 * self.dx - self.dr * self.w / 2
+        self.right = 1.0 * self.dx + self.dr * self.w / 2.0
+        self.left = 1.0 * self.dx - self.dr * self.w / 2.0
         self.lMotorPub.publish(self.left)
         self.rMotorPub.publish(self.right)
         

@@ -25,16 +25,18 @@ using namespace grudsby;
 
 void left_callback(const std_msgs::Float32& msg) {
   if (autonomous){
-    float maxvel = (12000/4096.0) * WHEEL_RAD* 2 * 3.14159;
-    int val = map(msg.data, -maxvel, maxvel, -255, 255);
+    float scaled = msg.data * 1000;
+    float maxvel = (12000/4096.0) * WHEEL_RAD* 2 * 3.14159 * 1000;
+    int val = map(scaled, -maxvel, maxvel, -255, 255);
     leftAutoVal = val;
   }
 }
 
 void right_callback(const std_msgs::Float32& msg) {
   if (autonomous) {
+    float scaled = msg.data*1000
     float maxvel = (12000/4096.0) * WHEEL_RAD* 2 * 3.14159;
-    int val = map(msg.data, -maxvel, maxvel, -255, 255);
+    int val = map(scaled, -maxvel, maxvel, -255, 255);
     rightAutoVal = val;
   }
 }

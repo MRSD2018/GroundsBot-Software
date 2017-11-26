@@ -68,7 +68,7 @@
       <param name="odom1_queue_size" value="10"/>
       <param name="imu0_queue_size" value="10"/>
 
-      <param name="debug"           value="false"/>
+      <param name="debug"           value="true"/>
       <param name="debug_out_file"  value="debug_ekf_localization.txt"/>
 
       <rosparam param="process_noise_covariance">[0.05, 0,    0,    0,    0,    0,    0,     0,     0,    0,    0,    0,    0,    0,    0,
