@@ -1,0 +1,11 @@
+<launch>
+  
+  #### IMU Driver ###########################################################
+<include file="$(find grudsby_lowlevel)/launch/grudsby_arduino.launch"/>
+
+<node pkg="grudsby_imu" type="node" name="ImuDriver">
+    <param name="do_calibration" value="true" />
+    <param name="calibration_file_location" type="str" value="/home/nvidia/GroundsBot-Software/data/calibration.txt" />
+  </node>
+</launch>
+
