@@ -198,7 +198,7 @@ int main (int argc, char **argv)
         sensor_msgs::MagneticField mag;
         mag.header.stamp = ros::Time::now();
         mag.header.frame_id = "imu_link"; 
-        mag.magnetic_field.x = Mag.readX() - magn_x_bias_; // Convert to Gauss from mG
+        mag.magnetic_field.x = -(Mag.readX() - magn_x_bias_); // Convert to Gauss from mG
         mag.magnetic_field.y = Mag.readY() - magn_y_bias_;
         mag.magnetic_field.z = Mag.readZ() - magn_z_bias_;
         mag.magnetic_field_covariance[0] = 0.0001;
