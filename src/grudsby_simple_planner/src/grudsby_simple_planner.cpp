@@ -9,6 +9,7 @@
 #include "Vector2.hpp"
 #include "tf/transform_listener.h"
 #include "math.h"
+#include <grudsby_simple_planner/SimplePlannerDebug.h>
 
 geometry_msgs::PoseStamped goal_pose_in_odom;
 nav_msgs::Odometry curr_odom;
@@ -116,6 +117,7 @@ int main(int argc, char **argv) {
   ros::Subscriber odomSub = n.subscribe("odometry/filtered", 100, odom_received);
   ros::Subscriber goalSub = n.subscribe("goal", 100, goal_received);   
     
+  ros::Publisher debugPub = n.advertise<grudsby_simple_planner::SimplePlannerDebug>("/grudsby/debug/simplePlannerDebug", 100);
 
   while (ros::ok())
   {
@@ -205,8 +207,7 @@ int main(int argc, char **argv) {
         theta_vel = sign(theta_vel)*max_theta_vel;
       }
       
-      ROS_INFO("Angular Velocity: %f", theta_vel);
-      ROS_INFO("Linear Velocity: %f", x_vel);
+
 
       //Publish /cmd_vel
       geometry_msgs::Twist msg;
@@ -220,6 +221,16 @@ int main(int argc, char **argv) {
       
       velPub.publish(msg); 
 
+      //Publish debugs
+      grudsby_simple_planner::SimplePlannerDebug debug_msg;
+      debug_msg.theta_d = theta_d;
+      debug_msg.x_towards_g = x_towards_g;
+      debug_msg.delta_x = delta_x;
+      debug_msg.delta_y = delta_y;
+      debug_msg.goalx = goal_pose_in_odom.pose.position.x;
+      debug_msg.goaly = goal_pose_in_odom.pose.position.y;
+
+      debugPub.publish(debug_msg);
     }   
     
 
