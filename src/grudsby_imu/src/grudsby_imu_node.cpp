@@ -16,8 +16,8 @@ std::string calib_location_;
 
 int num_gyro_readings = 0;
 int num_magn_readings = 0;
-const int max_gyro_readings = 50;
-const int max_magn_readings = 100;
+const int max_gyro_readings = 100;
+const int max_magn_readings = 600;
 
 double magn_x_bias_ = 0;
 double magn_y_bias_ = 0;
@@ -38,7 +38,7 @@ int main (int argc, char **argv)
 
   ros::Publisher magPub = n.advertise<sensor_msgs::MagneticField>("imu/mag", 1000);
 
-  ros::Rate loop_rate(100);
+  ros::Rate loop_rate(1000);
 
   if (!n.getParam ("ImuDriver/do_calibration", run_calibration_)) {
     run_calibration_ = false;
@@ -177,13 +177,15 @@ int main (int argc, char **argv)
         sensor_msgs::Imu imu;
         imu.header.stamp = ros::Time::now();
         imu.header.frame_id = "imu_link";
-    
+        
         imu.angular_velocity.y = -(Gyro.readX() - gyro_x_bias_);
         imu.angular_velocity.x = Gyro.readY() - gyro_y_bias_;
         imu.angular_velocity.z = Gyro.readZ() - gyro_z_bias_;
         imu.angular_velocity_covariance[0] = 0.000001; // NOTE: NEED TO ADJUST COVARIANCES
         imu.angular_velocity_covariance[4] = 0.000001; // NOTE: NEED TO ADJUST COVARIANCES
         imu.angular_velocity_covariance[8] = 0.000001; // NOTE: NEED TO ADJUST COVARIANCES
+        
+        
         imu.linear_acceleration.y = -1 * Accel.readX();
         imu.linear_acceleration.x = Accel.readY();
         imu.linear_acceleration.z = Accel.readZ();
@@ -193,8 +195,9 @@ int main (int argc, char **argv)
         imu.orientation_covariance[0] = 0.0001; // NOTE: NEED TO ADJUST COVARIANCES
         imu.orientation_covariance[4] = 0.0001; // NOTE: NEED TO ADJUST COVARIANCES
         imu.orientation_covariance[8] = 0.0001; // NOTE: NEED TO ADJUST COVARIANCES
+        
         imuRawPub.publish(imu);
-
+        
         sensor_msgs::MagneticField mag;
         mag.header.stamp = ros::Time::now();
         mag.header.frame_id = "imu_link"; 
@@ -205,6 +208,7 @@ int main (int argc, char **argv)
         mag.magnetic_field_covariance[4] = 0.0001;
         mag.magnetic_field_covariance[8] = 0.0001;
         magPub.publish(mag);
+        
       }
       ros::spinOnce();
 
