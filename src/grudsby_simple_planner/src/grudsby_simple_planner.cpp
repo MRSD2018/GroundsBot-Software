@@ -25,9 +25,9 @@ float Kd_lin = 0;
 double total_lin_error = 0;
 double prev_x_towards_g = 0;  
 
-float Kp_ang = 7;
+float Kp_ang = 4;
 float Ki_ang = 0;
-float Kd_ang = 3;    
+float Kd_ang = 6;    
 double total_ang_error = 0;
 double prev_theta = 0;
 
