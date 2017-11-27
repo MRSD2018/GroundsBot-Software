@@ -3,7 +3,7 @@
 import rospy
 import roslib
 import tf
-from math import sin, cos, pi
+from math import sin, cos, pi, atan2
 
 from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import Twist
@@ -65,11 +65,11 @@ class Quat2Rot:
         msg.orientation.z,
         msg.orientation.w)
         euler = tf.transformations.euler_from_quaternion(quat)
-    
+        Re = tf.transformations.quaternion_matrix(quat)
         rots = Vector3() 
         rots.x = euler[0]
         rots.y = euler[1]
-        rots.z = euler[2]
+        rots.z = atan2(Re[1][0], Re[0][0])
 
         self.rotPub.publish(rots)
     
