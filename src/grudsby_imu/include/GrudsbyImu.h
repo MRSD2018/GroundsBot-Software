@@ -36,7 +36,7 @@ class GrudsbyImuBase {
 
     int writeRegister(int regtoWrite, int dataToWrite);
       
-    bool readInternal(int highReg, int lowReg, int *value);
+    bool readInternal(int highReg, int lowReg, int *value, bool readInternal);
   
 
   private: 
