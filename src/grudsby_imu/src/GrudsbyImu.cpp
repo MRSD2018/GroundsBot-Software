@@ -66,14 +66,14 @@ int GrudsbyImuBase::writeRegister(int regtoWrite, int dataToWrite) {
   return toReturn ;
 }
 
-bool GrudsbyImuBase::readInternal(int highReg, int lowReg, int *value) {
+bool GrudsbyImuBase::readInternal(int highReg, int lowReg, int *value, bool readStatus) {
   uint16_t data = 0;
   unsigned char  read = 0;
   int16_t signed_data = 0;
 
   for (;;) {
       read = readRegister(statusReg);
-      if (read & readyReg) {
+      if ((read & readyReg) || (!readStatus)) {
           read = readRegister(lowReg);
           data = read;      // LSB
 
@@ -131,7 +131,7 @@ bool GrudsbyImuAccel::begin() {
 
 double GrudsbyImuAccel::readX() {
   int data = 0;
-  if (readInternal(AG_ACC_X_H, AG_ACC_X_L, &data)) {
+  if (readInternal(AG_ACC_X_H, AG_ACC_X_L, &data, false)) {
       x = data;
   }
   // Decode Accel x-axis  [mdps measurement unit]
@@ -140,7 +140,7 @@ double GrudsbyImuAccel::readX() {
 
 double GrudsbyImuAccel::readY() {
   int data = 0;
-  if (readInternal(AG_ACC_Y_H, AG_ACC_Y_L, &data)) {
+  if (readInternal(AG_ACC_Y_H, AG_ACC_Y_L, &data, false)) {
       y = data;
   }
   // Decode Accel x-axis  [mdps measurement unit]
@@ -149,7 +149,7 @@ double GrudsbyImuAccel::readY() {
 
 double GrudsbyImuAccel::readZ() {
   int data = 0;
-  if (readInternal(AG_ACC_Z_H, AG_ACC_Z_L, &data)) {
+  if (readInternal(AG_ACC_Z_H, AG_ACC_Z_L, &data, false)) {
       z = data;
   }
   // Decode Accel x-axis  [mdps measurement unit]
@@ -201,7 +201,7 @@ bool GrudsbyImuMag::begin() {
 
 double GrudsbyImuMag::readX() {
   int data = 0;
-  if (readInternal(M_X_H, M_X_L, &data)) {
+  if (readInternal(M_X_H, M_X_L, &data, true)) {
       x = data;
   }
   // Decode magnetic x-axis  [mgauss measurement unit]
@@ -210,7 +210,7 @@ double GrudsbyImuMag::readX() {
 
 double GrudsbyImuMag::readY() {
   int data = 0;
-  if (readInternal(M_Y_H, M_Y_L, &data)) {
+  if (readInternal(M_Y_H, M_Y_L, &data, false)) {
       y = data;
   }
   // Decode magnetic x-axis  [mgauss measurement unit]
@@ -219,7 +219,7 @@ double GrudsbyImuMag::readY() {
 
 double GrudsbyImuMag::readZ() {
   int data = 0;
-  if (readInternal(M_Z_H, M_Z_L, &data)) {
+  if (readInternal(M_Z_H, M_Z_L, &data, false)) {
       z = data;
   }
   // Decode magnetic x-axis  [mgauss measurement unit]
@@ -266,7 +266,7 @@ bool GrudsbyImuGyro::begin() {
 
 double GrudsbyImuGyro::readX() {
   int data = 0;
-  if (readInternal(AG_GYR_X_H, AG_GYR_X_L, &data)) {
+  if (readInternal(AG_GYR_X_H, AG_GYR_X_L, &data, true)) {
       x = data;
   }
   // Decode Gyroscope x-axis  [mdps measurement unit]
@@ -275,7 +275,7 @@ double GrudsbyImuGyro::readX() {
 
 double GrudsbyImuGyro::readY() {
   int data = 0;
-  if (readInternal(AG_GYR_Y_H, AG_GYR_Y_L, &data)) {
+  if (readInternal(AG_GYR_Y_H, AG_GYR_Y_L, &data, false)) {
       y = data;
   }
   // Decode Gyroscope x-axis  [mdps measurement unit]
@@ -284,7 +284,7 @@ double GrudsbyImuGyro::readY() {
 
 double GrudsbyImuGyro::readZ() {
   int data = 0;
-  if (readInternal(AG_GYR_Z_H, AG_GYR_Z_L, &data)) {
+  if (readInternal(AG_GYR_Z_H, AG_GYR_Z_L, &data, false)) {
       z = data;
   }
   // Decode Gyroscope x-axis  [mdps measurement unit]
