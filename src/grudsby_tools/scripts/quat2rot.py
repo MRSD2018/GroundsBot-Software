@@ -18,7 +18,6 @@ from geometry_msgs.msg import Vector3
 #############################################################################
 class Quat2Rot:
 #############################################################################
-
     #############################################################################
     def __init__(self):
     #############################################################################
@@ -34,10 +33,11 @@ class Quat2Rot:
         
         # subscriptions
         rospy.Subscriber("/imu/data", Imu, self.ImuCallback)
-        
+        rospy.Subscriber("/odometry/filtered", Odometry, self.OdometryCallback)   
 
 
         self.rotPub = rospy.Publisher('grudsby/debug/IMUrot', Vector3, queue_size=10)
+        self.filtPub = rospy.Publisher('grudsby/debug/IMUrotfilt', Vector3, queue_size=10)
        
     #############################################################################
     def spin(self):
@@ -60,22 +60,37 @@ class Quat2Rot:
     def ImuCallback(self, msg):
     #############################################################################
         quat = (
-		msg.orientation.x,
-		msg.orientation.y,
-		msg.orientation.z,
-		msg.orientation.w)
-	euler = tf.transformations.euler_from_quaternion(quat)
-	
-	rots = Vector3() 
-	rots.x = euler[0]
-	rots.y = euler[1]
-	rots.z = euler[2]
+        msg.orientation.x,
+        msg.orientation.y,
+        msg.orientation.z,
+        msg.orientation.w)
+        euler = tf.transformations.euler_from_quaternion(quat)
+    
+        rots = Vector3() 
+        rots.x = euler[0]
+        rots.y = euler[1]
+        rots.z = euler[2]
 
-	rotPub.publish(rots)
-	
+        self.rotPub.publish(rots)
+    
 
         
-  
+    #############################################################################
+    def OdometryCallback(self, msg):
+    #############################################################################
+        quat = (
+        msg.pose.pose.orientation.x,
+        msg.pose.pose.orientation.y,
+        msg.pose.pose.orientation.z,
+        msg.pose.pose.orientation.w)
+        euler = tf.transformations.euler_from_quaternion(quat)
+
+        rots = Vector3() 
+        rots.x = euler[0]
+        rots.y = euler[1]
+        rots.z = euler[2]
+
+        self.filtPub.publish(rots)
         
 #############################################################################
 #############################################################################
