@@ -206,7 +206,7 @@ int main(int argc, char **argv) {
         double delta_x_vel = x_vel - prev_x_vel;
         if ( abs(delta_x_vel) > max_vel_delta )
         {
-          x_vel = prev_x_vel + sign(delta_x_vel)*max_x_vel_delta;
+          x_vel = prev_x_vel + sign(delta_x_vel)*max_vel_delta;
         }
       } 
       
