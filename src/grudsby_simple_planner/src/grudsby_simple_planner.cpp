@@ -14,10 +14,11 @@
 geometry_msgs::PoseStamped goal_pose_in_odom;
 nav_msgs::Odometry curr_odom;
 
-
-
 double max_x_vel = 1;
 double max_theta_vel = 1;
+double max_vel_delta = 0.05;
+double prev_x_vel = 0;
+double prev_theta_vel = 0;
 
 float Kp_lin = .7;
 float Ki_lin = 0;
@@ -25,9 +26,9 @@ float Kd_lin = 0;
 double total_lin_error = 0;
 double prev_x_towards_g = 0;  
 
-float Kp_ang = 4;
+float Kp_ang = 7;
 float Ki_ang = 0;
-float Kd_ang = 6;    
+float Kd_ang = 3;    
 double total_ang_error = 0;
 double prev_theta = 0;
 
@@ -160,7 +161,7 @@ int main(int argc, char **argv) {
       //Find angle between vector and x direction    
       Vector3 x_cross_v = Vector3::Cross(x_vec, v_vec);
       int direction = sign(x_cross_v.Z);
-      double theta =  direction*Vector3::Angle(x_vec, v_vec);
+      double theta =  direction*Vector3::Angle(x_vec, v_vec) + 1.3;
       double theta_d = theta / (2*3.14159265359) * 360;
    
       //Find part of x_vec in direction of g 
@@ -201,14 +202,24 @@ int main(int argc, char **argv) {
       if(abs(x_vel)>max_x_vel)
       {
         x_vel = sign(x_vel)*max_x_vel;
-      }
+        
+        double delta_x_vel = x_vel - prev_x_vel;
+        if ( abs(delta_x_vel) > max_vel_delta )
+        {
+          x_vel = prev_x_vel + sign(delta_x_vel)*max_x_vel_delta;
+        }
+      } 
       
       if(abs(theta_vel)>max_theta_vel)
       {
         theta_vel = sign(theta_vel)*max_theta_vel;
-      }
-      
 
+        double delta_theta_vel = theta_vel - prev_theta_vel;
+        if ( abs(delta_theta_vel) > max_vel_delta )
+        {
+          theta_vel = prev_theta_vel + sign(delta_theta_vel)*max_vel_delta;
+        }
+      }
 
       //Publish /cmd_vel
       geometry_msgs::Twist msg;
@@ -231,10 +242,7 @@ int main(int argc, char **argv) {
       debug_msg.delta_y = delta_y;
       debug_msg.goalx = goal_pose_in_odom.pose.position.x;
       debug_msg.goaly = goal_pose_in_odom.pose.position.y;
-      debug_msg.x_vec.x = x_vec.X;
-      debug_msg.x_vec.y = x_vec.Y;
-      debug_msg.v_vec.x = v_vec.X;
-      debug_msg.v_vec.y = v_vec.Y;
+
       debugPub.publish(debug_msg);
     }   
     
