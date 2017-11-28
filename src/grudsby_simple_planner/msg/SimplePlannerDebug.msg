@@ -5,3 +5,5 @@ float32 delta_x
 float32 delta_y
 float32 goalx
 float32 goaly
+geometry_msgs/Vector3 x_vec
+geometry_msgs/Vector3 v_vec

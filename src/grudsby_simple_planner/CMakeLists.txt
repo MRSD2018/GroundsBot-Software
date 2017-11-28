@@ -12,7 +12,8 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   tf
-  message_generation  
+  geometry_msgs
+  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -72,6 +73,7 @@ add_message_files(
 generate_messages(
   DEPENDENCIES
   std_msgs
+  geometry_msgs
 )
 
 ################################################
@@ -106,7 +108,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES grudsby_simple_planner
-  CATKIN_DEPENDS roscpp std_msgs message_runtime
+  CATKIN_DEPENDS roscpp std_msgs geometry_msgs message_runtime 
 #  DEPENDS system_lib
 )
 
