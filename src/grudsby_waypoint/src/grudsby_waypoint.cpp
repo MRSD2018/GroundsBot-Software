@@ -26,7 +26,7 @@ static std::vector<waypoint> goals;
 
 void parseKMLFile()
 {
-  std::ifstream infile("src/grudsby_waypoint/src/mower_path.kml");
+  std::ifstream infile("/home/nvidia/GroundsBot-Software/data/mower_path.kml");
 
   if (!infile)
   {
@@ -117,29 +117,37 @@ void findWaypointCallback(const sensor_msgs::NavSatFix& msg)
   goal.header.frame_id = "utm";
   goal.pose.orientation.w = 1.0;
 
-  double goal_lat = goals.front().latitude;
-  double goal_long = goals.front().longitude;
-
-  if ( inThreshold(grudsby_lat, grudsby_long, goal_lat, goal_long) )
+  if ( goals.size() > 0 )
   {
-    ROS_INFO("Updating goal waypoint");
-    goals.erase( goals.begin() );
-    goal_lat = goals.front().latitude;
-    goal_long = goals.front().longitude;
+    double goal_lat = goals.front().latitude;
+    double goal_long = goals.front().longitude;
+
+    if ( inThreshold(grudsby_lat, grudsby_long, goal_lat, goal_long) )
+    {
+      ROS_INFO("Updating goal waypoint");
+      if( goals.size() > 1)
+      {
+        goals.erase( goals.begin() );
+        goal_lat = goals.front().latitude;
+        goal_long = goals.front().longitude;
+      }
+      else ROS_WARN("No new waypoints. Repeating previous waypoint.");
+    }
+
+    double goal_easting_x = 0;
+    double goal_northing_y = 0;
+    std::string utm_zone_tmp;
+
+    RobotLocalization::NavsatConversions::LLtoUTM(goal_lat, goal_long, goal_northing_y, goal_easting_x, utm_zone_tmp);
+
+    goal.pose.position.x = goal_easting_x;
+    goal.pose.position.y = goal_northing_y;
+    goal.pose.position.z = grudsby_alt;
+    ROS_INFO("UTM Goal: Northing: %f, Easting: %f", goal_northing_y, goal_easting_x);
+
+    waypoint_pub.publish(goal);
   }
-
-  double goal_easting_x = 0;
-  double goal_northing_y = 0;
-  std::string utm_zone_tmp;
-
-  RobotLocalization::NavsatConversions::LLtoUTM(goal_lat, goal_long, goal_northing_y, goal_easting_x, utm_zone_tmp);
-
-  goal.pose.position.x = goal_easting_x;
-  goal.pose.position.y = goal_northing_y;
-  goal.pose.position.z = grudsby_alt;
-  ROS_INFO("UTM Goal: Northing: %f, Easting: %f", goal_northing_y, goal_easting_x);
-
-  waypoint_pub.publish(goal);
+  else ROS_WARN("No waypoints in vector.");
 }
 
 int main(int argc, char **argv)

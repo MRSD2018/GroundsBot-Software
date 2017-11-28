@@ -9,6 +9,7 @@
 #include "Vector2.hpp"
 #include "tf/transform_listener.h"
 #include "math.h"
+#include <grudsby_simple_planner/SimplePlannerDebug.h>
 
 geometry_msgs::PoseStamped goal_pose_in_odom;
 nav_msgs::Odometry curr_odom;
@@ -16,17 +17,17 @@ nav_msgs::Odometry curr_odom;
 
 
 double max_x_vel = 1;
-double max_theta_vel = 4;
+double max_theta_vel = 1;
 
-float Kp_lin = 1.0;
+float Kp_lin = .7;
 float Ki_lin = 0;
 float Kd_lin = 0;
 double total_lin_error = 0;
 double prev_x_towards_g = 0;  
 
-float Kp_ang = 7.0;
+float Kp_ang = 4;
 float Ki_ang = 0;
-float Kd_ang = 0;    
+float Kd_ang = 6;    
 double total_ang_error = 0;
 double prev_theta = 0;
 
@@ -110,12 +111,13 @@ int main(int argc, char **argv) {
   ros::init(argc, argv, "grudsby_simple_planner");
 
   ros::NodeHandle n;
-  ros::Rate loop_rate(500);
+  ros::Rate loop_rate(50);
 
   ros::Publisher velPub = n.advertise<geometry_msgs::Twist>("cmd_vel", 100);
   ros::Subscriber odomSub = n.subscribe("odometry/filtered", 100, odom_received);
   ros::Subscriber goalSub = n.subscribe("goal", 100, goal_received);   
     
+  ros::Publisher debugPub = n.advertise<grudsby_simple_planner::SimplePlannerDebug>("/grudsby/debug/simplePlannerDebug", 100);
 
   while (ros::ok())
   {
@@ -146,6 +148,7 @@ int main(int argc, char **argv) {
       Quaternion q(curr_odom.pose.pose.orientation.x,curr_odom.pose.pose.orientation.y,curr_odom.pose.pose.orientation.z,curr_odom.pose.pose.orientation.w);
         
       Vector3 rpy = Quaternion::ToEuler(q);
+     
       Vector3 x_vec(cos(rpy.Z), sin(rpy.Z), 0);
 
       //Find vector between start and goal
@@ -153,11 +156,11 @@ int main(int argc, char **argv) {
       double delta_y = goal_pose_in_odom.pose.position.y - curr_odom.pose.pose.position.y;   
     
       Vector3 v_vec(delta_x, delta_y, 0);
-
+      
       //Find angle between vector and x direction    
       Vector3 x_cross_v = Vector3::Cross(x_vec, v_vec);
       int direction = sign(x_cross_v.Z);
-      double theta = direction*Vector3::Angle(x_vec, v_vec);
+      double theta =  direction*Vector3::Angle(x_vec, v_vec);
       double theta_d = theta / (2*3.14159265359) * 360;
    
       //Find part of x_vec in direction of g 
@@ -205,8 +208,7 @@ int main(int argc, char **argv) {
         theta_vel = sign(theta_vel)*max_theta_vel;
       }
       
-      ROS_INFO("Angular Velocity: %f", theta_vel);
-      ROS_INFO("Linear Velocity: %f", x_vel);
+
 
       //Publish /cmd_vel
       geometry_msgs::Twist msg;
@@ -220,6 +222,20 @@ int main(int argc, char **argv) {
       
       velPub.publish(msg); 
 
+      //Publish debugs
+      grudsby_simple_planner::SimplePlannerDebug debug_msg;
+      debug_msg.theta_d = theta_d;
+      debug_msg.theta_r = theta;
+      debug_msg.x_towards_g = x_towards_g;
+      debug_msg.delta_x = delta_x;
+      debug_msg.delta_y = delta_y;
+      debug_msg.goalx = goal_pose_in_odom.pose.position.x;
+      debug_msg.goaly = goal_pose_in_odom.pose.position.y;
+      debug_msg.x_vec.x = x_vec.X;
+      debug_msg.x_vec.y = x_vec.Y;
+      debug_msg.v_vec.x = v_vec.X;
+      debug_msg.v_vec.y = v_vec.Y;
+      debugPub.publish(debug_msg);
     }   
     
 

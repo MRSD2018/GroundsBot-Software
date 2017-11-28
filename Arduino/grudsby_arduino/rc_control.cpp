@@ -79,6 +79,47 @@ void rc_control::get_RC_motor_outputs(int &outL, int &outR)
 
 }
 
+void rc_control::get_RC_weenie_outputs(int &outL, int &outR)
+{
+  long joy_y_val = map(channels[THROTTLE], 1811, 172, -255, 255);
+  long joy_x_val = map(channels[TURN], 172, 1811, -255, 255);
+
+  joy_y_val = joy_y_val^3;
+  joy_x_val = joy_x_val^3;
+
+  joy_y_val = map(joy_y_val, -255^3, 255^3, -255, 255);
+  joy_x_val = map(joy_x_val, -255^3, 255^3, -255, 255);
+
+  float premix_left;
+  float premix_right;
+
+  float pivotlimit = 60; 
+
+  if (joy_y_val >= 0) {
+    //Forward
+    premix_left = (joy_x_val>=0)? 255 : (255 + joy_x_val);
+    premix_right = (joy_x_val>=0)? (255 - joy_x_val) : 255;
+  }
+  else {
+    //Reverse
+    premix_left = (joy_x_val>=0)? (255 - joy_x_val) : 255;
+    premix_right = (joy_x_val>=0)? 255: 255+joy_x_val;
+  }
+
+  premix_left = premix_left * (joy_y_val/255.0);
+  premix_right = premix_right * (joy_y_val/255.0);
+
+  float pivSpeed = joy_x_val/4.0;
+  float pivScale = (abs(joy_y_val)>pivotlimit)? 0.0 : (1.0 - abs(joy_y_val)/pivotlimit);
+
+  int mixed_left = (1.0 - pivScale) * premix_left + pivScale * pivSpeed;
+  int mixed_right = (1.0 - pivScale) * premix_right + pivScale * -pivSpeed;
+
+
+  outL = mixed_left;
+  outR = mixed_right;
+}
+
 void rc_control::get_RC_exponential_outputs(int &outL, int &outR)
 {
   long joy_y_val = map(channels[THROTTLE], 1811, 172, -255, 255);
@@ -118,10 +159,6 @@ void rc_control::get_RC_exponential_outputs(int &outL, int &outR)
 
   outL = mixed_left;
   outR = mixed_right;
-
-
-
-
 }
 
 int rc_control::get_RC_left_motor_velocity()

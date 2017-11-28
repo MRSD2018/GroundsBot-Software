@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package>
+  <name>grudsby_tools</name>
+  <version>0.0.0</version>
+  <description>Tools and shit</description>
+
+  <maintainer email="zhenrychen@cmu.edu">henry</maintainer>
+  <license>GRUDSBY</license>
+
+
+  <build_depend>roslaunch</build_depend>
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>tf</build_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>tf</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+</package>

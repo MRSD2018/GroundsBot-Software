@@ -10,6 +10,7 @@ from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from tf.broadcaster import TransformBroadcaster
 from std_msgs.msg import Int32
+from std_msgs.msg import Float32
 from grudsby_lowlevel.msg import ArduinoResponse
 
 #############################################################################
@@ -26,15 +27,18 @@ class DiffTf:
         #### parameters #######
         self.rate = 100
         
-  
+        self.w = 0.508 #wheelbase len
+
         
         
         # subscriptions
         rospy.Subscriber("/grudsby/arduino_response", ArduinoResponse, self.responseCallback)
-        rospy.Subscriber("rwheel", Int32, self.rwheelCallback)
+        
+        rospy.Subscriber("/cmd_vel", Twist, self.cmdCallback)
 
         self.odomPub = rospy.Publisher("/grudsby/odometry", Odometry, queue_size=10)
-        
+        self.lMotorPub = rospy.Publisher('/arduino/lwheel_vtarget', Float32, queue_size=10)
+        self.rMotorPub = rospy.Publisher('/arduino/rwheel_vtarget', Float32, queue_size=10)
     #############################################################################
     def spin(self):
     #############################################################################
@@ -57,22 +61,28 @@ class DiffTf:
     #############################################################################
         odom_msg = Odometry()
         odom_msg.twist.twist.linear.x = msg.linearX
-        odom_msg.twist.twist.angular.z = msg.angularZ
-        self.odomPub.publish(odom_msg)
+        odom_msg.twist.twist.angular.z = -msg.angularZ
+        odom_msg.twist.covariance[0] = 0.0004
+	odom_msg.twist.covariance[7] = 0.0004
+        odom_msg.twist.covariance[14] = 0.0004
+	odom_msg.twist.covariance[21] = 0.0004
+        odom_msg.twist.covariance[28] = 0.0004
+        odom_msg.twist.covariance[35] = 0.0004
+	odom_msg.header.frame_id = "base_link"
+        odom_msg.child_frame_id = "base_link"
+	self.odomPub.publish(odom_msg)
         
     #############################################################################
-    def rwheelCallback(self, msg):
+    def cmdCallback(self, msg):
     #############################################################################
-        enc = msg.data
-        if(enc < self.encoder_low_wrap and self.prev_rencoder > self.encoder_high_wrap):
-            self.rmult = self.rmult + 1
+        self.dx = msg.linear.x
+        self.dr = msg.angular.z
+        self.dy = msg.linear.y
+        self.right = 1.0 * self.dx + self.dr * self.w / 2.0
+        self.left = 1.0 * self.dx - self.dr * self.w / 2.0
+        self.lMotorPub.publish(self.left)
+        self.rMotorPub.publish(self.right)
         
-        if(enc > self.encoder_high_wrap and self.prev_rencoder < self.encoder_low_wrap):
-            self.rmult = self.rmult - 1
-            
-        self.right = 1.0 * (enc + self.rmult * (self.encoder_max - self.encoder_min))
-        self.prev_rencoder = enc
-
 #############################################################################
 #############################################################################
 if __name__ == '__main__':

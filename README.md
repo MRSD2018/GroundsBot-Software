@@ -17,7 +17,6 @@ Install the Arduino IDE from the Arduino site. Do not install with apt-get.
 
 #### Necessary Packages:
 - rosserial 
-
 ```bash
 sudo apt-get install ros-kinetic-rosserial-arduino
 sudo apt-get install ros-kinetic-rosserial
@@ -69,12 +68,26 @@ pip install catkin_pkg
 ```bash
 pip install rospkg
 ```
+
 -SBUS and elapsedMillis 
 ```
 Move these from the Libraries folder to your Arduino/libraries folder
 ```
 
+-ros unique_id
+```bash
+sudo apt-get install ros-kinetic-unique-id
+```
 
+-ros uuid-msgs
+```bash
+sudo apt-get install ros-kinetic-uuid-msgs
+```
+
+-i2c-tools
+```bash
+sudo apt-get install libi2c-dev i2c-tools
+```
 ### Configuring Rosserial:
 The custom Ros-lib Arduino package has been included in the Libraries folder.
 Copy this library over to your Arduino/libraries folder.

@@ -33,11 +33,17 @@
 #include "robot_localization/ros_filter_types.h"
 
 #include <ros/ros.h>
+#include <ros/console.h>
+
 
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "ekf_navigation_node");
 
+if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
+   ros::console::notifyLoggerLevelsChanged();
+}
+  ROS_DEBUG_STREAM("make the ekf\n");
   RobotLocalization::RosEkf ekf;
 
   ekf.run();

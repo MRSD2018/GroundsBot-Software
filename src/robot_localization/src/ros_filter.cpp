@@ -34,6 +34,7 @@
 #include "robot_localization/filter_utilities.h"
 #include "robot_localization/ekf.h"
 #include "robot_localization/ukf.h"
+#include "ros/ros.h"
 
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
@@ -2483,6 +2484,8 @@ namespace RobotLocalization
       finalTargetFrame = targetFrame;
       poseTmp.frame_id_ = (differential ? finalTargetFrame : msg->header.frame_id);
     }
+    ///
+    poseTmp.frame_id_ = finalTargetFrame;
 
     RF_DEBUG("Final target frame for " << topicName << " is " << finalTargetFrame << "\n");
 

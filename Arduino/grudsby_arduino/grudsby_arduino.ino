@@ -21,16 +21,24 @@
 
 using namespace grudsby;
 
-
+//12000 ticks per second = 2.92968 revs/sec max speed  -- set in roboclaw
 
 void left_callback(const std_msgs::Float32& msg) {
-  if (autonomous)
-    leftMotor->writeVal(int(msg.data));
+  if (autonomous){
+    float scaled = msg.data * 1000;
+    float maxvel = (12000/4096.0) * WHEEL_RAD* 2 * 3.14159 * 1000;
+    int val = map(scaled, -maxvel, maxvel, -255, 255);
+    leftAutoVal = val;
+  }
 }
 
 void right_callback(const std_msgs::Float32& msg) {
-  if (autonomous)
-    rightMotor->writeVal(int(msg.data));
+  if (autonomous) {
+    float scaled = msg.data*1000;
+    float maxvel = (12000/4096.0) * WHEEL_RAD* 2 * 3.14159;
+    int val = map(scaled, -maxvel, maxvel, -255, 255);
+    rightAutoVal = val;
+  }
 }
 
 
@@ -93,10 +101,11 @@ void loop()
 
 void publishStatus() {
   // wheel rads = ticks_per_sec / ticks_per_rev  * 2pi
-
+  
   //extern from encoder.h
   //if (publishVel%20 == 0) {
-  if (true) {
+  if ((millis()-lastPublish) > PUBLISH_RATE) {
+    lastPublish = millis();
     noInterrupts();
     unsigned long lastEncMicros1_curr = lastEncMicros1;
     unsigned long lastEncMicros0_curr = lastEncMicros0;
@@ -153,15 +162,24 @@ void moveGrudsby() {
   if(rc.read_signal()) {
     //Serial.println("read signal");
     kill = rc.is_killed();
-    autonomous = rc.is_autonomous();
+
+    if (lastAutonomous != rc.is_autonomous()) {
+      lastAutonomousTime = millis();
+    }
+
+    if ((millis() - lastAutonomousTime) > 20) {
+      if (autonomous != rc.is_autonomous()) {
+        autonomous = rc.is_autonomous();
+      }
+    }
+    lastAutonomous = rc.is_autonomous();
+
     //Serial<<"Kill: "<<rc.get_raw_kill()<<"\tAutonomous: "<<rc.get_raw_mode()<<endl;
     //Serial<<"Throttle: "<<rc.get_raw_throttle()<<"\tTurn: "<<rc.get_raw_turn()<<endl;
     if(kill) {
+      autonomous = false;
       leftMotor->writeVal(0);
       rightMotor->writeVal(0);
-    }
-    else if(autonomous) {
-      autonomous = true;
     }
     else if(!(kill) && !(autonomous)) {
       // std::vector<int> motorvals = rc.get_RC_motor_outputs();
@@ -169,15 +187,16 @@ void moveGrudsby() {
       autonomous = false;
       int velL; 
       int velR;
-      rc.get_RC_exponential_outputs(velL, velR);
+      rc.get_RC_weenie_outputs(velL, velR);
       leftMotor->writeVal(velL);
       rightMotor->writeVal(velR);
         
     }
-    else {
-      leftMotor->writeVal(0);
-      rightMotor->writeVal(0);
+    else if (autonomous) {
+      leftMotor->writeVal(leftAutoVal);
+      rightMotor->writeVal(rightAutoVal);
     }
+
   }
   else {
     autonomous = true;

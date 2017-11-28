@@ -60,7 +60,7 @@
       <param name="odom1_relative" value="false"/>
       <param name="imu0_relative" value="false"/>
 
-      <param name="imu0_remove_gravitational_acceleration" value="false"/>
+      <param name="imu0_remove_gravitational_acceleration" value="true"/>
 
       <param name="print_diagnostics" value="true"/>
 
@@ -68,7 +68,7 @@
       <param name="odom1_queue_size" value="10"/>
       <param name="imu0_queue_size" value="10"/>
 
-      <param name="debug"           value="false"/>
+      <param name="debug"           value="true"/>
       <param name="debug_out_file"  value="debug_ekf_localization.txt"/>
 
       <rosparam param="process_noise_covariance">[0.05, 0,    0,    0,    0,    0,    0,     0,     0,    0,    0,    0,    0,    0,    0,
@@ -106,15 +106,15 @@
     </node>
 
 <node pkg="robot_localization" type="navsat_transform_node" name="navsat_transform" clear_params="true">
-  <!--<remap from="gps/fix" to="fix"/>-->
+  <remap from="gps/fix" to="fix"/>
   <param name="frequency" value="30"/>
   <param name="delay" value="0"/>
-  <param name="magnetic_declination_radians" value="0"/>
-  <param name="yaw_offset" value="0"/>
+  <param name="magnetic_declination_radians" value="0.1606"/>
+  <param name="yaw_offset" value="1.5707"/>
   <param name="zero_altitude" value="false"/>
   <param name="broadcast_utm_transform" value="true"/>
   <param name="publish_filtered_gps" value="false"/>
-  <param name="use_odometry_yaw" value="false"/>
+  <param name="use_odometry_yaw" value="true"/>
   <param name="wait_for_datum" value="false"/>
 
 

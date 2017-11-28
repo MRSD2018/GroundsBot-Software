@@ -40,6 +40,8 @@ public:
     int get_raw_mode();
     void get_RC_motor_outputs(int &outL, int &outR);
     void get_RC_exponential_outputs(int &outL, int &outR);
+    void get_RC_weenie_outputs(int &outL, int &outR);
+
 
 };
 

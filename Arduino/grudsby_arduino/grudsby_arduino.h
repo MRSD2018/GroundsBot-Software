@@ -29,6 +29,10 @@ int32_t  prevRTimerPos =  0;
 int32_t leftVel = 0;
 int32_t rightVel = 0;
 
+int leftAutoVal = 0;
+int rightAutoVal = 0;
+unsigned long lastPublish = 0;
+
 bool autonomous;
 bool kill;
 
@@ -57,6 +61,9 @@ ros::Publisher response_pub("grudsby/arduino_response", &response_msg);
 ros::Subscriber<std_msgs::Float32> left_sub("arduino/lwheel_vtarget", &left_callback);
 ros::Subscriber<std_msgs::Float32> right_sub("arduino/rwheel_vtarget", &right_callback);
 
+
+long lastAutonomousTime = 0;
+bool lastAutonomous = false;
 
 
 
