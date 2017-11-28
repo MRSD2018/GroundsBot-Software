@@ -126,10 +126,8 @@ void findWaypointCallback(const sensor_msgs::NavSatFix& msg)
     if ( inThreshold(grudsby_lat, grudsby_long, goal_lat, goal_long) )
     {
       ROS_INFO("Updating goal waypoint");
-      if ( wait_at_waypoint )
-        ros::Duration(10.0).sleep();
-      
-        if( goals.size() > 1)
+
+      if( goals.size() > 1)
       {
         goals.erase( goals.begin() );
         goal_lat = goals.front().latitude;
@@ -162,9 +160,6 @@ int main(int argc, char **argv)
 
   parseKMLFile();
   ROS_INFO("Waypoint file done parsing");
-
-  if (!n.getParam ("wait_at_point", wait_at_waypoint))
-    wait_at_waypoint = false;
   
   waypoint_pub = n.advertise<geometry_msgs::PoseStamped>("/goal", 1000);
 
