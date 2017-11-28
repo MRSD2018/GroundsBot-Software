@@ -1,0 +1,21 @@
+<!-- ComplementaryFilter launch file -->
+<launch>
+  
+  #### IMU Driver ###########################################################
+
+  <node pkg="grudsby_imu" type="node" name="ImuDriver">
+    <param name="do_calibration" value="false" />
+    <param name="calibration_file_location" type="str" value="/home/nvidia/GroundsBot-Software/data/calibration.txt" />
+  </node>
+
+  #### Complementary filter
+
+  <node pkg="imu_complementary_filter" type="complementary_filter_node"
+      name="complementary_filter_gain_node" output="screen">
+    <param name="do_bias_estimation" value="true" />
+    <param name="do_adaptive_gain" value="true" />
+    <param name="use_mag" value="true" />
+    <param name="gain_acc" value="0.1" />
+    <param name="gain_mag" value="0.05" />
+  </node>
+</launch>
