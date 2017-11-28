@@ -15,6 +15,9 @@ geometry_msgs::PoseStamped goal_pose_in_odom;
 nav_msgs::Odometry curr_odom;
 
 bool wait_at_waypoint;
+ros::Time last_waypoint_update;
+double prev_goal_x = 0;
+double prev_goal_y = 0;
 
 double max_x_vel = 1;
 double max_theta_vel = 1;
@@ -181,8 +184,10 @@ int main(int argc, char **argv) {
       Vector3 x_vec(cos(rpy.Z), sin(rpy.Z), 0);
 
       //Find vector between start and goal
-      double delta_x = goal_pose_in_odom.pose.position.x - curr_odom.pose.pose.position.x;   
-      double delta_y = goal_pose_in_odom.pose.position.y - curr_odom.pose.pose.position.y;   
+      double current_goal_x = goal_pose_in_odom.pose.position.x;
+      double current_goal_y = goal_pose_in_odom.pose.position.y;
+      double delta_x = current_goal_x - curr_odom.pose.pose.position.x;   
+      double delta_y = current_goal_y - curr_odom.pose.pose.position.y;   
     
       Vector3 v_vec(delta_x, delta_y, 0);
       
@@ -240,7 +245,30 @@ int main(int argc, char **argv) {
         theta_vel_bound = sign(theta_vel)*max_theta_vel;
       }
       
+<<<<<<< f7532d84599d956eaf1627d7a4337b1b590acd8f
       
+=======
+
+      //If we've received a new goal and wait_at_waypoint param is set
+      //publish 0 velocity for 10 secs
+      //Assuming new goal is more than 0.3 meters away in any direction
+      if ( (current_goal_x > prev_goal_x + 0.3 || current_goal_x < prev_goal_x - 0.3) ||
+            (current_goal_y > prev_goal_y + 0.3 || current_goal_y < prev_goal_y - 0.3) )
+      {
+        ROS_INFO("New Waypoint found.");
+        last_waypoint_update == ros::Time::now();
+        prev_goal_x = current_goal_x;
+        prev_goal_y = current_goal_y;
+      }
+      
+      ros::Duration wait = ros::Time::now() - last_waypoint_update;
+      if( wait_at_waypoint && (wait.toSec() < 10.0) )
+      {
+        ROS_INFO("Wating at waypoint.");
+        x_vel = 0;
+        theta_vel = 0;
+      }
+>>>>>>> waiting at waypoints now in simple planner
 
       //Publish /cmd_vel
       geometry_msgs::Twist msg;
