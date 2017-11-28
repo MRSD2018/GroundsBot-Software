@@ -16,6 +16,7 @@
 
 
   <node name="grudsby_waypoint" pkg="grudsby_waypoint" type="grudsby_waypoint"/>
+  <param name="wait_at_wapoint" value="false"/>
 <!-- 
 	<node name="gucci_gang" pkg="gucci_gang" type="gucci_gang"/>
 -->
