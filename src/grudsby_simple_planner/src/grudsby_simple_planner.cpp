@@ -208,6 +208,7 @@ int main(int argc, char **argv) {
         {
           x_vel = prev_x_vel + sign(delta_x_vel)*max_vel_delta;
         }
+        prev_x_vel = x_vel;
       } 
       
       if(abs(theta_vel)>max_theta_vel)
@@ -219,6 +220,7 @@ int main(int argc, char **argv) {
         {
           theta_vel = prev_theta_vel + sign(delta_theta_vel)*max_vel_delta;
         }
+        prev_theta_vel = theta_vel;
       }
 
       //Publish /cmd_vel
