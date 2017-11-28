@@ -13,8 +13,6 @@
 #include <ros/console.h>// for logging
 
 ros::Publisher waypoint_pub;
-bool wait_at_waypoint;
-
 
 struct waypoint
 {
