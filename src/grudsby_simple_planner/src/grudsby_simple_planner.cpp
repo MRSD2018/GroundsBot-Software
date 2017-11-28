@@ -160,7 +160,7 @@ int main(int argc, char **argv) {
       //Find angle between vector and x direction    
       Vector3 x_cross_v = Vector3::Cross(x_vec, v_vec);
       int direction = sign(x_cross_v.Z);
-      double theta =  direction*Vector3::Angle(x_vec, v_vec) + 1.3;
+      double theta =  direction*Vector3::Angle(x_vec, v_vec);
       double theta_d = theta / (2*3.14159265359) * 360;
    
       //Find part of x_vec in direction of g 
@@ -231,7 +231,10 @@ int main(int argc, char **argv) {
       debug_msg.delta_y = delta_y;
       debug_msg.goalx = goal_pose_in_odom.pose.position.x;
       debug_msg.goaly = goal_pose_in_odom.pose.position.y;
-
+      debug_msg.x_vec.x = x_vec.X;
+      debug_msg.x_vec.y = x_vec.Y;
+      debug_msg.v_vec.x = v_vec.X;
+      debug_msg.v_vec.y = v_vec.Y;
       debugPub.publish(debug_msg);
     }   
     
