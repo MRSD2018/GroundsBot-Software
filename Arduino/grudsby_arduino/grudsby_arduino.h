@@ -17,8 +17,7 @@ void right_callback(const std_msgs::Float32& msg);
 
 
 void publishStatus();
-
-void moveGrudsby();
+bool moveGrudsby();
 
 int32_t prevLPos = -999;
 int32_t prevRPos = -999;
@@ -32,9 +31,13 @@ int32_t rightVel = 0;
 int leftAutoVal = 0;
 int rightAutoVal = 0;
 unsigned long lastPublish = 0;
+unsigned long lastRCsignal = 0;
+unsigned long lastAutonomous = 0;
+unsigned long lastKill = 0;
 
+bool killed;
 bool autonomous;
-bool kill;
+
 
 const float WHEELBASE_LEN = 0.508;
 const float WHEEL_RAD = 0.127;
@@ -62,8 +65,7 @@ ros::Subscriber<std_msgs::Float32> left_sub("arduino/lwheel_vtarget", &left_call
 ros::Subscriber<std_msgs::Float32> right_sub("arduino/rwheel_vtarget", &right_callback);
 
 
-long lastAutonomousTime = 0;
-bool lastAutonomous = false;
+
 
 
 
