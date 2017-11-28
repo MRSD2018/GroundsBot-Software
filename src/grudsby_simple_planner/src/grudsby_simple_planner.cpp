@@ -14,7 +14,7 @@
 geometry_msgs::PoseStamped goal_pose_in_odom;
 nav_msgs::Odometry curr_odom;
 
-
+bool wait_at_waypoint;
 
 double max_x_vel = 1;
 double max_theta_vel = 1;
@@ -112,6 +112,9 @@ int main(int argc, char **argv) {
 
   ros::NodeHandle n;
   ros::Rate loop_rate(50);
+
+  if (!n.getParam ("wait_at_point", wait_at_waypoint))
+    wait_at_waypoint = false;
 
   ros::Publisher velPub = n.advertise<geometry_msgs::Twist>("cmd_vel", 100);
   ros::Subscriber odomSub = n.subscribe("odometry/filtered", 100, odom_received);
