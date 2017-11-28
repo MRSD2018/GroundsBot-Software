@@ -37,7 +37,7 @@ add_executable(complementary_filter_node
 target_link_libraries(complementary_filter_node complementary_filter ${catkin_LIBRARIES})
 
 install(TARGETS complementary_filter complementary_filter_node
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  #ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

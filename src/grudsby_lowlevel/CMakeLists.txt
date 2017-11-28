@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 # Generate messages in the 'msg' folder
 add_message_files(
+   DIRECTORY msg
    FILES
    ArduinoVel.msg
    ArduinoResponse.msg
@@ -23,10 +24,15 @@ generate_messages(
    geometry_msgs
 )
 
+catkin_package(
+ CATKIN_DEPENDS message_runtime roscpp std_msgs rospy roscpp geometry_msgs
+ #DEPENDS system_lib
+)
+
 
 
 include_directories(
-# include
+ #include
   ${catkin_INCLUDE_DIRS}
 )
 

@@ -11,13 +11,6 @@ find_package(catkin REQUIRED COMPONENTS
 # Generate messages in the 'msg' folder
 
 
-## Generate added messages and services with any dependencies listed here
-generate_messages(
-   DEPENDENCIES
-   std_msgs
-   geometry_msgs
-)
-
 
 
 include_directories(
