@@ -185,7 +185,7 @@ void publishStatus() {
   publishVel++;
 }
 
-// HEY HENRY, IS THIS IMPORTANT - YOUR FRIEND ALWAYS, JOSH
+// Not used
 void initTimer2() {
   noInterrupts();
   TCCR2B = 0x00; // Disable Timer 2 until set up
