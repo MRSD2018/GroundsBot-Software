@@ -28,15 +28,9 @@ float Kd_lin;
 double total_lin_error = 0;
 double prev_x_towards_g = 0;
 
-<<<<<<< 08bdbfe5dd6a1521c8101ad0d5542f1a9023aa50
 float Kp_ang;
 float Ki_ang;
 float Kd_ang;   
-=======
-float Kp_ang = 7;
-float Ki_ang = 0;
-float Kd_ang = 3;    
->>>>>>> added acceleration limit to x_vel and theta_vel
 double total_ang_error = 0;
 double prev_theta = 0;
 
@@ -236,25 +230,13 @@ int main(int argc, char **argv) {
       double theta_vel_bound;
       if(abs(x_vel)>max_x_vel)
       {
-<<<<<<< 08bdbfe5dd6a1521c8101ad0d5542f1a9023aa50
-        x_vel_bound = sign(x_vel)*max_x_vel;
-      }
-      
-      if(abs(theta_vel)>max_theta_vel)
-      {
-        theta_vel_bound = sign(theta_vel)*max_theta_vel;
-      }
-      
-      
-=======
         x_vel = sign(x_vel)*max_x_vel;
         
         double delta_x_vel = x_vel - prev_x_vel;
         if ( abs(delta_x_vel) > max_vel_delta )
         {
-          x_vel = prev_x_vel + sign(delta_x_vel)*max_vel_delta;
+          x_vel = prev_x_vel + sign(delta_x_vel)*max_x_vel_delta;
         }
-        prev_x_vel = x_vel;
       } 
       
       if(abs(theta_vel)>max_theta_vel)
@@ -266,9 +248,7 @@ int main(int argc, char **argv) {
         {
           theta_vel = prev_theta_vel + sign(delta_theta_vel)*max_vel_delta;
         }
-        prev_theta_vel = theta_vel;
       }
->>>>>>> added acceleration limit to x_vel and theta_vel
 
       //Publish /cmd_vel
       geometry_msgs::Twist msg;
