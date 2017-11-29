@@ -145,7 +145,7 @@ int main(int argc, char **argv) {
     Kd_ang = 0;
     
   if (!n.getParam ("wait_at_point", wait_at_waypoint))
-    wait_at_waypoint = false;
+    wait_at_waypoint = true;
 
   ros::Publisher velPub = n.advertise<geometry_msgs::Twist>("cmd_vel", 100);
   ros::Subscriber odomSub = n.subscribe("odometry/filtered", 100, odom_received);
@@ -245,16 +245,17 @@ int main(int argc, char **argv) {
       {
         theta_vel = prev_theta_vel + sign(delta_theta_vel)*max_vel_delta;
       }
-      /*
+      
 
       //If we've received a new goal and wait_at_waypoint param is set
       //publish 0 velocity for 10 secs
       //Assuming new goal is more than 0.3 meters away in any direction
-      if ( ((current_goal_x > (prev_goal_x + 0.3)) || (current_goal_x < (prev_goal_x - 0.3))) ||
-            ((current_goal_y > (prev_goal_y + 0.3)) || (current_goal_y < (prev_goal_y - 0.3))) )
+      double goalNoise = 1;
+      if ( ((current_goal_x > (prev_goal_x + goalNoise)) || (current_goal_x < (prev_goal_x - goalNoise))) ||
+            ((current_goal_y > (prev_goal_y + goalNoise)) || (current_goal_y < (prev_goal_y - goalNoise))) )
       {
         ROS_INFO("New Waypoint found.");
-        last_waypoint_update == ros::Time::now();
+        last_waypoint_update = ros::Time::now();
         prev_goal_x = current_goal_x;
         prev_goal_y = current_goal_y;
       }
@@ -266,7 +267,7 @@ int main(int argc, char **argv) {
         x_vel = 0;
         theta_vel = 0;
       }
-      */
+      
       ///Bound x_vel and theta_vel
       double x_vel_bound=x_vel;
       double theta_vel_bound=theta_vel;
