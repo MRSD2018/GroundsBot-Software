@@ -22,7 +22,7 @@ bool rc_control::read_signal(){
 //Making TRUE the default return for safety reasons. If the check fails for any reason everything dies.
 bool rc_control::is_killed()
 {
-  if(channels[KILL_SWITCH] == 1811)
+  if(channels[KILL_SWITCH] >= 1811)
   {
     return false;
   }

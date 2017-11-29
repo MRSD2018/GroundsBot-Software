@@ -2,9 +2,11 @@
 #include "geometry_msgs/Twist.h"
 
 #include "ros/ros.h"
+#include "ros/console.h"
 #include "std_msgs/String.h"
 #include "sensor_msgs/Imu.h"
 #include "sensor_msgs/MagneticField.h"
+#include "grudsby_lowlevel/ArduinoResponse.h"
 #include <string>
 #include <fstream>
 #include <iostream>
@@ -26,7 +28,28 @@ double gyro_x_bias_ = 0;
 double gyro_y_bias_ = 0;
 double gyro_z_bias_ = 0;
 
+int first_enc_left_;
+int last_enc_left_;
+int first_enc_right_;
+int last_enc_right_;
+bool captured_first_enc = false;;
+
+
+
 ros::Publisher velPub;
+
+void arduinisCallback(const grudsby_lowlevel::ArduinoResponse::ConstPtr& ard_msg)
+{
+  if (!captured_first_enc) {
+    captured_first_enc = true;
+    first_enc_left_ = ard_msg->encoderLeft;
+    first_enc_right_ = ard_msg->encoderRight;
+  }
+  else {
+    last_enc_left_ = ard_msg->encoderLeft;
+    last_enc_right_ = ard_msg->encoderRight;
+  }  
+}
 
 int main (int argc, char **argv)
 {
@@ -37,6 +60,8 @@ int main (int argc, char **argv)
   ros::Publisher imuRawPub = n.advertise<sensor_msgs::Imu>("imu/data_raw", 1000);
 
   ros::Publisher magPub = n.advertise<sensor_msgs::MagneticField>("imu/mag", 1000);
+ 
+  ros::Subscriber arduinoSub = n.subscribe("grudsby/arduino_response",1000, arduinisCallback);
 
   ros::Rate loop_rate(1000);
 
@@ -45,6 +70,25 @@ int main (int argc, char **argv)
   }
   if (run_calibration_) {
     velPub = n.advertise<geometry_msgs::Twist>("cmd_vel", 100);
+    /*  USEFUL CODE FOR CALIBRATING SPEEDS! LEAVE IN CODE...
+    ros::Duration(5.0).sleep();
+    geometry_msgs::Twist msg;
+    msg.linear.x = -1.0;
+    msg.angular.z = 0.0;
+    velPub.publish(msg);
+    ros::spinOnce();
+    for (int i = 0; i < 20; i++) {
+      ros::Duration(1.0).sleep();
+      velPub.publish(msg);
+      ros::spinOnce();
+    }
+    msg.linear.x = 0.0;
+    msg.angular.z = 0.0;
+    velPub.publish(msg);
+    ros::spinOnce();
+    ROS_ERROR("Left Wheel Vel (ticks/sec)= %f",static_cast<double>(last_enc_left_-first_enc_left_)/20.0);
+    ROS_ERROR("Right Wheel Vel (ticks/sec)= %f",static_cast<double>(last_enc_right_-first_enc_right_)/20.0);
+    */
   }
 
   if (!n.getParam ("ImuDriver/calibration_file_location", calib_location_)) {

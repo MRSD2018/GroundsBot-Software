@@ -50,9 +50,9 @@ namespace grudsby {
 		void writeRC(int rc);
 
 		Servo servo;
-		const int RC_MAX = 1900;
-		const int RC_MIN = 1100;
-		const int RC_STOP = 1500;
+		const int RC_MAX = 1870;
+		const int RC_MIN = 1070;
+		const int RC_STOP = 1470;
 	};
 
 
