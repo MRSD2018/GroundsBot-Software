@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>grudsby_doherty_3</name>
+    <Style id="line-000000-1200-nodesc-normal">
+      <LineStyle>
+        <color>ff000000</color>
+        <width>1.2</width>
+      </LineStyle>
+      <BalloonStyle>
+        <text><![CDATA[<h3>$[name]</h3>]]></text>
+      </BalloonStyle>
+    </Style>
+    <Style id="line-000000-1200-nodesc-highlight">
+      <LineStyle>
+        <color>ff000000</color>
+        <width>1.8</width>
+      </LineStyle>
+      <BalloonStyle>
+        <text><![CDATA[<h3>$[name]</h3>]]></text>
+      </BalloonStyle>
+    </Style>
+    <StyleMap id="line-000000-1200-nodesc">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#line-000000-1200-nodesc-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#line-000000-1200-nodesc-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Placemark>
+      <name>Line 2</name>
+      <styleUrl>#line-000000-1200-nodesc</styleUrl>
+      <LineString>
+        <tessellate>1</tessellate>
+        <coordinates>
+          -79.9408861,40.4446487,0
+          -79.9409397,40.4445119,0
+          -79.9409156,40.4445078,0
+          -79.9408619,40.4446446,0
+          -79.9408378,40.4446384,0
+          -79.9408941,40.4445017,0
+          -79.94087,40.4444996,0
+          -79.940819,40.4446344,0
+          -79.9407949,40.4446303,0
+          -79.9408458,40.4444935,0
+          -79.9408244,40.4444894,0
+          -79.9407734,40.4446262,0
+          -79.9407493,40.4446201,0
+          -79.9408029,40.4444854,0
+          -79.9407734,40.4444792,0
+          -79.9407224,40.444614,0
+          -79.940701,40.4446099,0
+          -79.9407519,40.4444751,0
+          -79.9407305,40.4444711,0
+          -79.9406768,40.4446058,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+  </Document>
+</kml>
