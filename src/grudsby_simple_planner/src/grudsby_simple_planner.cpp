@@ -189,21 +189,21 @@ int main(int argc, char **argv) {
       double theta =  direction*Vector3::Angle(x_vec, v_vec);
       double theta_d = theta / (2*3.14159265359) * 360;
    
+            /*if (Vector3::Magnitude(v_vec)<deadband)
+      {
+         x_towards_g = 0;
+         theta = 0;
+     
+      }*/
+      
       //Find part of x_vec in direction of g 
       double x_towards_g;
-      if (Vector3::Magnitude(v_vec)>deadband)
-      {
-        x_towards_g = Vector3::Magnitude(v_vec)*pow(cos(theta),tuner);
-      }
-      else
-      {
-        
-        x_towards_g = 0;
-        theta = 0;
-      }
+      
 
+      x_towards_g = Vector3::Magnitude(v_vec)*pow(cos(theta),tuner);
+      
       //Bound if negative.  We want GroundsBot going forwards to goal, not reverse
-      if (x_towards_g < 0)
+      if (cos(theta) < 0)
       {
         x_towards_g = 0;
       }
