@@ -29,7 +29,7 @@ double prev_x_towards_g = 0;
 
 float Kp_ang = 4;
 float Ki_ang = 0;
-float Kd_ang = 6;    
+float Kd_ang = 0;    
 double total_ang_error = 0;
 double prev_theta = 0;
 
@@ -223,28 +223,31 @@ int main(int argc, char **argv) {
       double theta_vel = Kp_ang*theta + Ki_ang*total_ang_error + Kd_ang*delta_ang_error;
 
 
+      
       ///Bound x_vel and theta_vel
+      double x_vel_bound;
+      double theta_vel_bound;
       if(abs(x_vel)>max_x_vel)
       {
-        x_vel = sign(x_vel)*max_x_vel;
+        x_vel_bound = sign(x_vel)*max_x_vel;
       }
       
       if(abs(theta_vel)>max_theta_vel)
       {
-        theta_vel = sign(theta_vel)*max_theta_vel;
+        theta_vel_bound = sign(theta_vel)*max_theta_vel;
       }
       
-
+      
 
       //Publish /cmd_vel
       geometry_msgs::Twist msg;
-      msg.linear.x = x_vel;
+      msg.linear.x = x_vel_bound;
       msg.linear.y = 0;
       msg.linear.z = 0;
       
       msg.angular.x = 0;
       msg.angular.y = 0;
-      msg.angular.z = theta_vel;
+      msg.angular.z = theta_vel_bound;
       
       velPub.publish(msg); 
 
