@@ -31,8 +31,8 @@ void left_callback(const std_msgs::Float32& msg) {
 }
 
 void right_callback(const std_msgs::Float32& msg) {
-  float scaled = msg.data*1000;
-  float maxvel = (12000/4096.0) * WHEEL_RAD* 2 * 3.14159;
+  float scaled = -1 * msg.data*1000;
+  float maxvel = (12000/4096.0) * WHEEL_RAD* 2 * 3.14159 * 1000;
   int val = map(scaled, -maxvel, maxvel, -255, 255);
   rightAutoVal = val;
 }
