@@ -110,6 +110,11 @@ void findWaypointCallback(const sensor_msgs::NavSatFix& msg)
   double grudsby_long = msg.longitude;
   double grudsby_alt = msg.altitude;
 
+  double goal_lat = 0;
+  double goal_long = 0;
+  double goal_easting_x = 0;
+  double goal_northing_y= 0;
+
   geometry_msgs::PoseStamped goal;
   
   goal.header.stamp = ros::Time::now();
@@ -131,15 +136,22 @@ void findWaypointCallback(const sensor_msgs::NavSatFix& msg)
         goal_lat = goals.front().latitude;
         goal_long = goals.front().longitude;
       }
-      else ROS_WARN("No new waypoints. Repeating previous waypoint.");
+      else 
+      {
+        //Being here should mean we've gone through all the waypoints so we should go home.
+        //Change goal header to 'odom' and don't update goal values
+        //This will publish a message with frame odom and goal 0,0 i.e. starting position
+        ROS_INFO("Going back to home position.");
+        goal.header.frame_id = "odom";
+      }
     }
 
-    double goal_easting_x = 0;
-    double goal_northing_y = 0;
-    std::string utm_zone_tmp;
+    if ( goal_lat && goal_long )
+    {
+      std::string utm_zone_tmp;
 
-    RobotLocalization::NavsatConversions::LLtoUTM(goal_lat, goal_long, goal_northing_y, goal_easting_x, utm_zone_tmp);
-
+      RobotLocalization::NavsatConversions::LLtoUTM(goal_lat, goal_long, goal_northing_y, goal_easting_x, utm_zone_tmp);
+    }
     goal.pose.position.x = goal_easting_x;
     goal.pose.position.y = goal_northing_y;
     goal.pose.position.z = grudsby_alt;
