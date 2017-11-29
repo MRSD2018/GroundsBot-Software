@@ -145,7 +145,7 @@ int main(int argc, char **argv) {
     Kd_ang = 0;
     
   if (!n.getParam ("wait_at_point", wait_at_waypoint))
-    wait_at_waypoint = false;
+    wait_at_waypoint = true;
 
   ros::Publisher velPub = n.advertise<geometry_msgs::Twist>("cmd_vel", 100);
   ros::Subscriber odomSub = n.subscribe("odometry/filtered", 100, odom_received);
@@ -196,7 +196,7 @@ int main(int argc, char **argv) {
       //Find angle between vector and x direction    
       Vector3 x_cross_v = Vector3::Cross(x_vec, v_vec);
       int direction = sign(x_cross_v.Z);
-      double theta =  direction*Vector3::Angle(x_vec, v_vec) + 1.3;
+      double theta =  direction*Vector3::Angle(x_vec, v_vec);
       double theta_d = theta / (2*3.14159265359) * 360;
    
             /*if (Vector3::Magnitude(v_vec)<deadband)
@@ -234,41 +234,28 @@ int main(int argc, char **argv) {
 
 
       
-      ///Bound x_vel and theta_vel
-      double x_vel_bound;
-      double theta_vel_bound;
-      if(abs(x_vel)>max_x_vel)
-      {
-        x_vel = sign(x_vel)*max_x_vel;
-        
-        double delta_x_vel = x_vel - prev_x_vel;
-        if ( abs(delta_x_vel) > max_vel_delta )
-        {
-          x_vel = prev_x_vel + sign(delta_x_vel)*max_vel_delta;
-        }
-        prev_x_vel = x_vel;
-      } 
-      
-      if(abs(theta_vel)>max_theta_vel)
-      {
-        theta_vel = sign(theta_vel)*max_theta_vel;
+      double delta_x_vel = x_vel - prev_x_vel;
+      double delta_theta_vel = theta_vel - prev_theta_vel;
 
-        double delta_theta_vel = theta_vel - prev_theta_vel;
-        if ( abs(delta_theta_vel) > max_vel_delta )
-        {
-          theta_vel = prev_theta_vel + sign(delta_theta_vel)*max_vel_delta;
-        }
-        prev_theta_vel = theta_vel;
+      if ( abs(delta_x_vel) > max_vel_delta )
+      {
+        x_vel = prev_x_vel + sign(delta_x_vel)*max_vel_delta;
       }
+           if ( abs(delta_theta_vel) > max_vel_delta )
+      {
+        theta_vel = prev_theta_vel + sign(delta_theta_vel)*max_vel_delta;
+      }
+      
 
       //If we've received a new goal and wait_at_waypoint param is set
       //publish 0 velocity for 10 secs
       //Assuming new goal is more than 0.3 meters away in any direction
-      if ( (current_goal_x > prev_goal_x + 0.3 || current_goal_x < prev_goal_x - 0.3) ||
-            (current_goal_y > prev_goal_y + 0.3 || current_goal_y < prev_goal_y - 0.3) )
+      double goalNoise = 1;
+      if ( ((current_goal_x > (prev_goal_x + goalNoise)) || (current_goal_x < (prev_goal_x - goalNoise))) ||
+            ((current_goal_y > (prev_goal_y + goalNoise)) || (current_goal_y < (prev_goal_y - goalNoise))) )
       {
         ROS_INFO("New Waypoint found.");
-        last_waypoint_update == ros::Time::now();
+        last_waypoint_update = ros::Time::now();
         prev_goal_x = current_goal_x;
         prev_goal_y = current_goal_y;
       }
@@ -280,7 +267,24 @@ int main(int argc, char **argv) {
         x_vel = 0;
         theta_vel = 0;
       }
+      
+      ///Bound x_vel and theta_vel
+      double x_vel_bound=x_vel;
+      double theta_vel_bound=theta_vel;
 
+      if(fabs(x_vel)>=max_x_vel)
+      {
+        x_vel_bound = sign(x_vel)*max_x_vel;
+      } 
+      prev_x_vel = x_vel_bound;
+      
+      if(fabs(theta_vel)>=max_theta_vel)
+      {
+        theta_vel_bound = sign(theta_vel)*max_theta_vel;
+
+      } 
+
+      prev_theta_vel = theta_vel_bound;
       //Publish /cmd_vel
       geometry_msgs::Twist msg;
       msg.linear.x = x_vel_bound;
