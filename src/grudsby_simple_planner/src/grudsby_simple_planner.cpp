@@ -19,15 +19,17 @@ nav_msgs::Odometry curr_odom;
 double max_x_vel = 1;
 double max_theta_vel = 1;
 
-float Kp_lin = .7;
-float Ki_lin = 0;
-float Kd_lin = 0;
-double total_lin_error = 0;
-double prev_x_towards_g = 0;  
 
-float Kp_ang = 4;
-float Ki_ang = 0;
-float Kd_ang = 6;    
+//set in params
+float Kp_lin;
+float Ki_lin;
+float Kd_lin;
+double total_lin_error = 0;
+double prev_x_towards_g = 0;
+
+float Kp_ang;
+float Ki_ang;
+float Kd_ang;   
 double total_ang_error = 0;
 double prev_theta = 0;
 
@@ -113,6 +115,30 @@ int main(int argc, char **argv) {
   ros::NodeHandle n;
   ros::Rate loop_rate(50);
 
+//   float Kp_lin = .7;
+// float Ki_lin = 0;
+// float Kd_lin = 0;
+// double total_lin_error = 0;
+// double prev_x_towards_g = 0;  
+
+// float Kp_ang = 4;
+// float Ki_ang = 0;
+// float Kd_ang = 6;    
+
+  //get params and set defaults if no param
+  if (!n.getParam("sp_kp_lin", Kp_lin))
+    Kp_lin = .7;
+  if (!n.getParam("sp_ki_lin", Ki_lin))
+    Ki_lin = 0;
+  if (!n.getParam("sp_kd_lin", Kd_lin))
+    Kd_lin = 0;
+  if (!n.getParam("sp_kp_ang", Kp_ang))
+    Kp_ang = 4;
+  if (!n.getParam("sp_ki_ang", Ki_ang))
+    Ki_ang = 0;
+  if (!n.getParam("sp_kd_ang", Kd_ang))
+    Kd_ang = 0;
+    
   ros::Publisher velPub = n.advertise<geometry_msgs::Twist>("cmd_vel", 100);
   ros::Subscriber odomSub = n.subscribe("odometry/filtered", 100, odom_received);
   ros::Subscriber goalSub = n.subscribe("goal", 100, goal_received);   
@@ -197,28 +223,31 @@ int main(int argc, char **argv) {
       double theta_vel = Kp_ang*theta + Ki_ang*total_ang_error + Kd_ang*delta_ang_error;
 
 
+      
       ///Bound x_vel and theta_vel
+      double x_vel_bound;
+      double theta_vel_bound;
       if(abs(x_vel)>max_x_vel)
       {
-        x_vel = sign(x_vel)*max_x_vel;
+        x_vel_bound = sign(x_vel)*max_x_vel;
       }
       
       if(abs(theta_vel)>max_theta_vel)
       {
-        theta_vel = sign(theta_vel)*max_theta_vel;
+        theta_vel_bound = sign(theta_vel)*max_theta_vel;
       }
       
-
+      
 
       //Publish /cmd_vel
       geometry_msgs::Twist msg;
-      msg.linear.x = x_vel;
+      msg.linear.x = x_vel_bound;
       msg.linear.y = 0;
       msg.linear.z = 0;
       
       msg.angular.x = 0;
       msg.angular.y = 0;
-      msg.angular.z = theta_vel;
+      msg.angular.z = theta_vel_bound;
       
       velPub.publish(msg); 
 

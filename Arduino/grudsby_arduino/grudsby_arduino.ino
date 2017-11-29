@@ -41,30 +41,19 @@ void right_callback(const std_msgs::Float32& msg) {
   }
 }
 
-
-void setup()
-
-{
-
-
+void setup() {
   //set up ros 
   nh.initNode();
   nh.subscribe(left_sub);
   nh.subscribe(right_sub);
   nh.advertise(response_pub);
 
-
   leftMotor = new RCMotor(4);
   rightMotor = new RCMotor(6);
-
-
-  autonomous = true;
-
-
-  // initTimer2();
-
-
-
+  killed = true;
+  autonomous = false;
+  leftMotor->writeVal(0);
+  rightMotor->writeVal(0);
 }
 
 void loop()
@@ -73,30 +62,77 @@ void loop()
   publishStatus();
 
   nh.spinOnce();
-
-  //delay(10);
-
-  // leftMotor->writeVal(255);
-  // rightMotor->writeVal(255);
-//   Serial.print(leftVel);
-//   Serial.print(" ");
-//   Serial.print(-rightVel);
-//   Serial.print(" ");
-//   Serial.print(lPos);
-//   Serial.print(" ");
-//   Serial.println(-rPos);
 }
 
-// ISR(TIMER2_COMPA_vect) {
 
-//   // leftVel = lPos - prevLTimerPos;
-//   // rightVel = rPos - prevRTimerPos;
-
-//   // prevLTimerPos = lPos;
-//   // prevRTimerPos = rPos;
-
-
-// } 
+bool moveGrudsby() {
+  if(rc.read_signal()) {
+    lastRCsignal = millis();
+    //Serial.println("read signal");
+    if (killed) { // Killed
+      if(rc.is_killed()) {
+        lastKill = millis();
+      }
+      if ((millis()-lastKill) > KILL_DEBOUNCE_TIME) {
+        killed = false;
+        lastKill = millis();
+        return false;
+      }
+    }
+    else { // Not killed
+      if(!rc.is_killed()) {
+        lastKill = millis();
+      }
+      if ((millis()-lastKill) > KILL_DEBOUNCE_TIME) {
+        killed = true;
+        autonomous = false;
+        leftMotor->writeVal(0);
+        rightMotor->writeVal(0);
+        lastKill = millis();
+        return false;
+      }
+      if (autonomous) { // Autonomous mode
+        if (rc.is_autonomous()) {
+           lastAutonomous = millis();
+        }
+        if ((millis()-lastAutonomous) > AUTONOMOUS_DEBOUNCE_TIME) {
+          autonomous = false;
+          lastAutonomous = millis();
+          return false;
+        }
+        //  Placeholder for moving autonomously
+        leftMotor->writeVal(leftAutoVal);
+        rightMotor->writeVal(rightAutoVal);
+      }
+      else { // Manual mode
+        if (!rc.is_autonomous()) {
+          lastAutonomous = millis();
+        }
+        if ((millis()-lastAutonomous) > AUTONOMOUS_DEBOUNCE_TIME){
+          autonomous = true;
+          lastAutonomous = millis();
+          return false;
+        }
+        // Placeholder for manual
+        int velL; 
+        int velR;
+        rc.get_RC_weenie_outputs(velL, velR);
+        leftMotor->writeVal(velL);
+        rightMotor->writeVal(velR);
+      }
+    }
+  }
+  else {
+    if ((millis() - lastRCsignal) > RC_TIMEOUT_LOST_SIGNAL) {
+      killed = true; 
+      autonomous = false;
+      leftMotor->writeVal(0);
+      rightMotor->writeVal(0);
+      return false;
+    }
+  }
+  return true;
+}
 
 
 void publishStatus() {
@@ -127,11 +163,8 @@ void publishStatus() {
       rightRadPerSec = ((rPosDiff) / (float(lastEncMicros0_curr - last_lastEncMicros0))) * 2 * 3.14159;
     }
 
-
     float x_vel = (WHEEL_RAD/2.0) * (leftRadPerSec + rightRadPerSec) * (1e6/ 4096.0);
     float z_rot = (WHEEL_RAD / WHEELBASE_LEN) * (rightRadPerSec - leftRadPerSec) * (1e6/4096.0);
-
-
 
     last_lastEncMicros0 = lastEncMicros0_curr;
     last_lastEncMicros1 = lastEncMicros1_curr;
@@ -145,64 +178,14 @@ void publishStatus() {
     response_msg.velLeft = leftRadPerSec;
     response_msg.velRight = rightRadPerSec;
 
-
-
     response_pub.publish(&response_msg);
-
     //reset timeout count
     publishVel = 1;
   }
-
   publishVel++;
-
 }
 
-
-void moveGrudsby() {
-  if(rc.read_signal()) {
-    //Serial.println("read signal");
-    kill = rc.is_killed();
-
-    if (lastAutonomous != rc.is_autonomous()) {
-      lastAutonomousTime = millis();
-    }
-
-    if ((millis() - lastAutonomousTime) > 20) {
-      if (autonomous != rc.is_autonomous()) {
-        autonomous = rc.is_autonomous();
-      }
-    }
-    lastAutonomous = rc.is_autonomous();
-
-    //Serial<<"Kill: "<<rc.get_raw_kill()<<"\tAutonomous: "<<rc.get_raw_mode()<<endl;
-    //Serial<<"Throttle: "<<rc.get_raw_throttle()<<"\tTurn: "<<rc.get_raw_turn()<<endl;
-    if(kill) {
-      autonomous = false;
-      leftMotor->writeVal(0);
-      rightMotor->writeVal(0);
-    }
-    else if(!(kill) && !(autonomous)) {
-      // std::vector<int> motorvals = rc.get_RC_motor_outputs();
-      //Serial<<"Left: "<<rc_left_vel<<"\tRight: "<<rc_right_vel<<endl;
-      autonomous = false;
-      int velL; 
-      int velR;
-      rc.get_RC_weenie_outputs(velL, velR);
-      leftMotor->writeVal(velL);
-      rightMotor->writeVal(velR);
-        
-    }
-    else if (autonomous) {
-      leftMotor->writeVal(leftAutoVal);
-      rightMotor->writeVal(rightAutoVal);
-    }
-
-  }
-  else {
-    autonomous = true;
-  }
-}
-
+// Not used
 void initTimer2() {
   noInterrupts();
   TCCR2B = 0x00; // Disable Timer 2 until set up
@@ -212,7 +195,6 @@ void initTimer2() {
 
   OCR2A = 255; //max 8 bit int
   
-
   TCCR2A = 0; //reset tccr2a
 
   TIMSK2 |= _BV(OCIE2A); //match A interrupt enable
