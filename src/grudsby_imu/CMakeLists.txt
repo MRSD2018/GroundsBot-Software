@@ -107,7 +107,7 @@ catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES grudsby_imu
   CATKIN_DEPENDS roscpp rospy std_msgs grudsby_lowlevel
-  DEPENDS system_lib
+ # DEPENDS system_lib
 )
 
 ###########

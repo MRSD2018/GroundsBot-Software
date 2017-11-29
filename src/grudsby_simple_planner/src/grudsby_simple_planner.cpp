@@ -14,11 +14,16 @@
 geometry_msgs::PoseStamped goal_pose_in_odom;
 nav_msgs::Odometry curr_odom;
 
-
+bool wait_at_waypoint;
+ros::Time last_waypoint_update;
+double prev_goal_x = 0;
+double prev_goal_y = 0;
 
 double max_x_vel = 1;
 double max_theta_vel = 1;
-
+double max_vel_delta = 0.05;
+double prev_x_vel = 0;
+double prev_theta_vel = 0;
 
 //set in params
 float Kp_lin;
@@ -139,6 +144,9 @@ int main(int argc, char **argv) {
   if (!n.getParam("sp_kd_ang", Kd_ang))
     Kd_ang = 0;
     
+  if (!n.getParam ("wait_at_point", wait_at_waypoint))
+    wait_at_waypoint = false;
+
   ros::Publisher velPub = n.advertise<geometry_msgs::Twist>("cmd_vel", 100);
   ros::Subscriber odomSub = n.subscribe("odometry/filtered", 100, odom_received);
   ros::Subscriber goalSub = n.subscribe("goal", 100, goal_received);   
@@ -178,32 +186,34 @@ int main(int argc, char **argv) {
       Vector3 x_vec(cos(rpy.Z), sin(rpy.Z), 0);
 
       //Find vector between start and goal
-      double delta_x = goal_pose_in_odom.pose.position.x - curr_odom.pose.pose.position.x;   
-      double delta_y = goal_pose_in_odom.pose.position.y - curr_odom.pose.pose.position.y;   
+      double current_goal_x = goal_pose_in_odom.pose.position.x;
+      double current_goal_y = goal_pose_in_odom.pose.position.y;
+      double delta_x = current_goal_x - curr_odom.pose.pose.position.x;   
+      double delta_y = current_goal_y - curr_odom.pose.pose.position.y;   
     
       Vector3 v_vec(delta_x, delta_y, 0);
       
       //Find angle between vector and x direction    
       Vector3 x_cross_v = Vector3::Cross(x_vec, v_vec);
       int direction = sign(x_cross_v.Z);
-      double theta =  direction*Vector3::Angle(x_vec, v_vec);
+      double theta =  direction*Vector3::Angle(x_vec, v_vec) + 1.3;
       double theta_d = theta / (2*3.14159265359) * 360;
    
+            /*if (Vector3::Magnitude(v_vec)<deadband)
+      {
+         x_towards_g = 0;
+         theta = 0;
+     
+      }*/
+      
       //Find part of x_vec in direction of g 
       double x_towards_g;
-      if (Vector3::Magnitude(v_vec)>deadband)
-      {
-        x_towards_g = Vector3::Magnitude(v_vec)*pow(cos(theta),tuner);
-      }
-      else
-      {
-        
-        x_towards_g = 0;
-        theta = 0;
-      }
+      
 
+      x_towards_g = Vector3::Magnitude(v_vec)*pow(cos(theta),tuner);
+      
       //Bound if negative.  We want GroundsBot going forwards to goal, not reverse
-      if (x_towards_g < 0)
+      if (cos(theta) < 0)
       {
         x_towards_g = 0;
       }
@@ -229,15 +239,47 @@ int main(int argc, char **argv) {
       double theta_vel_bound;
       if(abs(x_vel)>max_x_vel)
       {
-        x_vel_bound = sign(x_vel)*max_x_vel;
-      }
+        x_vel = sign(x_vel)*max_x_vel;
+        
+        double delta_x_vel = x_vel - prev_x_vel;
+        if ( abs(delta_x_vel) > max_vel_delta )
+        {
+          x_vel = prev_x_vel + sign(delta_x_vel)*max_vel_delta;
+        }
+        prev_x_vel = x_vel;
+      } 
       
       if(abs(theta_vel)>max_theta_vel)
       {
-        theta_vel_bound = sign(theta_vel)*max_theta_vel;
+        theta_vel = sign(theta_vel)*max_theta_vel;
+
+        double delta_theta_vel = theta_vel - prev_theta_vel;
+        if ( abs(delta_theta_vel) > max_vel_delta )
+        {
+          theta_vel = prev_theta_vel + sign(delta_theta_vel)*max_vel_delta;
+        }
+        prev_theta_vel = theta_vel;
+      }
+
+      //If we've received a new goal and wait_at_waypoint param is set
+      //publish 0 velocity for 10 secs
+      //Assuming new goal is more than 0.3 meters away in any direction
+      if ( (current_goal_x > prev_goal_x + 0.3 || current_goal_x < prev_goal_x - 0.3) ||
+            (current_goal_y > prev_goal_y + 0.3 || current_goal_y < prev_goal_y - 0.3) )
+      {
+        ROS_INFO("New Waypoint found.");
+        last_waypoint_update == ros::Time::now();
+        prev_goal_x = current_goal_x;
+        prev_goal_y = current_goal_y;
       }
       
-      
+      ros::Duration wait = ros::Time::now() - last_waypoint_update;
+      if( wait_at_waypoint && (wait.toSec() < 10.0) )
+      {
+        ROS_INFO("Wating at waypoint.");
+        x_vel = 0;
+        theta_vel = 0;
+      }
 
       //Publish /cmd_vel
       geometry_msgs::Twist msg;
@@ -260,10 +302,7 @@ int main(int argc, char **argv) {
       debug_msg.delta_y = delta_y;
       debug_msg.goalx = goal_pose_in_odom.pose.position.x;
       debug_msg.goaly = goal_pose_in_odom.pose.position.y;
-      debug_msg.x_vec.x = x_vec.X;
-      debug_msg.x_vec.y = x_vec.Y;
-      debug_msg.v_vec.x = v_vec.X;
-      debug_msg.v_vec.y = v_vec.Y;
+
       debugPub.publish(debug_msg);
     }   
     
