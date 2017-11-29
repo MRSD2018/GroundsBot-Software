@@ -14,7 +14,6 @@
 
 ros::Publisher waypoint_pub;
 
-
 struct waypoint
 {
   double latitude;
@@ -125,6 +124,7 @@ void findWaypointCallback(const sensor_msgs::NavSatFix& msg)
     if ( inThreshold(grudsby_lat, grudsby_long, goal_lat, goal_long) )
     {
       ROS_INFO("Updating goal waypoint");
+
       if( goals.size() > 1)
       {
         goals.erase( goals.begin() );
@@ -155,14 +155,14 @@ int main(int argc, char **argv)
 
   ros::init(argc, argv, "waypoint_pub");
   ros::NodeHandle n;
+
+  parseKMLFile();
+  ROS_INFO("Waypoint file done parsing");
   
   waypoint_pub = n.advertise<geometry_msgs::PoseStamped>("/goal", 1000);
 
   ros::Subscriber navsat_sub;
   navsat_sub = n.subscribe("/fix", 100, findWaypointCallback);
-
-  parseKMLFile();
-  ROS_INFO("Waypoint file done parsing");
 
   ros::Rate loop_rate(10);
 
