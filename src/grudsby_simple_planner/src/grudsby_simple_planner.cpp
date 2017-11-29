@@ -20,7 +20,6 @@ double max_vel_delta = 0.05;
 double prev_x_vel = 0;
 double prev_theta_vel = 0;
 
-
 //set in params
 float Kp_lin;
 float Ki_lin;
@@ -235,8 +234,9 @@ int main(int argc, char **argv) {
         double delta_x_vel = x_vel - prev_x_vel;
         if ( abs(delta_x_vel) > max_vel_delta )
         {
-          x_vel = prev_x_vel + sign(delta_x_vel)*max_x_vel_delta;
+          x_vel = prev_x_vel + sign(delta_x_vel)*max_vel_delta;
         }
+        prev_x_vel = x_vel;
       } 
       
       if(abs(theta_vel)>max_theta_vel)
@@ -248,6 +248,7 @@ int main(int argc, char **argv) {
         {
           theta_vel = prev_theta_vel + sign(delta_theta_vel)*max_vel_delta;
         }
+        prev_theta_vel = theta_vel;
       }
 
       //Publish /cmd_vel
