@@ -245,9 +245,6 @@ int main(int argc, char **argv) {
         theta_vel_bound = sign(theta_vel)*max_theta_vel;
       }
       
-<<<<<<< f7532d84599d956eaf1627d7a4337b1b590acd8f
-      
-=======
 
       //If we've received a new goal and wait_at_waypoint param is set
       //publish 0 velocity for 10 secs
@@ -268,7 +265,6 @@ int main(int argc, char **argv) {
         x_vel = 0;
         theta_vel = 0;
       }
->>>>>>> waiting at waypoints now in simple planner
 
       //Publish /cmd_vel
       geometry_msgs::Twist msg;
