@@ -21,15 +21,15 @@ double max_theta_vel = 1;
 
 
 //set in params
-float Kp_lin = .7;
-float Ki_lin = 0;
-float Kd_lin = 0;
+float Kp_lin;
+float Ki_lin;
+float Kd_lin;
 double total_lin_error = 0;
-double prev_x_towards_g = 0;  
+double prev_x_towards_g = 0;
 
-float Kp_ang = 4;
-float Ki_ang = 0;
-float Kd_ang = 0;    
+float Kp_ang;
+float Ki_ang;
+float Kd_ang;   
 double total_ang_error = 0;
 double prev_theta = 0;
 
