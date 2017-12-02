@@ -10,11 +10,9 @@
     <param name="/use_sim_time" value="false"/>
 
 
-<node pkg="tf2_ros" type="static_transform_publisher" name="bl_gps" args="0.2475 0 0.2231 0 0 0 1 base_link gps"/>
+<node pkg="tf2_ros" type="static_transform_publisher" name="bl_gps" args="0.82963 0 0.21048 0 0 0 1 base_link gps"/>
 
-
-
-    <node pkg="tf2_ros" type="static_transform_publisher" name="bl_imu" args="0.2351 -0.0687 0.1919 0 0 0 1 base_link imu_link" />
+<node pkg="tf2_ros" type="static_transform_publisher" name="bl_imu" args="0.73393 -0.1723 0.148415 0 0 0 1 base_link imu_link" />
 
     
 <node name="ekf_se_odom" pkg="robot_localization" type="ekf_localization_node" clear_params="true">
