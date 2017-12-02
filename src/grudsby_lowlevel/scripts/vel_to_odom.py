@@ -60,6 +60,10 @@ class DiffTf:
     def responseCallback(self, msg):
     #############################################################################
         odom_msg = Odometry()
+
+        odom_msg.header.stamp = rospy.Time.now()
+        odom_msg.pose.pose.orientation.w = 1.0
+
         odom_msg.twist.twist.linear.x = msg.linearX
         odom_msg.twist.twist.angular.z = -msg.angularZ
         odom_msg.twist.covariance[0] = 0.0004
@@ -68,6 +72,12 @@ class DiffTf:
 	odom_msg.twist.covariance[21] = 0.0004
         odom_msg.twist.covariance[28] = 0.0004
         odom_msg.twist.covariance[35] = 0.0004
+        odom_msg.pose.covariance[0] = 9999999
+        odom_msg.pose.covariance[7] = 9999999
+        odom_msg.pose.covariance[14] = 9999999
+        odom_msg.pose.covariance[21] = 9999999
+        odom_msg.pose.covariance[28] = 9999999
+        odom_msg.pose.covariance[35] = 9999999
 	odom_msg.header.frame_id = "base_link"
         odom_msg.child_frame_id = "base_link"
 	self.odomPub.publish(odom_msg)

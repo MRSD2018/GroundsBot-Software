@@ -49,7 +49,7 @@ ComplementaryFilterROS::ComplementaryFilterROS(
   int queue_size = 5;
 
   // Register publishers:
-  imu_publisher_ = nh_.advertise<sensor_msgs::Imu>(ros::names::resolve("imu") + "/data/odom_heading", queue_size);
+  imu_publisher_ = nh_.advertise<sensor_msgs::Imu>(ros::names::resolve("imu") + "/data", queue_size);
 
   if (publish_debug_topics_)
   {
@@ -237,7 +237,6 @@ void ComplementaryFilterROS::publish(
     imu_msg->angular_velocity.y -= filter_.getAngularVelocityBiasY();
     imu_msg->angular_velocity.z -= filter_.getAngularVelocityBiasZ();
   }
-
   imu_publisher_.publish(imu_msg);
 
   if (publish_debug_topics_)
