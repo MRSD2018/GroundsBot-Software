@@ -19,6 +19,6 @@
   <node pkg="rosbag" type="play" name="player" output="screen" args="--clock $(find grudsby_localization)/bag/driving_no_ekf.bag"> 
   </node>
 
-  <node name="rviz" pkg="rviz" type="rviz"/>
+  <!--node name="rviz" pkg="rviz" type="rviz"/-->
 
 </launch>
