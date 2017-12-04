@@ -64,10 +64,10 @@ ros::Publisher response_pub("grudsby/arduino_response", &response_msg);
 ros::Subscriber<std_msgs::Float32> left_sub("arduino/lwheel_vtarget", &left_callback);
 ros::Subscriber<std_msgs::Float32> right_sub("arduino/rwheel_vtarget", &right_callback);
 
-
-
-
-
+unsigned long lastCmdLeft = 0;
+unsigned long lastCmdRight = 0;
+int lastLeftVel = 0;
+int lastRightVel = 0;
 
 rc_control rc;
 

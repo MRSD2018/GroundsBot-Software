@@ -24,6 +24,7 @@ using namespace grudsby;
 //12000 ticks per second = 2.92968 revs/sec max speed  -- set in roboclaw
 
 void left_callback(const std_msgs::Float32& msg) {
+  lastCmdLeft = millis();
   float scaled = msg.data * 1000;
   float maxvel = (12000/4096.0) * WHEEL_RAD* 2 * 3.14159 * 1000;
   int val = map(scaled, -maxvel, maxvel, -255, 255);
@@ -31,6 +32,7 @@ void left_callback(const std_msgs::Float32& msg) {
 }
 
 void right_callback(const std_msgs::Float32& msg) {
+  lastCmdRight = millis();
   float scaled = msg.data*1000;
   float maxvel = (12000/4096.0) * WHEEL_RAD* 2 * 3.14159 * 1000;
   int val = map(scaled, -maxvel, maxvel, -255, 255);
@@ -46,10 +48,10 @@ void setup() {
 
   leftMotor = new RCMotor(4);
   rightMotor = new RCMotor(6);
+  leftMotor->detachServo();
+  rightMotor->detachServo();
   killed = true;
   autonomous = false;
-  leftMotor->writeVal(0);
-  rightMotor->writeVal(0);
 }
 
 void loop()
@@ -71,6 +73,8 @@ bool moveGrudsby() {
       }
       if ((millis()-lastKill) > KILL_DEBOUNCE_TIME) {
         killed = false;
+        leftMotor->attachServo();
+        rightMotor->attachServo();
         lastKill = millis();
         return false;
       }
@@ -81,6 +85,8 @@ bool moveGrudsby() {
       }
       if ((millis()-lastKill) > KILL_DEBOUNCE_TIME) {
         killed = true;
+        leftMotor->detachServo();
+        rightMotor->detachServo();
         autonomous = false;
         leftMotor->writeVal(0);
         rightMotor->writeVal(0);
@@ -97,8 +103,26 @@ bool moveGrudsby() {
           return false;
         }
         //  Placeholder for moving autonomously
-        leftMotor->writeVal(leftAutoVal);
-        rightMotor->writeVal(rightAutoVal);
+
+        if ((millis() - lastCmdLeft) > AUTONOMOUS_CMD_TIMEOUT) {
+          lastLeftVel = lastLeftVel * 0.97;
+          leftMotor->writeVal(lastLeftVel);
+        }
+        else 
+        {
+          leftMotor->writeVal(leftAutoVal);
+          lastLeftVel = leftAutoVal;
+        }
+
+        if ((millis() - lastCmdRight) > AUTONOMOUS_CMD_TIMEOUT) {
+          lastRightVel = lastRightVel * 0.97;
+          rightMotor->writeVal(lastRightVel);
+        }
+        else 
+        {
+          rightMotor->writeVal(rightAutoVal);
+          lastRightVel = rightAutoVal;
+        }
       }
       else { // Manual mode
         if (!rc.is_autonomous()) {
@@ -120,7 +144,9 @@ bool moveGrudsby() {
   }
   else {
     if ((millis() - lastRCsignal) > RC_TIMEOUT_LOST_SIGNAL) {
-      killed = true; 
+      killed = true;
+      leftMotor->detachServo();
+      rightMotor->detachServo(); 
       autonomous = false;
       leftMotor->writeVal(0);
       rightMotor->writeVal(0);

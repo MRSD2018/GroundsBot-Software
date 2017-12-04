@@ -69,7 +69,8 @@ void DirPWMMotor::writeDirPWM(bool forward, int pwm)
 }
 
 RCMotor::RCMotor(int pin) {
-	this->servo.attach(pin);
+  servoPin = pin;
+	this->attachServo();
 }
 
 void RCMotor::writeVal(int val) 
@@ -84,8 +85,16 @@ void RCMotor::writeVal(int val)
 	else {
 		writeRC(RC_STOP);
 	}
-
 } 
+
+void RCMotor::attachServo() {
+  this->servo.attach(servoPin);
+  this->writeVal(0);
+}
+
+void RCMotor::detachServo() {
+  this->servo.detach();
+}
 
 void RCMotor::writeRC(int rc){
 	//1250 is full back, 1750 full forward
