@@ -2483,7 +2483,7 @@ namespace RobotLocalization
       finalTargetFrame = targetFrame;
       poseTmp.frame_id_ = (differential ? finalTargetFrame : msg->header.frame_id);
     }
-
+    poseTmp.frame_id_ = finalTargetFrame;
     RF_DEBUG("Final target frame for " << topicName << " is " << finalTargetFrame << "\n");
 
     poseTmp.stamp_ = msg->header.stamp;
