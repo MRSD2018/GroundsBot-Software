@@ -4,7 +4,9 @@ project(nmea_navsat_driver)
 find_package(catkin REQUIRED COMPONENTS roslint)
 
 catkin_python_setup()
-catkin_package()
+catkin_package(
+
+)
 
 install(PROGRAMS
    scripts/nmea_serial_driver
