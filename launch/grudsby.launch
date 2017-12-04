@@ -19,13 +19,13 @@
       sp_kd_lin: 0
       sp_kp_ang: 4
       sp_ki_ang: 0
-      sp_kd_ang: 0
-
+      sp_kd_ang: 0 
+      wait_at_waypoint: false
+      goal_noise: 1.0
     </rosparam>
   </node>
 
   <node name="grudsby_waypoint" pkg="grudsby_waypoint" type="grudsby_waypoint"/>
-  <param name="wait_at_waypoint" value="true"/>
 <!-- 
 	<node name="gucci_gang" pkg="gucci_gang" type="gucci_gang"/>
 -->
