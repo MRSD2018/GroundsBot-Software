@@ -14,6 +14,8 @@ namespace grudsby {
 		Motor(){};
 		virtual ~Motor(){};
 		virtual void writeVal(int val) = 0;
+    virtual void attachServo();
+    virtual void detachServo();
 
 	protected: 
 		bool checkChangeDir(int val);
@@ -46,6 +48,8 @@ namespace grudsby {
 	public:
 		RCMotor(int pin);
 		void writeVal(int val);
+    void attachServo();
+    void detachServo();
 	private: 
 		void writeRC(int rc);
 
@@ -53,6 +57,7 @@ namespace grudsby {
 		const int RC_MAX = 1870;
 		const int RC_MIN = 1070;
 		const int RC_STOP = 1470;
+    int servoPin;
 	};
 
 
