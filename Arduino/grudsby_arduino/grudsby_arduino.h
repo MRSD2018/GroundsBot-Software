@@ -34,10 +34,11 @@ unsigned long lastPublish = 0;
 unsigned long lastRCsignal = 0;
 unsigned long lastAutonomous = 0;
 unsigned long lastKill = 0;
+unsigned long lastMower = 0;
 
 bool killed;
 bool autonomous;
-
+bool mowerEnabled;
 
 const float WHEELBASE_LEN = 0.508;
 const float WHEEL_RAD = 0.127;

@@ -50,8 +50,11 @@ void setup() {
   rightMotor = new RCMotor(6);
   leftMotor->detachServo();
   rightMotor->detachServo();
+  pinMode(MOWER_RELAY, OUTPUT);
+  digitalWrite(MOWER_RELAY, LOW);
   killed = true;
   autonomous = false;
+  mowerEnabled = false;
 }
 
 void loop()
@@ -83,6 +86,32 @@ bool moveGrudsby() {
       if(!rc.is_killed()) {
         lastKill = millis();
       }
+
+      if (mowerEnabled) {
+        if (rc.is_mower_on()) {
+          lastMower = millis();
+        }
+        if ((millis() - lastMower) > MOWER_DEBOUNCE_TIME) {
+          mowerEnabled = false;
+          digitalWrite(MOWER_RELAY, LOW);
+          lastMower = millis();
+          return false;
+        }
+        // Placeholder for mower enabled
+      }
+      else {
+        if (!rc.is_mower_on()) {
+          lastMower = millis();
+        }
+        if ((millis() - lastMower) > MOWER_DEBOUNCE_TIME) {
+          mowerEnabled = true;
+          digitalWrite(MOWER_RELAY, HIGH);
+          lastMower = millis();
+          return false;
+        }
+        // Placeholder for mower disabled
+      }
+            
       if ((millis()-lastKill) > KILL_DEBOUNCE_TIME) {
         killed = true;
         leftMotor->detachServo();
@@ -90,6 +119,8 @@ bool moveGrudsby() {
         autonomous = false;
         leftMotor->writeVal(0);
         rightMotor->writeVal(0);
+        mowerEnabled = false;
+        digitalWrite(MOWER_RELAY, LOW);
         lastKill = millis();
         lastRightVel = 0;
         lastLeftVel = 0;
@@ -168,6 +199,8 @@ bool moveGrudsby() {
       autonomous = false;
       leftMotor->writeVal(0);
       rightMotor->writeVal(0);
+      mowerEnabled = false;
+      digitalWrite(MOWER_RELAY, LOW);
       return false;
     }
   }
