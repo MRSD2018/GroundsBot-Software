@@ -14,14 +14,14 @@
 
   <node name="grudsby_simple_planner" pkg="grudsby_simple_planner" type="grudsby_simple_planner">
     <rosparam>
-      sp_kp_lin: 0.7
+      sp_kp_lin: 1
       sp_ki_lin: 0
-      sp_kd_lin: 0
-      sp_kp_ang: 4
+      sp_kd_lin: 2
+      sp_kp_ang: 2
       sp_ki_ang: 0
-      sp_kd_ang: 0 
+      sp_kd_ang: 5
       wait_at_waypoint: false
-      goal_noise: 1.0
+      goal_noise: 10.0
     </rosparam>
   </node>
 

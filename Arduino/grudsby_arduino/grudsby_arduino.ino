@@ -91,6 +91,8 @@ bool moveGrudsby() {
         leftMotor->writeVal(0);
         rightMotor->writeVal(0);
         lastKill = millis();
+        lastRightVel = 0;
+        lastLeftVel = 0;
         return false;
       }
       if (autonomous) { // Autonomous mode
@@ -105,7 +107,14 @@ bool moveGrudsby() {
         //  Placeholder for moving autonomously
 
         if ((millis() - lastCmdLeft) > AUTONOMOUS_CMD_TIMEOUT) {
-          lastLeftVel = lastLeftVel * 0.97;
+          if (lastLeftVel > 0) {
+            lastLeftVel -= 1; 
+            delay(15);
+          }
+          if (lastLeftVel < 0) {
+            lastLeftVel += 1;
+            delay(15);
+          }
           leftMotor->writeVal(lastLeftVel);
         }
         else 
@@ -115,7 +124,14 @@ bool moveGrudsby() {
         }
 
         if ((millis() - lastCmdRight) > AUTONOMOUS_CMD_TIMEOUT) {
-          lastRightVel = lastRightVel * 0.97;
+          if (lastRightVel > 0) {
+            lastRightVel -= 1;
+            delay(15);
+          }
+          if (lastRightVel < 0) {
+            lastRightVel += 1;
+            delay(15);
+          }
           rightMotor->writeVal(lastRightVel);
         }
         else 
@@ -139,6 +155,8 @@ bool moveGrudsby() {
         rc.get_RC_weenie_outputs(velL, velR);
         leftMotor->writeVal(velL);
         rightMotor->writeVal(velR);
+        lastRightVel = 0;
+        lastLeftVel = 0;
       }
     }
   }

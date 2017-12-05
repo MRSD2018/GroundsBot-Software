@@ -20,10 +20,10 @@ ros::Time last_waypoint_update;
 double prev_goal_x = 0;
 double prev_goal_y = 0;
 
-double max_x_vel = 1;
-double max_theta_vel = 1;
-double max_vel_delta = 0.05;
-double max_theta_vel_delta = 0.05;
+double max_x_vel = 2;
+double max_theta_vel = 3;
+double max_vel_delta = 0.08;
+double max_theta_vel_delta = 0.4;
 double prev_x_vel = 0;
 double prev_theta_vel = 0;
 
@@ -44,7 +44,7 @@ double tuner = 2; //tuning factor
 
 bool goal_set = false;
 
-double deadband = .1;
+double deadband = .01;
 
 /*
   odom_received: Callback function called when msg received on /odometry/filtered topic. 
