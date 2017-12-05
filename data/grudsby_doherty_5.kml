@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2">
   <Document>
-    <name>grudsby_doherty_2</name>
+    <name>grudsby_doherty_5</name>
     <Style id="line-000000-1200-nodesc-normal">
       <LineStyle>
         <color>ff000000</color>
@@ -36,11 +36,15 @@
       <LineString>
         <tessellate>1</tessellate>
         <coordinates>
-          -79.9409397,40.4445119,0
-          -79.94087,40.4444996,0
-          -79.940819,40.4446344,0
-          -79.9407493,40.4446201,0
-          -79.9408861,40.4446487,0
+          -79.9408565,40.4446742,0
+          -79.9409531,40.4445313,0
+          -79.9410309,40.4445292,0
+          -79.9410363,40.4445109,0
+          -79.9407063,40.4444558,0
+          -79.9406876,40.4445292,0
+          -79.9404328,40.4445231,0
+          -79.9407627,40.4446435,0
+          -79.9408244,40.4446701,0
         </coordinates>
       </LineString>
     </Placemark>
