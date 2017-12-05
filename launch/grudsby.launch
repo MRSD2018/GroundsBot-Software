@@ -21,7 +21,7 @@
       sp_ki_ang: 0
       sp_kd_ang: 4
       wait_at_waypoint: true
-      goal_noise: 6
+      goal_noise: 2.0 
     </rosparam>
   </node>
 
