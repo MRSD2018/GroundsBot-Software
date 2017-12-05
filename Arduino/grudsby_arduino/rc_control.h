@@ -22,7 +22,7 @@ private:
     const int KILL_SWITCH = 5;
     const int CONTROL_MODE = 4;
     const int REVERSE = 6;
-    const int MOWER = 7;
+    const int MOWER = 6;
     const int MIN_VEL= 40;
 
 public:

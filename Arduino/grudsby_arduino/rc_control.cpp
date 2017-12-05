@@ -43,7 +43,7 @@ bool rc_control::is_autonomous()
 
 // Making false the default for safety reasons.
 bool rc_control::is_mower_on() {
-  if(channels[CONTROL_MODE] == 1811)
+  if(channels[MOWER] == 1811)
   {
     return true;
   }

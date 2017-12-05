@@ -78,7 +78,12 @@ bool moveGrudsby() {
         killed = false;
         leftMotor->attachServo();
         rightMotor->attachServo();
+        leftMotor->writeVal(0);
+        rightMotor->writeVal(0);
         lastKill = millis();
+        lastAutonomous = millis();
+        lastMower = millis();
+        
         return false;
       }
     }
@@ -103,7 +108,7 @@ bool moveGrudsby() {
         if (!rc.is_mower_on()) {
           lastMower = millis();
         }
-        if ((millis() - lastMower) > MOWER_DEBOUNCE_TIME) {
+        if ((millis() - lastMower) > (MOWER_DEBOUNCE_TIME * 50)) {
           mowerEnabled = true;
           digitalWrite(MOWER_RELAY, HIGH);
           lastMower = millis();
@@ -114,11 +119,12 @@ bool moveGrudsby() {
             
       if ((millis()-lastKill) > KILL_DEBOUNCE_TIME) {
         killed = true;
-        leftMotor->detachServo();
-        rightMotor->detachServo();
         autonomous = false;
         leftMotor->writeVal(0);
         rightMotor->writeVal(0);
+        delay(100);        
+        leftMotor->detachServo();
+        rightMotor->detachServo();
         mowerEnabled = false;
         digitalWrite(MOWER_RELAY, LOW);
         lastKill = millis();
@@ -194,11 +200,12 @@ bool moveGrudsby() {
   else {
     if ((millis() - lastRCsignal) > RC_TIMEOUT_LOST_SIGNAL) {
       killed = true;
-      leftMotor->detachServo();
-      rightMotor->detachServo(); 
       autonomous = false;
       leftMotor->writeVal(0);
       rightMotor->writeVal(0);
+      delay(100);      
+      leftMotor->detachServo();
+      rightMotor->detachServo(); 
       mowerEnabled = false;
       digitalWrite(MOWER_RELAY, LOW);
       return false;
