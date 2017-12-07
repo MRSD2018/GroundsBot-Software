@@ -90,7 +90,7 @@ bool inThreshold(double lat, double lon, double goal_lat, double goal_lon)
   double c = 2 * atan2(sqrt(a), sqrt(1-a)); 
   double d = R * c; // Distance in km
   
-  if ( d <= 0.0003 ) {
+  if ( d <= 0.001 ) {
     return true;
   }
   return false;
@@ -130,14 +130,15 @@ void findWaypointCallback(const sensor_msgs::NavSatFix& msg)
     if ( inThreshold(grudsby_lat, grudsby_long, goal_lat, goal_long) )
     {
       ROS_INFO("Updating goal waypoint");
-      if (goals.front().altitude > 0.5) {
-        last_stop_update = ros::Time::now();
-      }
       if( goals.size() > 1)
       {
+        if (goals.front().altitude > 0.5) {
+          last_stop_update = ros::Time::now();
+        }
         goals.erase( goals.begin() );
         goal_lat = goals.front().latitude;
         goal_long = goals.front().longitude;
+
       }
       else {
         last_stop_update = ros::Time::now();
@@ -160,8 +161,7 @@ void findWaypointCallback(const sensor_msgs::NavSatFix& msg)
 
     ros::Duration wait = ros::Time::now() - last_stop_update;
     std_msgs::Bool stop;
-    stop.data = (wait_at_waypoint && (wait.toSec() < 10.0));
-
+    stop.data = (wait_at_waypoint && (wait.toSec() < 2.5));
     stop_pub.publish(stop);
   }
   else ROS_WARN("No waypoints in vector.");

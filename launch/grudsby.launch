@@ -14,9 +14,9 @@
 
   <node name="grudsby_simple_planner" pkg="grudsby_simple_planner" type="grudsby_simple_planner">
     <rosparam>
-      sp_kp_lin: 1
+      sp_kp_lin: 0.05
       sp_ki_lin: 0
-      sp_kd_lin: 2
+      sp_kd_lin: 8
       sp_kp_ang: 2
       sp_ki_ang: 0
       sp_kd_ang: 4

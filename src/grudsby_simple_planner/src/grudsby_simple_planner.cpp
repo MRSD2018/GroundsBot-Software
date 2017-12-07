@@ -40,7 +40,7 @@ float Kd_ang;
 double total_ang_error = 0;
 double prev_theta = 0;
 double goal_noise;
-double tuner = 2; //tuning factor
+double tuner = 4; //tuning factor
 
 bool goal_set = false;
 
@@ -80,10 +80,10 @@ void goal_received(const geometry_msgs::PoseStamped::ConstPtr& goal_msg)
   goal_pose_in_gps = *goal_msg;
 
 
-  listener.waitForTransform("/odom","/utm",ros::Time::now(),ros::Duration(1.0));   
+  listener.waitForTransform("/map","/utm",ros::Time::now(),ros::Duration(1.0));   
   try
   {  
-    listener.transformPose("/odom", goal_pose_in_gps, goal_pose_in_odom);
+    listener.transformPose("/map", goal_pose_in_gps, goal_pose_in_odom);
   }
   catch (tf::TransformException ex)
   {
@@ -146,7 +146,7 @@ int main(int argc, char **argv) {
 
   //get params and set defaults if no param
   if (!n.getParam("grudsby_simple_planner/sp_kp_lin", Kp_lin))
-    Kp_lin = .7;
+    Kp_lin = .05;
   if (!n.getParam("grudsby_simple_planner/sp_ki_lin", Ki_lin))
     Ki_lin = 0;
   if (!n.getParam("grudsby_simple_planner/sp_kd_lin", Ki_lin))
@@ -161,7 +161,7 @@ int main(int argc, char **argv) {
     goal_noise = 1.0;
 
   ros::Publisher velPub = n.advertise<geometry_msgs::Twist>("cmd_vel", 100);
-  ros::Subscriber odomSub = n.subscribe("odometry/filtered", 100, odom_received);
+  ros::Subscriber odomSub = n.subscribe("odometry/filtered_map", 100, odom_received);
   ros::Subscriber goalSub = n.subscribe("goal", 100, goal_received);   
   ros::Subscriber stopSub = n.subscribe("grudsby/stop", 100, stop_received);   
       
