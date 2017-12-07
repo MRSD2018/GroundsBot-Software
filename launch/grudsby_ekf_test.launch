@@ -14,9 +14,16 @@
     <param name="gain_mag" value="0.03" />
   </node>
 
-  <include file="$(find grudsby_localization)/launch/grudsby_localization_ekf.launch"/>
+  <include file="$(find grudsby_localization)/launch/grudsby_localization_for_bag_playback.launch"/>
 
-  <node pkg="rosbag" type="play" name="player" output="screen" args="--clock $(find grudsby_localization)/bag/driving_no_ekf_david.bag"> 
+  <node pkg="rosbag" type="play" name="player" output="screen" args="--clock $(find grudsby_localization)/bag/driving_no_ekf_josh.bag"> 
+  </node>
+
+
+  <node name="grudsby_waypoint" pkg="grudsby_waypoint" type="grudsby_waypoint">
+<rosparam>
+      wait_at_waypoint: true
+    </rosparam>
   </node>
 
   <!--node name="rviz" pkg="rviz" type="rviz"/-->
