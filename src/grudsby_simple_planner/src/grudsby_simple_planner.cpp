@@ -19,7 +19,7 @@ nav_msgs::Odometry curr_odom;
 double prev_goal_x = 0;
 double prev_goal_y = 0;
 
-double max_x_vel = 2;
+double max_x_vel = 1.5;
 double max_theta_vel = 3;
 double max_vel_delta = 0.08;
 double max_theta_vel_delta = 0.4;
