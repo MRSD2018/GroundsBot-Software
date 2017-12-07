@@ -225,20 +225,20 @@ int main (int argc, char **argv)
         imu.angular_velocity.y = Gyro.readX() - gyro_x_bias_;
         imu.angular_velocity.x = -1 * (Gyro.readY() - gyro_y_bias_);
         imu.angular_velocity.z = Gyro.readZ() - gyro_z_bias_;
-        imu.angular_velocity_covariance[0] = 0.000001; // NOTE: NEED TO ADJUST COVARIANCES
-        imu.angular_velocity_covariance[4] = 0.000001; // NOTE: NEED TO ADJUST COVARIANCES
-        imu.angular_velocity_covariance[8] = 0.000001; // NOTE: NEED TO ADJUST COVARIANCES
+        imu.angular_velocity_covariance[0] = 0.01; // NOTE: NEED TO ADJUST COVARIANCES
+        imu.angular_velocity_covariance[4] = 0.01; // NOTE: NEED TO ADJUST COVARIANCES
+        imu.angular_velocity_covariance[8] = 0.01; // NOTE: NEED TO ADJUST COVARIANCES
         
         
         imu.linear_acceleration.y = Accel.readX();
         imu.linear_acceleration.x = -1 * Accel.readY();
         imu.linear_acceleration.z = Accel.readZ();
-        imu.linear_acceleration_covariance[0] = 0.0001; // NOTE: NEED TO ADJUST COVARIANCES
-        imu.linear_acceleration_covariance[4] = 0.0001; // NOTE: NEED TO ADJUST COVARIANCES
-        imu.linear_acceleration_covariance[8] = 0.0001; // NOTE: NEED TO ADJUST COVARIANCES
-        imu.orientation_covariance[0] = 0.0001; // NOTE: NEED TO ADJUST COVARIANCES
-        imu.orientation_covariance[4] = 0.0001; // NOTE: NEED TO ADJUST COVARIANCES
-        imu.orientation_covariance[8] = 0.0001; // NOTE: NEED TO ADJUST COVARIANCES
+        imu.linear_acceleration_covariance[0] = 0.01; // NOTE: NEED TO ADJUST COVARIANCES
+        imu.linear_acceleration_covariance[4] = 0.01; // NOTE: NEED TO ADJUST COVARIANCES
+        imu.linear_acceleration_covariance[8] = 0.01; // NOTE: NEED TO ADJUST COVARIANCES
+        imu.orientation_covariance[0] = 0.01; // NOTE: NEED TO ADJUST COVARIANCES
+        imu.orientation_covariance[4] = 0.01; // NOTE: NEED TO ADJUST COVARIANCES
+        imu.orientation_covariance[8] = 0.1; // NOTE: NEED TO ADJUST COVARIANCES
         
         imuRawPub.publish(imu);
         

@@ -45,9 +45,9 @@ class DiffTf:
         gps_msg.longitude = msg.longitude
         gps_msg.altitude = msg.altitude
         gps_msg.position_covariance_type = msg.position_covariance_type
-        gps_msg.position_covariance[0] = 1.8
-        gps_msg.position_covariance[4] = 1.8
-        gps_msg.position_covariance[8] = 5
+        gps_msg.position_covariance[0] = 0.1
+        gps_msg.position_covariance[4] = 0.1
+        gps_msg.position_covariance[8] = 0.25
         self.gpsPub.publish(gps_msg)
         
         
