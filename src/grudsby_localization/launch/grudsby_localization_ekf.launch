@@ -14,9 +14,9 @@
 
   <param name="/use_sim_time" value="true"/>
 
-  <node pkg="tf2_ros" type="static_transform_publisher" name="bl_gps" args="0.2475 0 0.2231 0 0 0 1 base_link gps"/>
+  <node pkg="tf2_ros" type="static_transform_publisher" name="bl_gps" args="0.82963 0 0.21048 0 0 0 1 base_link gps"/>
 
-  <node pkg="tf2_ros" type="static_transform_publisher" name="bl_imu" args="0.2351 -0.0687 0.1919 0 0 0 1 base_link imu_link" />
+  <node pkg="tf2_ros" type="static_transform_publisher" name="bl_imu" args="0.73393 -0.1723 0.148415 0 0 0 1 base_link imu_link" />
 
   <rosparam command="load" file="$(find grudsby_localization)/params/grudsby_dual_ekf_navsat.yaml" />
 
