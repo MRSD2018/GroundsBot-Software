@@ -1,5 +1,6 @@
 #include "ros/ros.h"
 #include "std_msgs/String.h"
+#include "std_msgs/Bool.h"
 #include "geometry_msgs/PoseStamped.h"
 #include "nav_msgs/Odometry.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
@@ -14,6 +15,10 @@
 
 ros::Publisher waypoint_pub;
 
+ros::Publisher stop_pub;
+ros::Time last_stop_update;
+bool wait_at_waypoint;
+
 struct waypoint
 {
   double latitude;
@@ -26,6 +31,7 @@ static std::vector<waypoint> goals;
 void parseKMLFile()
 {
   std::ifstream infile("/home/nvidia/GroundsBot-Software/data/mower_path.kml");
+  //std::ifstream infile("/media/joshjb17/Projects/GroundsBot-Software/data/mower_path.kml");
 
   if (!infile)
   {
@@ -84,7 +90,7 @@ bool inThreshold(double lat, double lon, double goal_lat, double goal_lon)
   double c = 2 * atan2(sqrt(a), sqrt(1-a)); 
   double d = R * c; // Distance in km
   
-  if ( d <= 0.0003 ) {
+  if ( d <= 0.001 ) {
     return true;
   }
   return false;
@@ -124,14 +130,20 @@ void findWaypointCallback(const sensor_msgs::NavSatFix& msg)
     if ( inThreshold(grudsby_lat, grudsby_long, goal_lat, goal_long) )
     {
       ROS_INFO("Updating goal waypoint");
-
       if( goals.size() > 1)
       {
+        if (goals.front().altitude > 0.5) {
+          last_stop_update = ros::Time::now();
+        }
         goals.erase( goals.begin() );
         goal_lat = goals.front().latitude;
         goal_long = goals.front().longitude;
+
       }
-      else ROS_WARN("No new waypoints. Repeating previous waypoint.");
+      else {
+        last_stop_update = ros::Time::now();
+        ROS_WARN("No new waypoints. Repeating previous waypoint.");
+      }
     }
 
     double goal_easting_x = 0;
@@ -146,6 +158,11 @@ void findWaypointCallback(const sensor_msgs::NavSatFix& msg)
     ROS_INFO("UTM Goal: Northing: %f, Easting: %f", goal_northing_y, goal_easting_x);
 
     waypoint_pub.publish(goal);
+
+    ros::Duration wait = ros::Time::now() - last_stop_update;
+    std_msgs::Bool stop;
+    stop.data = (wait_at_waypoint && (wait.toSec() < 2.5));
+    stop_pub.publish(stop);
   }
   else ROS_WARN("No waypoints in vector.");
 }
@@ -159,7 +176,12 @@ int main(int argc, char **argv)
   parseKMLFile();
   ROS_INFO("Waypoint file done parsing");
   
+  if (!n.getParam ("grudsby_waypoint/wait_at_point", wait_at_waypoint))
+    wait_at_waypoint = true;
+
   waypoint_pub = n.advertise<geometry_msgs::PoseStamped>("/goal", 1000);
+
+  stop_pub = n.advertise<std_msgs::Bool>("/grudsby/stop", 100);
 
   ros::Subscriber navsat_sub;
   navsat_sub = n.subscribe("/fix", 100, findWaypointCallback);

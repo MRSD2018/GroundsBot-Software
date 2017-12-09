@@ -1,5 +1,6 @@
 #include "ros/ros.h"
 #include "std_msgs/String.h"
+#include "std_msgs/Bool.h"
 #include "nav_msgs/Odometry.h"
 #include "geometry_msgs/Twist.h"
 #include "geometry_msgs/PoseStamped.h"
@@ -10,21 +11,22 @@
 #include "tf/transform_listener.h"
 #include "math.h"
 #include <grudsby_simple_planner/SimplePlannerDebug.h>
+#include "ros/console.h"
 
 geometry_msgs::PoseStamped goal_pose_in_odom;
 nav_msgs::Odometry curr_odom;
 
-bool wait_at_waypoint;
-ros::Time last_waypoint_update;
 double prev_goal_x = 0;
 double prev_goal_y = 0;
 
-double max_x_vel = 1;
-double max_theta_vel = 1;
-double max_vel_delta = 0.05;
+double max_x_vel = 1.5;
+double max_theta_vel = 3;
+double max_vel_delta = 0.08;
+double max_theta_vel_delta = 0.4;
 double prev_x_vel = 0;
 double prev_theta_vel = 0;
 
+bool grudsby_stopped = true;
 //set in params
 float Kp_lin;
 float Ki_lin;
@@ -37,12 +39,12 @@ float Ki_ang;
 float Kd_ang;   
 double total_ang_error = 0;
 double prev_theta = 0;
-
-double tuner = 2; //tuning factor
+double goal_noise;
+double tuner = 4; //tuning factor
 
 bool goal_set = false;
 
-double deadband = .2;
+double deadband = .01;
 
 /*
   odom_received: Callback function called when msg received on /odometry/filtered topic. 
@@ -78,10 +80,10 @@ void goal_received(const geometry_msgs::PoseStamped::ConstPtr& goal_msg)
   goal_pose_in_gps = *goal_msg;
 
 
-  listener.waitForTransform("/odom","/utm",ros::Time::now(),ros::Duration(1.0));   
+  listener.waitForTransform("/map","/utm",ros::Time::now(),ros::Duration(1.0));   
   try
   {  
-    listener.transformPose("/odom", goal_pose_in_gps, goal_pose_in_odom);
+    listener.transformPose("/map", goal_pose_in_gps, goal_pose_in_odom);
   }
   catch (tf::TransformException ex)
   {
@@ -90,6 +92,18 @@ void goal_received(const geometry_msgs::PoseStamped::ConstPtr& goal_msg)
     goal_set = false;
   }
 }
+
+/*
+  odom_received: Callback function called when msg received on /odometry/filtered topic. 
+  Receives a goal odom broadcasted by grudsby_localization
+  
+  @param geometry_msgs/PoseStamped odom_msg: the odom pose being broadcasted
+*/
+void stop_received(const std_msgs::Bool::ConstPtr& bool_msg)
+{
+  grudsby_stopped = bool_msg->data;
+}
+
 
 /*
   sign: homemade sign function that returns the sign of a given double
@@ -131,26 +145,26 @@ int main(int argc, char **argv) {
 // float Kd_ang = 6;    
 
   //get params and set defaults if no param
-  if (!n.getParam("sp_kp_lin", Kp_lin))
-    Kp_lin = .7;
-  if (!n.getParam("sp_ki_lin", Ki_lin))
+  if (!n.getParam("grudsby_simple_planner/sp_kp_lin", Kp_lin))
+    Kp_lin = .05;
+  if (!n.getParam("grudsby_simple_planner/sp_ki_lin", Ki_lin))
     Ki_lin = 0;
-  if (!n.getParam("sp_kd_lin", Kd_lin))
+  if (!n.getParam("grudsby_simple_planner/sp_kd_lin", Ki_lin))
     Kd_lin = 0;
-  if (!n.getParam("sp_kp_ang", Kp_ang))
+  if (!n.getParam("grudsby_simple_planner/sp_kp_ang", Kp_ang))
     Kp_ang = 4;
-  if (!n.getParam("sp_ki_ang", Ki_ang))
+  if (!n.getParam("grudsby_simple_planner/sp_ki_ang", Ki_ang))
     Ki_ang = 0;
-  if (!n.getParam("sp_kd_ang", Kd_ang))
+  if (!n.getParam("grudsby_simple_planner/sp_kd_ang", Kd_ang))
     Kd_ang = 0;
-    
-  if (!n.getParam ("wait_at_point", wait_at_waypoint))
-    wait_at_waypoint = true;
+  if (!n.getParam ("grudsby_simple_planner/goal_noise", goal_noise))
+    goal_noise = 1.0;
 
   ros::Publisher velPub = n.advertise<geometry_msgs::Twist>("cmd_vel", 100);
-  ros::Subscriber odomSub = n.subscribe("odometry/filtered", 100, odom_received);
+  ros::Subscriber odomSub = n.subscribe("odometry/filtered_map", 100, odom_received);
   ros::Subscriber goalSub = n.subscribe("goal", 100, goal_received);   
-    
+  ros::Subscriber stopSub = n.subscribe("grudsby/stop", 100, stop_received);   
+      
   ros::Publisher debugPub = n.advertise<grudsby_simple_planner::SimplePlannerDebug>("/grudsby/debug/simplePlannerDebug", 100);
 
   while (ros::ok())
@@ -237,33 +251,19 @@ int main(int argc, char **argv) {
       double delta_x_vel = x_vel - prev_x_vel;
       double delta_theta_vel = theta_vel - prev_theta_vel;
 
-      if ( abs(delta_x_vel) > max_vel_delta )
+      if ( fabs(delta_x_vel) > max_vel_delta )
       {
         x_vel = prev_x_vel + sign(delta_x_vel)*max_vel_delta;
       }
-           if ( abs(delta_theta_vel) > max_vel_delta )
+      if ( fabs(delta_theta_vel) > max_theta_vel_delta )
       {
-        theta_vel = prev_theta_vel + sign(delta_theta_vel)*max_vel_delta;
+        theta_vel = prev_theta_vel + sign(delta_theta_vel)*max_theta_vel_delta;
       }
       
 
-      //If we've received a new goal and wait_at_waypoint param is set
-      //publish 0 velocity for 10 secs
-      //Assuming new goal is more than 0.3 meters away in any direction
-      double goalNoise = 1;
-      if ( ((current_goal_x > (prev_goal_x + goalNoise)) || (current_goal_x < (prev_goal_x - goalNoise))) ||
-            ((current_goal_y > (prev_goal_y + goalNoise)) || (current_goal_y < (prev_goal_y - goalNoise))) )
+      if( grudsby_stopped )
       {
-        ROS_INFO("New Waypoint found.");
-        last_waypoint_update = ros::Time::now();
-        prev_goal_x = current_goal_x;
-        prev_goal_y = current_goal_y;
-      }
-      
-      ros::Duration wait = ros::Time::now() - last_waypoint_update;
-      if( wait_at_waypoint && (wait.toSec() < 10.0) )
-      {
-        ROS_INFO("Wating at waypoint.");
+        ROS_INFO("Waiting at waypoint.");
         x_vel = 0;
         theta_vel = 0;
       }
@@ -281,9 +281,7 @@ int main(int argc, char **argv) {
       if(fabs(theta_vel)>=max_theta_vel)
       {
         theta_vel_bound = sign(theta_vel)*max_theta_vel;
-
       } 
-
       prev_theta_vel = theta_vel_bound;
       //Publish /cmd_vel
       geometry_msgs::Twist msg;
