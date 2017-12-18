@@ -14,14 +14,14 @@
 
 ros::Publisher waypoint_pub;
 
-struct waypoint
+struct Waypoint
 {
   double latitude;
   double longitude;
   double altitude;
 };
 
-static std::vector<waypoint> goals;
+static std::vector<Waypoint> goals;
 
 void parseKMLFile()
 {
@@ -41,8 +41,9 @@ void parseKMLFile()
     ss << line;
     char ch;
     ss >> ch;
-    if ( ch == ('<') ) 
+    if ( ch == ('<') ) { 
       continue;
+}
     
     ss.putback(ch);
     while ( ss )
@@ -52,13 +53,14 @@ void parseKMLFile()
       std::stringstream combined_ss;
       std::getline(ss, combined_coords, ' ');
       combined_ss << combined_coords;
-      waypoint tmp;
+      Waypoint tmp;
       std::string s_coord;
       while ( std::getline(combined_ss, s_coord, ',') )
       {
-        if ( count == 0 ) tmp.longitude = atof( s_coord.c_str() );
-        else if ( count == 1 ) tmp.latitude = atof( s_coord.c_str() );
-        else if ( count == 2 ) tmp.altitude = atof( s_coord.c_str() );
+        if ( count == 0 ) { tmp.longitude = atof( s_coord.c_str() );
+        } else if ( count == 1 ) { tmp.latitude = atof( s_coord.c_str() );
+        } else if ( count == 2 ) { tmp.altitude = atof( s_coord.c_str() );
+}
         count ++;
       }
       goals.push_back(tmp);
@@ -73,21 +75,18 @@ double deg2rad(double deg) {
 
 bool inThreshold(double lat, double lon, double goal_lat, double goal_lon)
 {
-  int R = 6371; // Radius of the earth in km
-  double dLat = deg2rad(goal_lat - lat);  // deg2rad below
-  double dLon = deg2rad(goal_lon - lon); 
+  int r = 6371; // Radius of the earth in km
+  double d_lat = deg2rad(goal_lat - lat);  // deg2rad below
+  double d_lon = deg2rad(goal_lon - lon); 
   double a = 
-    sin(dLat/2) * sin(dLat/2) +
+    sin(d_lat/2) * sin(d_lat/2) +
     cos(deg2rad(lat)) * cos(deg2rad(goal_lat)) * 
-    sin(dLon/2) * sin(dLon/2)
+    sin(d_lon/2) * sin(d_lon/2)
     ; 
   double c = 2 * atan2(sqrt(a), sqrt(1-a)); 
-  double d = R * c; // Distance in km
+  double d = r * c; // Distance in km
   
-  if ( d <= 0.0003 ) {
-    return true;
-  }
-  return false;
+  return d <= 0.0003;
   
   //Dumb version incase smart version doesn't work
   /*double glat_plus = goal_lat + 0.000003;
@@ -116,7 +115,7 @@ void findWaypointCallback(const sensor_msgs::NavSatFix& msg)
   goal.header.frame_id = "utm";
   goal.pose.orientation.w = 1.0;
 
-  if ( goals.size() > 0 )
+  if ( !goals.empty() )
   {
     double goal_lat = goals.front().latitude;
     double goal_long = goals.front().longitude;
@@ -131,7 +130,8 @@ void findWaypointCallback(const sensor_msgs::NavSatFix& msg)
         goal_lat = goals.front().latitude;
         goal_long = goals.front().longitude;
       }
-      else ROS_WARN("No new waypoints. Repeating previous waypoint.");
+      else { ROS_WARN("No new waypoints. Repeating previous waypoint.");
+}
     }
 
     double goal_easting_x = 0;
@@ -147,7 +147,8 @@ void findWaypointCallback(const sensor_msgs::NavSatFix& msg)
 
     waypoint_pub.publish(goal);
   }
-  else ROS_WARN("No waypoints in vector.");
+  else { ROS_WARN("No waypoints in vector.");
+}
 }
 
 int main(int argc, char **argv)

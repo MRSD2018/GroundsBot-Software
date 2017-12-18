@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(grudsby_odom_heading)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
 
