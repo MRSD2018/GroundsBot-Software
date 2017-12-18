@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(grudsby_lowlevel)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
@@ -36,6 +39,3 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-#add_executable(${PROJECT_NAME} src/grudsby_lowlevel.cpp)
-#add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
-#target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} )
