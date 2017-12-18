@@ -105,7 +105,7 @@ sudo apt-get install clang libclang-dev clang-tidy-3.8 clang-format-3.8
 ```bash
  run-clang-tidy-3.8.py -p ~/Groundsbot-Software/build grudsby_package 
 ```
-- You can try the autofixer, but be sure to check it after
+- You can try the autofixer, but be sure to check it after. This can be run many times, since it only fixes one level of indentation at a time.
 ```bash
  run-clang-tidy-3.8.py -p ~/Groundsbot-Software/build grudsby_package -fix
 ```
