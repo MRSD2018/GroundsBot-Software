@@ -350,11 +350,11 @@
         <ode>
           <limit>
             <cfm>0</cfm>
-            <erp>0.2</erp>
+            <erp>0.1</erp>
           </limit>
           <suspension>
             <cfm>0</cfm>
-            <erp>0.2</erp>
+            <erp>0.1</erp>
           </suspension>
         </ode>
       </physics>

@@ -2,7 +2,7 @@
 <sdf version='1.6'>
   <model name='grudsby_new'>
     <link name='frame'>
-      <pose frame=''>-0.00546 -0.000272 0.044505 0 -0 0</pose>
+      <pose frame=''>-0.00546 -0.000272 0.044505 0 0 0</pose>
       <inertial>
         <mass>51</mass>
         <inertia>
@@ -29,12 +29,8 @@
           <lighting>1</lighting>
           <script>
             <uri>file://media/materials/scripts/gazebo.material</uri>
-            <name>Gazebo/Grey</name>
+            <name>Gazebo/White</name>
           </script>
-          <ambient>0.3 0.3 0.3 1</ambient>
-          <diffuse>0.7 0.7 0.7 1</diffuse>
-          <specular>0.01 0.01 0.01 1</specular>
-          <emissive>0 0 0 1</emissive>
           <shader type='vertex'>
             <normal_map>__default__</normal_map>
           </shader>
@@ -154,7 +150,7 @@
       </collision>
     </link>
     <link name='right_wheel'>
-      <pose frame=''>-0.255 -0.257272 -0.007 0 -0 0</pose>
+      <pose frame=''>-0.255 -0.246272 -0.007 0 -0 0</pose>
       <inertial>
         <mass>2</mass>
         <inertia>
@@ -181,12 +177,8 @@
           <lighting>1</lighting>
           <script>
             <uri>file://media/materials/scripts/gazebo.material</uri>
-            <name>Gazebo/Grey</name>
+            <name>Gazebo/FlatBlack</name>
           </script>
-          <ambient>0.3 0.3 0.3 1</ambient>
-          <diffuse>0.7 0.7 0.7 1</diffuse>
-          <specular>0.01 0.01 0.01 1</specular>
-          <emissive>0 0 0 1</emissive>
           <shader type='vertex'>
             <normal_map>__default__</normal_map>
           </shader>
@@ -252,7 +244,7 @@
       </collision>
     </link>
     <link name='left_wheel'>
-      <pose frame=''>-0.255 0.257272 -0.007 0 -0 0</pose>
+      <pose frame=''>-0.255 0.264272 -0.007 0 -0 0</pose>
       <inertial>
         <mass>2</mass>
         <inertia>
@@ -279,12 +271,8 @@
           <lighting>1</lighting>
           <script>
             <uri>file://media/materials/scripts/gazebo.material</uri>
-            <name>Gazebo/Grey</name>
+            <name>Gazebo/FlatBlack</name>
           </script>
-          <ambient>0.3 0.3 0.3 1</ambient>
-          <diffuse>0.7 0.7 0.7 1</diffuse>
-          <specular>0.01 0.01 0.01 1</specular>
-          <emissive>0 0 0 1</emissive>
           <shader type='vertex'>
             <normal_map>__default__</normal_map>
           </shader>
@@ -352,7 +340,7 @@
 
     <include>
       <uri>model://grudsby_caster</uri>
-      <pose frame=''>0.63 0.007 0.02 0 0 0</pose>
+      <pose frame=''>0.63 0.0075 0.02 0 0 0</pose>
     </include>
 
     <joint name='base_caster_joint' type='fixed'>
