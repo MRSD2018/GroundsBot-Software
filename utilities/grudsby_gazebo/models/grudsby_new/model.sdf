@@ -19,7 +19,7 @@
       <self_collide>0</self_collide>
       <kinematic>0</kinematic>
       <visual name='visual'>
-        <pose frame=''>0 0 0 3.14157 -0 0</pose>
+        <pose frame=''>0 0 0 0 -0 0</pose>
         <geometry>
           <mesh>
             <uri>model://grudsby_new/meshes/grudsby_body.STL</uri>
@@ -154,7 +154,7 @@
       </collision>
     </link>
     <link name='right_wheel'>
-      <pose frame=''>-0.27786 -0.257272 -0.030495 0 -0 0</pose>
+      <pose frame=''>-0.255 -0.257272 -0.007 0 -0 0</pose>
       <inertial>
         <mass>2</mass>
         <inertia>
@@ -252,7 +252,7 @@
       </collision>
     </link>
     <link name='left_wheel'>
-      <pose frame=''>-0.27786 0.256728 -0.030495 0 -0 0</pose>
+      <pose frame=''>-0.255 0.257272 -0.007 0 -0 0</pose>
       <inertial>
         <mass>2</mass>
         <inertia>
@@ -352,7 +352,7 @@
 
     <include>
       <uri>model://grudsby_caster</uri>
-      <pose frame=''>0.57 -0.000273 -0.0 0 0 0</pose>
+      <pose frame=''>0.63 0.007 0.02 0 0 0</pose>
     </include>
 
     <joint name='base_caster_joint' type='fixed'>
