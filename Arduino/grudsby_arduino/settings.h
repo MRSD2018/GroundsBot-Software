@@ -16,6 +16,17 @@ const int ENABLE2 = 8;
 
 const int DIR2 = 5;
 const int PWM2 = 6;
+
+const int MOWER_RELAY = 28;
+
+const unsigned long PUBLISH_RATE = 50;  // millis
+const unsigned long RC_TIMEOUT_LOST_SIGNAL = 200;  // millis
+const unsigned long AUTONOMOUS_DEBOUNCE_TIME = 200; // millis
+const unsigned long KILL_DEBOUNCE_TIME = 200; // millis
+const unsigned long MOWER_DEBOUNCE_TIME = 40; // 
+const float WHEEL_DIST = 1;
+
+const unsigned long AUTONOMOUS_CMD_TIMEOUT = 1000; // millis
 }
 
 

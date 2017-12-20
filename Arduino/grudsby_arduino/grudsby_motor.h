@@ -3,21 +3,67 @@
 
 #include "settings.h"
 #include <Arduino.h>
+#include "Servo.h" 
+
 
 namespace grudsby {
 
-static const int timeout = 100;
-static unsigned long lchangetime = 0;
-static unsigned long rchangetime = 0;
-static int lastlval;
-static int lastrval;
+	class Motor
+	{
+	public: 
+		Motor(){};
+		virtual ~Motor(){};
+		virtual void writeVal(int val) = 0;
+    virtual void attachServo();
+    virtual void detachServo();
 
-static int cooldown_val;
+	protected: 
+		bool checkChangeDir(int val);
+		bool checkSafe(int val);
 
-bool checkChangeDir(int val, char side);
-bool checkSafe(int val, char side);
-void writeDirPWM(int lval, int rval);
+		const int timeout = 100;
+		const int COOLDOWN_RATE = 20;
 
+		unsigned long changetime = 0;
+		unsigned int lastval;
+		int cooldown_val;
+	};
+
+	class DirPWMMotor : public Motor 
+	{
+	public: 
+		DirPWMMotor(int dirPin, int pwmPin);
+		void writeVal(int val);
+	private:
+		void writeDirPWM(bool dir, int pwm);
+
+		int DIRPIN;
+		int PWMPIN;
+		const int MAXPWM = 255;
+		const int MINPWM = 0;
+	};
+
+	class RCMotor : public Motor 
+	{
+	public:
+		RCMotor(int pin);
+		void writeVal(int val);
+    void attachServo();
+    void detachServo();
+	private: 
+		void writeRC(int rc);
+
+		Servo servo;
+		const int RC_MAX = 1870;
+		const int RC_MIN = 1070;
+		const int RC_STOP = 1470;
+    int servoPin;
+	};
+
+
+
+
+	
 }
 
 

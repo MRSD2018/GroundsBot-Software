@@ -1,6 +1,6 @@
-int32 leftvel
-int32 rightvel
-int32 leftpos
-int32 rightpos
-bool autonomous
-bool kill
+float32 linearX
+float32 angularZ
+uint32  encoderLeft
+uint32 	encoderRight
+float32 velLeft
+float32 velRight
