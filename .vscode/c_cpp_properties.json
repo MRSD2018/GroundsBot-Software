@@ -40,7 +40,8 @@
                 "${workspaceRoot}/src/grudsby_imu/include",
                 "${workspaceRoot}/src/grudsby_odom_heading/include",
                 "${workspaceRoot}/src/grudsby_waypoint",
-                "${workspaceRoot}/src/grudsby_waypoint/include"
+                "${workspaceRoot}/src/grudsby_waypoint/include",
+                "/usr/include/gazebo-7"
             ],
             "defines": [],
             "intelliSenseMode": "clang-x64",

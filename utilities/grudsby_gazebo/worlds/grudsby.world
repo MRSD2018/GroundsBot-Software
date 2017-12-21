@@ -10,8 +10,7 @@
       <uri>model://grass</uri>
     </include>
 
-    <!-- A testing model that includes the Velodyne sensor model -->
-    <model name="m_ygrudsby">
+    <model name="my_grudsby">
       <include>
         <uri>model://grudsby_new</uri>
       </include>

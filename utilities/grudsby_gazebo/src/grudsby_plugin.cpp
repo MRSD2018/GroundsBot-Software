@@ -38,11 +38,7 @@ class GrudsbyPlugin : public ModelPlugin
         //get wheel joints
         this->left_joint = _model->GetJoint("grudsby_new::left_axle_joint");
         this->right_joint = model->GetJoint("grudsby_new::right_axle_joint");
-        // this->left_joint = _model->GetJoints()[0];
-        // std::cerr << this->left_joint->GetName();
-        // this->right_joint = _model->GetJoints()[1];
-        // std::cerr << this->right_joint->GetName();
-
+    
         double left_velocity = 0;
         double right_velocity = 0;
 
