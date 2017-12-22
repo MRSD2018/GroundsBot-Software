@@ -14,10 +14,6 @@
       <include>
         <uri>model://grudsby_new</uri>
       </include>
-
-      <!-- Attach the plugin to this model -->
-      <plugin name="grudsby_control" filename="libgrudsby_plugin.so">
-	</plugin>
     </model>
 
   </world>

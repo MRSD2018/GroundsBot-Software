@@ -1,6 +1,8 @@
 <?xml version='1.0'?>
 <sdf version='1.6'>
   <model name='grudsby_new'>
+
+    <!-- ####################Grudsby Robot Links##########################  -->
     <link name='frame'>
       <pose frame=''>-0.00546 -0.000272 0.044505 0 0 0</pose>
       <inertial>
@@ -338,44 +340,50 @@
       </collision>
     </link>
 
+    <!-- ######################Imported Models#####################  -->
     <include>
       <uri>model://grudsby_caster</uri>
       <pose frame=''>0.63 0.0075 0.02 0 0 0</pose>
     </include>
 
+    <include>
+      <uri>model://grudsby_imu</uri>
+      <pose frame=''>0.63 0.0075 0.02 0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://grudsby_gps</uri>
+      <pose frame=''>0.63 0.0075 .02 0 0 0</pose>
+    </include>
+
+    <!-- ##########################Joints##########################  -->
     <joint name='base_caster_joint' type='fixed'>
       <parent>frame</parent>
       <child>grudsby_caster::base</child>
       <pose frame=''>0 0 0 0 -0 0</pose>
       <axis>
         <xyz>0 0 1</xyz>
-        <use_parent_model_frame>0</use_parent_model_frame>
-        <limit>
-          <lower>-1.79769e+308</lower>
-          <upper>1.79769e+308</upper>
-          <effort>-1</effort>
-          <velocity>-1</velocity>
-        </limit>
-        <dynamics>
-          <spring_reference>0</spring_reference>
-          <spring_stiffness>0</spring_stiffness>
-          <damping>0</damping>
-          <friction>0</friction>
-        </dynamics>
       </axis>
-      <physics>
-        <ode>
-          <limit>
-            <cfm>0</cfm>
-            <erp>0.2</erp>
-          </limit>
-          <suspension>
-            <cfm>0</cfm>
-            <erp>0.2</erp>
-          </suspension>
-        </ode>
-      </physics>
     </joint>
+
+     <joint name='base_imu_joint' type='fixed'>
+      <parent>frame</parent>
+      <child>grudsby_imu</child>
+      <pose frame=''>0 0 0 0 -0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+      </axis>
+    </joint>
+
+    <joint name='base_gps_joint' type='fixed'>
+      <parent>frame</parent>
+      <child>grudsby_gps</child>
+      <pose frame=''>0 0 0 0 -0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+      </axis>
+    </joint>.
+
     <joint name='right_axle_joint' type='revolute'>
       <parent>frame</parent>
       <child>right_wheel</child>
@@ -409,6 +417,7 @@
         </ode>
       </physics>
     </joint>
+
     <joint name='left_axle_joint' type='revolute'>
       <parent>frame</parent>
       <child>left_wheel</child>
@@ -442,7 +451,30 @@
         </ode>
       </physics>
     </joint>
+
+
+    <!-- ########################Plugins#####################  -->
+    <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
+      <alwaysOn>true</alwaysOn>
+      <updateRate>50</updateRate>
+      <robotNamespace></robotNamespace>
+      <leftJoint>left_axle_joint</leftJoint>
+      <rightJoint>right_axle_joint</rightJoint>
+      <wheelSeparation>0.508</wheelSeparation>
+      <wheelDiameter>0.254</wheelDiameter>
+      <wheelAcceleration>0</wheelAcceleration>
+      <wheelTorque>5</wheelTorque>
+      <odometrySource>1</odometrySource>
+      <publishTf>1</publishTf>
+      <torque>20</torque>
+      <commandTopic>cmd_vel</commandTopic>
+      <odometryTopic>odom</odometryTopic>
+      <odometryFrame>odom</odometryFrame>
+      <robotBaseFrame>base_link</robotBaseFrame>
+    </plugin>
+
     <static>0</static>
     <allow_auto_disable>1</allow_auto_disable>
+
   </model>
 </sdf>
