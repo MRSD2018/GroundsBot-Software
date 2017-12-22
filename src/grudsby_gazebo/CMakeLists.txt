@@ -28,16 +28,7 @@ catkin_package(
 
 # Build our plugin
 add_library(grudsby_plugin SHARED src/grudsby_plugin.cpp)
-target_link_libraries(grudsby_plugin ${GAZEBO_libraries} )
+target_link_libraries(grudsby_plugin ${GAZEBO_libraries}  ${roscpp_LIBRARIES})
 
-# Build the stand-alone test program
-add_executable(vel src/vel.cc)
 
-if (${gazebo_VERSION_MAJOR} LESS 6)
-  # These two
-  include(FindBoost)
-  find_package(Boost ${MIN_BOOST_VERSION} REQUIRED system filesystem regex)
-  target_link_libraries(vel ${GAZEBO_LIBRARIES} ${Boost_LIBRARIES})
-else()
-  target_link_libraries(vel ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES})
-endif()
+

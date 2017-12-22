@@ -1,0 +1,53 @@
+<?xml version='1.0'?>
+<sdf version='1.6'>
+  <model name='grudsby_gps'>
+    <link name='base_link'>
+      <pose frame=''>0 0 0 0 0 0</pose>
+      <visual name='visual'>
+        <pose frame=''>0 0 0 0 -0 1.5707</pose>
+        <geometry>
+          <mesh>
+            <uri>model://grudsby_gps/meshes/grudsby_gps.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <lighting>1</lighting>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Grey</name>
+          </script>
+          <shader type='vertex'>
+            <normal_map>__default__</normal_map>
+          </shader>
+        </material>
+        <cast_shadows>1</cast_shadows>
+        <transparency>0</transparency>
+      </visual>
+
+      <collision name='collision'>
+        <max_contacts>10</max_contacts>
+        <pose frame=''>0 0 0 0 -0 1.5707</pose>
+        <geometry>
+          <mesh>
+            <uri>model://grudsby_gps/meshes/grudsby_gps.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <plugin name="gps_plugin" filename="libhector_gazebo_ros_gps.so">
+      <alwayson>true</alwayson>
+      <updaterate>1.0</updaterate>
+      <bodyname>base_link</bodyname>
+      <topicname>/fix</topicname>
+      <velocitytopicname>/fix_velocity</velocitytopicname>
+      <drift>5.0 5.0 5.0</drift>
+      <gaussiannoise>0.1 0.1 0.1</gaussiannoise>
+      <velocitydrift>0 0 0</velocitydrift>
+      <velocitygaussiannoise>0.1 0.1 0.1</velocitygaussiannoise>
+    </plugin>
+
+    <static>0</static>
+    <allow_auto_disable>1</allow_auto_disable>
+  </model>
+</sdf>
