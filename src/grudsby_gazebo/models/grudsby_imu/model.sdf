@@ -33,6 +33,8 @@
           </mesh>
         </geometry>
       </collision>
+    </link>		
+
 
       <plugin name="imu_plugin" filename="libgazebo_ros_imu.so">
 	      <alwaysOn>true</alwaysOn>
@@ -43,7 +45,6 @@
 	      <updateRate>20.0</updateRate>
       </plugin>
     
-    </link>
     <static>0</static>
     <allow_auto_disable>1</allow_auto_disable>
   </model>
