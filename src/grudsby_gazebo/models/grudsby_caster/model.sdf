@@ -198,7 +198,7 @@
     <link name='wheel'>
       <pose frame=''>-0.042377 0.000111 -0.070039 0 -0 0</pose>
       <inertial>
-        <mass>0.5</mass>
+        <mass>1</mass>
         <inertia>
           <ixx>0</ixx>
           <ixy>0</ixy>
@@ -249,14 +249,14 @@
         <surface>
           <friction>
             <ode>
-              <mu>1</mu>
-              <mu2>1</mu2>
+              <mu>10000</mu>
+              <mu2>10000</mu2>
               <fdir1>0 0 0</fdir1>
               <slip1>0</slip1>
               <slip2>0</slip2>
             </ode>
             <torsional>
-              <coefficient>1</coefficient>
+              <coefficient>0.002</coefficient>
               <patch_radius>0</patch_radius>
               <surface_radius>0</surface_radius>
               <use_patch_radius>1</use_patch_radius>
@@ -310,7 +310,7 @@
           <spring_reference>0</spring_reference>
           <spring_stiffness>0</spring_stiffness>
           <damping>0</damping>
-          <friction>0.1</friction>
+          <friction>0</friction>
         </dynamics>
       </axis>
       <physics>
@@ -334,8 +334,6 @@
         <xyz>0 1 0</xyz>
         <use_parent_model_frame>0</use_parent_model_frame>
         <limit>
-          <lower>-1.79769e+308</lower>
-          <upper>1.79769e+308</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
@@ -343,18 +341,18 @@
           <spring_reference>0</spring_reference>
           <spring_stiffness>0</spring_stiffness>
           <damping>0</damping>
-          <friction>0.1</friction>
+          <friction>0</friction>
         </dynamics>
       </axis>
       <physics>
         <ode>
           <limit>
             <cfm>0</cfm>
-            <erp>0.1</erp>
+            <erp>0</erp>
           </limit>
           <suspension>
             <cfm>0</cfm>
-            <erp>0.1</erp>
+            <erp>0</erp>
           </suspension>
         </ode>
       </physics>

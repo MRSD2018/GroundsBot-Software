@@ -201,19 +201,19 @@
         <surface>
           <friction>
             <ode>
-              <mu>1</mu>
-              <mu2>1</mu2>
+              <mu>100000</mu>
+              <mu2>100000</mu2>
               <fdir1>0 0 0</fdir1>
-              <slip1>0</slip1>
+              <slip1>100</slip1>
               <slip2>0</slip2>
             </ode>
             <torsional>
-              <coefficient>1</coefficient>
-              <patch_radius>0</patch_radius>
+              <coefficient>10000</coefficient>
+              <patch_radius>10</patch_radius>
               <surface_radius>0</surface_radius>
               <use_patch_radius>1</use_patch_radius>
               <ode>
-                <slip>0</slip>
+                <slip>100</slip>
               </ode>
             </torsional>
           </friction>
@@ -295,19 +295,19 @@
         <surface>
           <friction>
             <ode>
-              <mu>1</mu>
-              <mu2>1</mu2>
+              <mu>100000</mu>
+              <mu2>100000</mu2>
               <fdir1>0 0 0</fdir1>
-              <slip1>0</slip1>
+              <slip1>100</slip1>
               <slip2>0</slip2>
             </ode>
             <torsional>
-              <coefficient>1</coefficient>
-              <patch_radius>0</patch_radius>
+              <coefficient>10000</coefficient>
+              <patch_radius>10</patch_radius>
               <surface_radius>0</surface_radius>
               <use_patch_radius>1</use_patch_radius>
               <ode>
-                <slip>0</slip>
+                <slip>100</slip>
               </ode>
             </torsional>
           </friction>
@@ -348,7 +348,7 @@
 
     <include>
       <uri>model://grudsby_imu</uri>
-      <pose frame=''>0.63 0.0075 0.2 0 0 0</pose>
+      <pose frame=''>0.43 -0.175 0.17 0 0 1.57</pose>
     </include>
 
     <include>
@@ -457,16 +457,14 @@
     <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
       <alwaysOn>true</alwaysOn>
       <updateRate>50</updateRate>
-      <robotNamespace></robotNamespace>
+      <robotNamespace>/</robotNamespace>
       <leftJoint>left_axle_joint</leftJoint>
       <rightJoint>right_axle_joint</rightJoint>
       <wheelSeparation>0.508</wheelSeparation>
       <wheelDiameter>0.254</wheelDiameter>
       <wheelAcceleration>0</wheelAcceleration>
-      <wheelTorque>5</wheelTorque>
-      <odometrySource>1</odometrySource>
       <publishTf>1</publishTf>
-      <torque>20</torque>
+      <torque>5000</torque>
       <commandTopic>cmd_vel</commandTopic>
       <odometryTopic>odom</odometryTopic>
       <odometryFrame>odom</odometryFrame>
