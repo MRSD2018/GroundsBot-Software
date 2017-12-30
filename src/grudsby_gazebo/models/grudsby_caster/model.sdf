@@ -249,14 +249,14 @@
         <surface>
           <friction>
             <ode>
-              <mu>10000</mu>
-              <mu2>10000</mu2>
+              <mu>0</mu>
+              <mu2>0</mu2>
               <fdir1>0 0 0</fdir1>
               <slip1>0</slip1>
               <slip2>0</slip2>
             </ode>
             <torsional>
-              <coefficient>0.002</coefficient>
+              <coefficient>0</coefficient>
               <patch_radius>0</patch_radius>
               <surface_radius>0</surface_radius>
               <use_patch_radius>1</use_patch_radius>
@@ -301,14 +301,12 @@
         <xyz>0 0 1</xyz>
         <use_parent_model_frame>0</use_parent_model_frame>
         <limit>
-          <lower>-1.79769e+308</lower>
-          <upper>1.79769e+308</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
         <dynamics>
           <spring_reference>0</spring_reference>
-          <spring_stiffness>0</spring_stiffness>
+          <spring_stiffness>.7</spring_stiffness>
           <damping>0</damping>
           <friction>0</friction>
         </dynamics>

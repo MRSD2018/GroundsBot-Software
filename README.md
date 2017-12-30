@@ -33,9 +33,9 @@ sudo apt-get install ros-kinetic-rospy
 ```
 
 
--ros teleop-tools
+-ros teleop-twist-keyboard
 ```bash
-sudo apt-get install ros-kinetic-teleop-tools
+sudo apt-get install ros-kinetic-teleop-twist-keyboard
 ```
 
 -uuid-msgs
@@ -56,6 +56,11 @@ sudo apt-get install ros-kinetic-tf2-geometry-msgs
 -unique-id
 ```bash
 sudo apt-get install ros-kinetic-unique-id
+```
+
+-hector-gazebo-plugins
+```bash
+sudo apt-get install ros-kinetic-hector-gazebo-plugins 
 ```
 
 
