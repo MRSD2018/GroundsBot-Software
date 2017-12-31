@@ -1,16 +1,19 @@
+/* Copyright 2018 Grudsbois */
+#include <math.h>
+
+#include <fstream>
+#include <iostream>
+#include <string>
+
 #include "GrudsbyImu.h"
 #include "geometry_msgs/Twist.h"
 
-#include "ros/ros.h"
+#include "grudsby_lowlevel/ArduinoResponse.h"
 #include "ros/console.h"
-#include "std_msgs/String.h"
+#include "ros/ros.h"
 #include "sensor_msgs/Imu.h"
 #include "sensor_msgs/MagneticField.h"
-#include "grudsby_lowlevel/ArduinoResponse.h"
-#include <string>
-#include <fstream>
-#include <iostream>
-#include <math.h>
+#include "std_msgs/String.h"
 
 bool run_calibration_;
 
@@ -18,8 +21,8 @@ std::string calib_location_;
 
 int num_gyro_readings = 0;
 int num_magn_readings = 0;
-const int max_gyro_readings = 100;
-const int max_magn_readings = 600;
+const int kMaxGyroReadings = 100;
+const int kMaxmagnReadings = 600;
 
 double magn_x_bias_ = 0;
 double magn_y_bias_ = 0;
@@ -32,44 +35,46 @@ int first_enc_left_;
 int last_enc_left_;
 int first_enc_right_;
 int last_enc_right_;
-bool captured_first_enc = false;;
+bool captured_first_enc = false;
 
-
-
-ros::Publisher velPub;
+ros::Publisher vel_pub;
 
 void arduinisCallback(const grudsby_lowlevel::ArduinoResponse::ConstPtr& ard_msg)
 {
-  if (!captured_first_enc) {
+  if (!captured_first_enc)
+  {
     captured_first_enc = true;
     first_enc_left_ = ard_msg->encoderLeft;
     first_enc_right_ = ard_msg->encoderRight;
   }
-  else {
+  else
+  {
     last_enc_left_ = ard_msg->encoderLeft;
     last_enc_right_ = ard_msg->encoderRight;
-  }  
+  }
 }
 
-int main (int argc, char **argv)
+int main(int argc, char** argv)
 {
   ros::init(argc, argv, "grudsby_imu_node");
 
   ros::NodeHandle n;
 
-  ros::Publisher imuRawPub = n.advertise<sensor_msgs::Imu>("imu/data_raw", 1000);
+  ros::Publisher imu_raw_pub = n.advertise<sensor_msgs::Imu>("imu/data_raw", 1000);
 
-  ros::Publisher magPub = n.advertise<sensor_msgs::MagneticField>("imu/mag", 1000);
- 
-  ros::Subscriber arduinoSub = n.subscribe("grudsby/arduino_response",1000, arduinisCallback);
+  ros::Publisher mag_pub = n.advertise<sensor_msgs::MagneticField>("imu/mag", 1000);
+
+  ros::Subscriber arduino_sub = n.subscribe("grudsby/arduino_response", 1000, arduinisCallback);
 
   ros::Rate loop_rate(1000);
 
-  if (!n.getParam ("ImuDriver/do_calibration", run_calibration_)) {
+  if (!n.getParam("ImuDriver/do_calibration", run_calibration_))
+  {
     run_calibration_ = false;
   }
-  if (run_calibration_) {
-    velPub = n.advertise<geometry_msgs::Twist>("cmd_vel", 100);
+  if (run_calibration_)
+  {
+    vel_pub = n.advertise<geometry_msgs::Twist>("cmd_vel", 100);
     /*  USEFUL CODE FOR CALIBRATING SPEEDS! LEAVE IN CODE...
     ros::Duration(5.0).sleep();
     geometry_msgs::Twist msg;
@@ -86,18 +91,23 @@ int main (int argc, char **argv)
     msg.angular.z = 0.0;
     velPub.publish(msg);
     ros::spinOnce();
-    ROS_ERROR("Left Wheel Vel (ticks/sec)= %f",static_cast<double>(last_enc_left_-first_enc_left_)/20.0);
-    ROS_ERROR("Right Wheel Vel (ticks/sec)= %f",static_cast<double>(last_enc_right_-first_enc_right_)/20.0);
+    ROS_ERROR("Left Wheel Vel (ticks/sec)=
+    %f",static_cast<double>(last_enc_left_-first_enc_left_)/20.0);
+    ROS_ERROR("Right Wheel Vel (ticks/sec)=
+    %f",static_cast<double>(last_enc_right_-first_enc_right_)/20.0);
     */
   }
 
-  if (!n.getParam ("ImuDriver/calibration_file_location", calib_location_)) {
+  if (!n.getParam("ImuDriver/calibration_file_location", calib_location_))
+  {
     ROS_ERROR("Didn't specify a calibration file location");
     calib_location_ = "";
   }
-  else {
-    std::ifstream calibFile(calib_location_.c_str(), std::ios::binary);
-    if (!calibFile) {
+  else
+  {
+    std::ifstream calib_file(calib_location_.c_str(), std::ios::binary);
+    if (!calib_file)
+    {
       ROS_ERROR("Could not open calibration file %s for IMU", calib_location_.c_str());
       magn_x_bias_ = 0;
       magn_y_bias_ = 0;
@@ -106,153 +116,169 @@ int main (int argc, char **argv)
       gyro_y_bias_ = 0;
       gyro_z_bias_ = 0;
     }
-    else {
+    else
+    {
       char temp[256];
-      calibFile.getline(temp,256);
+      calib_file.getline(temp, 256);
       magn_x_bias_ = std::stod(temp);
-      calibFile.getline(temp,256);
+      calib_file.getline(temp, 256);
       magn_y_bias_ = std::stod(temp);
-      calibFile.getline(temp,256);
+      calib_file.getline(temp, 256);
       magn_z_bias_ = std::stod(temp);
-      calibFile.getline(temp,256);
+      calib_file.getline(temp, 256);
       gyro_x_bias_ = std::stod(temp);
-      calibFile.getline(temp,256);
+      calib_file.getline(temp, 256);
       gyro_y_bias_ = std::stod(temp);
-      calibFile.getline(temp,256);
+      calib_file.getline(temp, 256);
       gyro_z_bias_ = std::stod(temp);
-      calibFile.close();
+      calib_file.close();
     }
-  }  
-  bool initSuccessful = true; 
-  GrudsbyImuAccel Accel = GrudsbyImuAccel();
-  if (!Accel.begin()) {
+  }
+  bool init_successful = true;
+  GrudsbyImuAccel accel = GrudsbyImuAccel();
+  if (!accel.begin())
+  {
     ROS_ERROR("Accelerometer did not initialize succesfully...");
-    initSuccessful = false;
+    init_successful = false;
   }
-  GrudsbyImuMag Mag = GrudsbyImuMag();
-  if (!Mag.begin()) {
-    ROS_ERROR("Magnetometer did not initialize succesfully...");
-    initSuccessful = false;
+  GrudsbyImuMag mag = GrudsbyImuMag();
+  if (!mag.begin())
+  {
+    ROS_ERROR("magnetometer did not initialize succesfully...");
+    init_successful = false;
   }
-  GrudsbyImuGyro Gyro = GrudsbyImuGyro();
-  if (!Gyro.begin()) {
+  GrudsbyImuGyro gyro = GrudsbyImuGyro();
+  if (!gyro.begin())
+  {
     ROS_ERROR("Gyroscope did not initialize succesfully...");
-    initSuccessful = false;
+    init_successful = false;
   }
-  if (initSuccessful) {
+  if (init_successful)
+  {
     double accum_gyro_x = 0;
     double accum_gyro_y = 0;
     double accum_gyro_z = 0;
     double max_magn_x = -1000000;
     double min_magn_x = 1000000;
-    double max_magn_y = -1000000; 
+    double max_magn_y = -1000000;
     double min_magn_y = 1000000;
     double accum_magn_z = 0;
-    
 
-    int count = 0;  
-    bool keepRunning = true;
-    while (ros::ok() && keepRunning)
+    int count = 0;
+    bool keep_running = true;
+    while (ros::ok() && keep_running)
     {
-      if (run_calibration_) {
-        //ROS_ERROR("RUNNING...");
-        if (num_gyro_readings == 0) {
+      if (run_calibration_)
+      {
+        // ROS_ERROR("RUNNING...");
+        if (num_gyro_readings == 0)
+        {
           geometry_msgs::Twist msg;
           msg.angular.z = 0.0;
-          velPub.publish(msg);
+          vel_pub.publish(msg);
         }
-        if (num_gyro_readings < max_gyro_readings) {
-          accum_gyro_x += Gyro.readX();
-          accum_gyro_y += Gyro.readY();
-          accum_gyro_z += Gyro.readZ();
+        if (num_gyro_readings < kMaxGyroReadings)
+        {
+          accum_gyro_x += gyro.readX();
+          accum_gyro_y += gyro.readY();
+          accum_gyro_z += gyro.readZ();
           num_gyro_readings++;
         }
-        else {
-          if (num_magn_readings < max_magn_readings) {
-              geometry_msgs::Twist msg;
-              msg.angular.z = 1.89;
-              velPub.publish(msg);
+        else
+        {
+          if (num_magn_readings < kMaxmagnReadings)
+          {
+            geometry_msgs::Twist msg;
+            msg.angular.z = 1.89;
+            vel_pub.publish(msg);
 
-            if (num_magn_readings == 0) {
+            if (num_magn_readings == 0)
+            {
               ROS_ERROR("Finished Gyro Readings");
-	    }
-            double tempX = Mag.readX();
-            double tempY = Mag.readY();
-            if (tempX > max_magn_x)
-              max_magn_x = tempX;
-            if (tempX < min_magn_x)
-              min_magn_x = tempX;
-            if (tempY > max_magn_y)
-              max_magn_y = tempY;
-            if (tempY < min_magn_y)
-              min_magn_y = tempY;
-            accum_magn_z += Mag.readZ(); 
+            }
+            double temp_x = mag.readX();
+            double temp_y = mag.readY();
+            if (temp_x > max_magn_x) {
+              max_magn_x = temp_x;
+}
+            if (temp_x < min_magn_x) {
+              min_magn_x = temp_x;
+}
+            if (temp_y > max_magn_y) {
+              max_magn_y = temp_y;
+}
+            if (temp_y < min_magn_y) {
+              min_magn_y = temp_y;
+}
+            accum_magn_z += mag.readZ();
             num_magn_readings++;
           }
-          else {
+          else
+          {
             geometry_msgs::Twist msg;
             msg.angular.z = 0.0;
-            velPub.publish(msg);
-            magn_x_bias_ = (max_magn_x + min_magn_x)/2.0;
-            magn_y_bias_ = (max_magn_y + min_magn_y)/2.0;
-            magn_z_bias_ = accum_magn_z / static_cast<double>(max_magn_readings); 
-            gyro_x_bias_ = accum_gyro_x / static_cast<double>(max_gyro_readings);
-            gyro_y_bias_ = accum_gyro_y / static_cast<double>(max_gyro_readings);
-            gyro_z_bias_ = accum_gyro_z / static_cast<double>(max_gyro_readings);
-            std::ofstream calibOutput(calib_location_.c_str(), std::ios::binary);
-            if (calibOutput) {
-              calibOutput << magn_x_bias_ << std::endl;
-              calibOutput << magn_y_bias_ << std::endl;
-              calibOutput << magn_z_bias_ << std::endl;
-              calibOutput << gyro_x_bias_ << std::endl;
-              calibOutput << gyro_y_bias_ << std::endl;
-              calibOutput << gyro_z_bias_ << std::endl;
-              calibOutput.close();
+            vel_pub.publish(msg);
+            magn_x_bias_ = (max_magn_x + min_magn_x) / 2.0;
+            magn_y_bias_ = (max_magn_y + min_magn_y) / 2.0;
+            magn_z_bias_ = accum_magn_z / static_cast<double>(kMaxmagnReadings);
+            gyro_x_bias_ = accum_gyro_x / static_cast<double>(kMaxGyroReadings);
+            gyro_y_bias_ = accum_gyro_y / static_cast<double>(kMaxGyroReadings);
+            gyro_z_bias_ = accum_gyro_z / static_cast<double>(kMaxGyroReadings);
+            std::ofstream calib_output(calib_location_.c_str(), std::ios::binary);
+            if (calib_output)
+            {
+              calib_output << magn_x_bias_ << std::endl;
+              calib_output << magn_y_bias_ << std::endl;
+              calib_output << magn_z_bias_ << std::endl;
+              calib_output << gyro_x_bias_ << std::endl;
+              calib_output << gyro_y_bias_ << std::endl;
+              calib_output << gyro_z_bias_ << std::endl;
+              calib_output.close();
             }
-            else {
+            else
+            {
               ROS_ERROR("Couldn't write to calibration file");
             }
             ROS_ERROR("Finished Calibration procedure");
-            keepRunning = false;
+            keep_running = false;
           }
-        }    
-      }     
-      else {
+        }
+      }
+      else
+      {
         sensor_msgs::Imu imu;
         imu.header.stamp = ros::Time::now();
         imu.header.frame_id = "imu_link";
-        
-        imu.angular_velocity.y = Gyro.readX() - gyro_x_bias_;
-        imu.angular_velocity.x = -1 * (Gyro.readY() - gyro_y_bias_);
-        imu.angular_velocity.z = Gyro.readZ() - gyro_z_bias_;
-        imu.angular_velocity_covariance[0] = 1.0; // NOTE: NEED TO ADJUST COVARIANCES
-        imu.angular_velocity_covariance[4] = 1.0; // NOTE: NEED TO ADJUST COVARIANCES
-        imu.angular_velocity_covariance[8] = 1.0; // NOTE: NEED TO ADJUST COVARIANCES
-        
-        
-        imu.linear_acceleration.y = Accel.readX();
-        imu.linear_acceleration.x = -1 * Accel.readY();
-        imu.linear_acceleration.z = Accel.readZ();
-        imu.linear_acceleration_covariance[0] = 0.1; // NOTE: NEED TO ADJUST COVARIANCES
-        imu.linear_acceleration_covariance[4] = 0.1; // NOTE: NEED TO ADJUST COVARIANCES
-        imu.linear_acceleration_covariance[8] = 0.1; // NOTE: NEED TO ADJUST COVARIANCES
-        imu.orientation_covariance[0] = 0.1; // NOTE: NEED TO ADJUST COVARIANCES
-        imu.orientation_covariance[4] = 0.1; // NOTE: NEED TO ADJUST COVARIANCES
-        imu.orientation_covariance[8] = 0.1; // NOTE: NEED TO ADJUST COVARIANCES
-        
-        imuRawPub.publish(imu);
-        
-        sensor_msgs::MagneticField mag;
-        mag.header.stamp = ros::Time::now();
-        mag.header.frame_id = "imu_link"; 
-        mag.magnetic_field.y = (-(Mag.readX() - magn_x_bias_)); // Convert to Gauss from mG
-        mag.magnetic_field.x = -1* (Mag.readY() - magn_y_bias_);
-        mag.magnetic_field.z = -1* (Mag.readZ() - magn_z_bias_);
-        mag.magnetic_field_covariance[0] = 0.01;
-        mag.magnetic_field_covariance[4] = 0.01;
-        mag.magnetic_field_covariance[8] = 0.01;
-        magPub.publish(mag);
-        
+
+        imu.angular_velocity.y = gyro.readX() - gyro_x_bias_;
+        imu.angular_velocity.x = -1 * (gyro.readY() - gyro_y_bias_);
+        imu.angular_velocity.z = gyro.readZ() - gyro_z_bias_;
+        imu.angular_velocity_covariance[0] = 0.000001;  // NOTE: NEED TO ADJUST COVARIANCES
+        imu.angular_velocity_covariance[4] = 0.000001;  // NOTE: NEED TO ADJUST COVARIANCES
+        imu.angular_velocity_covariance[8] = 0.000001;  // NOTE: NEED TO ADJUST COVARIANCES
+
+        imu.linear_acceleration.y = accel.readX();
+        imu.linear_acceleration.x = -1 * accel.readY();
+        imu.linear_acceleration.z = accel.readZ();
+        imu.linear_acceleration_covariance[0] = 0.0001;  // NOTE: NEED TO ADJUST COVARIANCES
+        imu.linear_acceleration_covariance[4] = 0.0001;  // NOTE: NEED TO ADJUST COVARIANCES
+        imu.linear_acceleration_covariance[8] = 0.0001;  // NOTE: NEED TO ADJUST COVARIANCES
+        imu.orientation_covariance[0] = 0.0001;          // NOTE: NEED TO ADJUST COVARIANCES
+        imu.orientation_covariance[4] = 0.0001;          // NOTE: NEED TO ADJUST COVARIANCES
+        imu.orientation_covariance[8] = 0.0001;          // NOTE: NEED TO ADJUST COVARIANCES
+
+        imu_raw_pub.publish(imu);
+
+        sensor_msgs::MagneticField mag_msg;
+        mag_msg.header.stamp = ros::Time::now();
+        mag_msg.header.frame_id = "imu_link";
+        mag_msg.magnetic_field.y = (-(mag.readX() - magn_x_bias_));  // Convert to Gauss from mG
+        mag_msg.magnetic_field.x = -1 * (mag.readY() - magn_y_bias_);
+        mag_msg.magnetic_field.z = -1 * (mag.readZ() - magn_z_bias_);
+        mag_msg.magnetic_field_covariance[0] = 0.0001;
+        mag_msg.magnetic_field_covariance[4] = 0.0001;
+        mag_msg.magnetic_field_covariance[8] = 0.0001;
+        mag_pub.publish(mag_msg);
       }
       ros::spinOnce();
 
