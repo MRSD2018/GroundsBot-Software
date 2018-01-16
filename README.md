@@ -79,6 +79,19 @@ pip install rospkg
 Move these from the Libraries folder to your Arduino/libraries folder
 ```
 
+### Symlinking Gazebo Models:
+The Gazebo models must be symlinked into the default ~/.gazebo/models folder for gazebo to find them. 
+
+Given that the Groundsbot-Software folder is ~/Groundsbot-Software: 
+
+```bash
+ln -s -d ~/Groundsbot-Software/src/grudsby_gazebo/models/grudsby_new ~/.gazebo/models/grudsby_new
+ln -s -d ~/Groundsbot-Software/src/grudsby_gazebo/models/grudsby_caster ~/.gazebo/models/grudsby_caster
+ln -s -d ~/Groundsbot-Software/src/grudsby_gazebo/models/grudsby_imu ~/.gazebo/models/grudsby_imu
+ln -s -d ~/Groundsbot-Software/src/grudsby_gazebo/models/grudsby_gps ~/.gazebo/models/grudsby_gps
+ln -s -d ~/Groundsbot-Software/src/grudsby_gazebo/models/grass ~/.gazebo/models/grass
+```
+
 ### Configuring Rosserial:
 The custom Ros-lib Arduino package has been included in the Libraries folder.
 Copy this library over to your Arduino/libraries folder.
