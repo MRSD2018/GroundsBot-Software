@@ -9,12 +9,17 @@ roslib.load_manifest('imu_repeater')
 from sensor_msgs.msg import NavSatFix
 from sensor_msgs.msg import Imu
 from nav_msgs.msg import Odometry
+from grudsby_lowlevel.msg import ArduinoResponse
+from std_msgs.msg import Bool
 
 #############################################################################
 class DiffTf:
 #############################################################################
-    
+    lastLeftDiff = 0
+    lastRightDiff = 0
     totalVel = 0
+    leftWheelVel = 0
+    rightWheelVel = 0
     rtkEnabled = 0 # 0 = no RTK, don't trust GPS for yaw, 1 = yes RTK
     #############################################################################
     def __init__(self):
@@ -24,13 +29,16 @@ class DiffTf:
         rospy.loginfo("-I- %s started" % self.nodename)
         #### parameters #######
         self.rate = 200
-
+        self.w = 0.508 #wheelbase len
         # subscriptions
-     
+        self.slipPub = rospy.Publisher("/grudsby/wheel_slip", Bool, queue_size = 0)
         self.imuPub = rospy.Publisher("/imu/data_filtered_covariance", Imu, queue_size=10)
         rospy.Subscriber("/imu/data", Imu, self.imuResponseCallback)
         rospy.Subscriber("/odometry/filtered_map", Odometry, self.gpsResponseCallback)
         rospy.Subscriber("/fix", NavSatFix, self.fixResponseCallback)
+        rospy.Subscriber("/grudsby/arduino_response", ArduinoResponse, self.arduinoResponseCallback)
+
+
     #############################################################################
     def spin(self):
     #############################################################################
@@ -67,7 +75,7 @@ class DiffTf:
         imu_msg.linear_acceleration_covariance[0] = msg.linear_acceleration_covariance[0]
         imu_msg.linear_acceleration_covariance[4] = msg.linear_acceleration_covariance[4]
         imu_msg.linear_acceleration_covariance[8] = msg.linear_acceleration_covariance[8]
-        rospy.logerr("Vel: %f   Z Rot Covariance: %f", self.totalVel, imu_msg.orientation_covariance[8])
+        #rospy.logerr("Vel: %f   Z Rot Covariance: %f", self.totalVel, imu_msg.orientation_covariance[8])
         self.imuPub.publish(imu_msg)
 
     #############################################################################
@@ -75,6 +83,8 @@ class DiffTf:
     #############################################################################
         self.totalVel = msg.twist.twist.linear.x
         #rospy.logerr("Velocity: %f", self.totalVel)
+        self.rightWheelVel = msg.twist.twist.linear.x + msg.twist.twist.angular.z * self.w / 2.0
+        self.leftWheelVel = msg.twist.twist.linear.x - msg.twist.twist.angular.z * self.w / 2.0
 
 
     #############################################################################
@@ -84,6 +94,24 @@ class DiffTf:
             self.rtkEnabled = 0
         else:
             self.rtkEnabled = 1 
+
+    #############################################################################
+    def arduinoResponseCallback(self, msg):
+    #############################################################################
+        msg.linearX
+        -msg.angularZ
+        actualRightWheelVel = msg.linearX - msg.angularZ * self.w / 2.0
+        actualLeftWheelVel = msg.linearX + msg.angularZ * self.w / 2.0
+        compFilter = 0.25
+        self.lastLeftDiff = compFilter * (actualLeftWheelVel - self.leftWheelVel) + (1 - compFilter) * self.lastLeftDiff
+        self.lastRightDiff = compFilter * (actualRightWheelVel - self.rightWheelVel) + (1 - compFilter) * self.lastRightDiff
+        slip = Bool()
+        slip.data = False
+        if (abs(self.lastLeftDiff) > 0.5 or abs(self.lastRightDiff) > 0.5):
+            slip.data = True    
+            #rospy.logerr("Wheel Slip Detected!")
+        #rospy.logerr("left: %f    right: %f", self.lastLeftDiff, self.lastRightDiff)
+        self.slipPub.publish(slip)
 
 #############################################################################
 #############################################################################
