@@ -3,6 +3,8 @@
 <!-- Navigation nodes -->
   <node pkg="grudsby_lowlevel" type="vel_to_odom.py" name="grudsby_lowlevel"> </node> 
   <node pkg="temp_repeater" type="temp_repeater.py" name="temp_repeater"> </node> 
+  <node pkg="imu_repeater" type="imu_repeater.py" name="imu_repeater">
+  </node>
   <param name="use_sim_time" value="true" />
   <node pkg="imu_complementary_filter" type="complementary_filter_node"
       name="complementary_filter_gain_node" output="screen">
@@ -22,6 +24,7 @@
 
   <node name="grudsby_waypoint" pkg="grudsby_waypoint" type="grudsby_waypoint">
 <rosparam>
+      mower_path_file: '/media/joshjb17/Projects/GroundsBot-Software/data/mower_path.kml'
       wait_at_waypoint: true
     </rosparam>
   </node>

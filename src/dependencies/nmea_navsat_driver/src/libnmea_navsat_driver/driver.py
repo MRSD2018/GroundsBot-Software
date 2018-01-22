@@ -115,9 +115,9 @@ class RosNMEADriver(object):
 
             hdop = data['hdop']
             if current_fix.status.status == NavSatStatus.STATUS_NO_FIX:
-                current_fix.position_covariance[0] = 15
-                current_fix.position_covariance[4] = 15
-                current_fix.position_covariance[8] = 35 
+                current_fix.position_covariance[0] = 80
+                current_fix.position_covariance[4] = 80
+                current_fix.position_covariance[8] = 150 
             else:
                 current_fix.position_covariance[0] = 0.1
                 current_fix.position_covariance[4] = 0.1

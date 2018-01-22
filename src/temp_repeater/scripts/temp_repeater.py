@@ -50,9 +50,9 @@ class DiffTf:
         gps_msg.altitude = msg.altitude
         gps_msg.position_covariance_type = msg.position_covariance_type
         if msg.status.status == 0: # no rtk
-            gps_msg.position_covariance[0] = 15
-            gps_msg.position_covariance[4] = 15
-            gps_msg.position_covariance[8] = 35
+            gps_msg.position_covariance[0] = 80
+            gps_msg.position_covariance[4] = 80
+            gps_msg.position_covariance[8] = 150
         else:
             gps_msg.position_covariance[0] = 0.1
             gps_msg.position_covariance[4] = 0.1
@@ -69,9 +69,9 @@ class DiffTf:
         imu_msg.orientation = msg.orientation
         imu_msg.angular_velocity = msg.angular_velocity
         imu_msg.linear_acceleration = msg.linear_acceleration
-        imu_msg.orientation_covariance[0] = 1
-        imu_msg.orientation_covariance[4] = 1
-        imu_msg.orientation_covariance[8] = 1
+        imu_msg.orientation_covariance[0] = 0.1
+        imu_msg.orientation_covariance[4] = 0.1
+        imu_msg.orientation_covariance[8] = 0.1
         imu_msg.angular_velocity_covariance[0] = 0.5
         imu_msg.angular_velocity_covariance[4] = 0.5
         imu_msg.angular_velocity_covariance[8] = 0.5
