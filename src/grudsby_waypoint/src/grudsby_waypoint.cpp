@@ -18,6 +18,7 @@ ros::Publisher waypoint_pub;
 ros::Publisher stop_pub;
 ros::Time last_stop_update;
 bool wait_at_waypoint;
+std::string mower_path;
 
 struct Waypoint
 {
@@ -30,13 +31,13 @@ static std::vector<Waypoint> goals;
 
 void parseKMLFile()
 {
-  std::ifstream infile("/home/nvidia/GroundsBot-Software/data/mower_path.kml");
-  // std::ifstream infile("/media/joshjb17/Projects/GroundsBot-Software/data/mower_path.kml");
+  std::ifstream infile(mower_path.c_str());
+
 
   if (!infile)
   {
     // Print an error and exit
-    ROS_ERROR("Cannot open mower_path file for parsing! No goal waypoints created!");
+    ROS_ERROR("Cannot open mower_path file for parsing at file location %s! No goal waypoints created!", mower_path.c_str());
   }
 
   std::string line;
@@ -183,12 +184,22 @@ int main(int argc, char** argv)
   ros::init(argc, argv, "waypoint_pub");
   ros::NodeHandle n;
 
-  parseKMLFile();
   ROS_INFO("Waypoint file done parsing");
 
-  if (!n.getParam("grudsby_waypoint/wait_at_point", wait_at_waypoint)) {
+  if (!n.getParam("grudsby_waypoint/wait_at_point", wait_at_waypoint)) 
+  {
     wait_at_waypoint = true;
-}
+  }
+  if (!n.getParam("grudsby_waypoint/mower_path_file", mower_path))
+  {
+    mower_path = "/home/nvidia/GroundsBot-Software/data/mower_path.kml";
+  }
+  else
+  {
+    ROS_INFO("Loaded mower path from param");
+  }
+  
+  parseKMLFile();
 
   waypoint_pub = n.advertise<geometry_msgs::PoseStamped>("/goal", 1000);
 

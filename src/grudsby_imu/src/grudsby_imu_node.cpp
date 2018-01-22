@@ -253,19 +253,19 @@ int main(int argc, char** argv)
         imu.angular_velocity.y = gyro.readX() - gyro_x_bias_;
         imu.angular_velocity.x = -1 * (gyro.readY() - gyro_y_bias_);
         imu.angular_velocity.z = gyro.readZ() - gyro_z_bias_;
-        imu.angular_velocity_covariance[0] = 0.000001;  // NOTE: NEED TO ADJUST COVARIANCES
-        imu.angular_velocity_covariance[4] = 0.000001;  // NOTE: NEED TO ADJUST COVARIANCES
-        imu.angular_velocity_covariance[8] = 0.000001;  // NOTE: NEED TO ADJUST COVARIANCES
+        imu.angular_velocity_covariance[0] = 0.5;  // NOTE: NEED TO ADJUST COVARIANCES
+        imu.angular_velocity_covariance[4] = 0.5;  // NOTE: NEED TO ADJUST COVARIANCES
+        imu.angular_velocity_covariance[8] = 0.5;  // NOTE: NEED TO ADJUST COVARIANCES
 
         imu.linear_acceleration.y = accel.readX();
         imu.linear_acceleration.x = -1 * accel.readY();
         imu.linear_acceleration.z = accel.readZ();
-        imu.linear_acceleration_covariance[0] = 0.0001;  // NOTE: NEED TO ADJUST COVARIANCES
-        imu.linear_acceleration_covariance[4] = 0.0001;  // NOTE: NEED TO ADJUST COVARIANCES
-        imu.linear_acceleration_covariance[8] = 0.0001;  // NOTE: NEED TO ADJUST COVARIANCES
-        imu.orientation_covariance[0] = 0.0001;          // NOTE: NEED TO ADJUST COVARIANCES
-        imu.orientation_covariance[4] = 0.0001;          // NOTE: NEED TO ADJUST COVARIANCES
-        imu.orientation_covariance[8] = 0.0001;          // NOTE: NEED TO ADJUST COVARIANCES
+        imu.linear_acceleration_covariance[0] = 0.1;  // NOTE: NEED TO ADJUST COVARIANCES
+        imu.linear_acceleration_covariance[4] = 0.1;  // NOTE: NEED TO ADJUST COVARIANCES
+        imu.linear_acceleration_covariance[8] = 0.1;  // NOTE: NEED TO ADJUST COVARIANCES
+        imu.orientation_covariance[0] = 1;          // NOTE: NEED TO ADJUST COVARIANCES
+        imu.orientation_covariance[4] = 1;          // NOTE: NEED TO ADJUST COVARIANCES
+        imu.orientation_covariance[8] = 1;          // NOTE: NEED TO ADJUST COVARIANCES
 
         imu_raw_pub.publish(imu);
 
@@ -275,9 +275,9 @@ int main(int argc, char** argv)
         mag_msg.magnetic_field.y = (-(mag.readX() - magn_x_bias_));  // Convert to Gauss from mG
         mag_msg.magnetic_field.x = -1 * (mag.readY() - magn_y_bias_);
         mag_msg.magnetic_field.z = -1 * (mag.readZ() - magn_z_bias_);
-        mag_msg.magnetic_field_covariance[0] = 0.0001;
-        mag_msg.magnetic_field_covariance[4] = 0.0001;
-        mag_msg.magnetic_field_covariance[8] = 0.0001;
+        mag_msg.magnetic_field_covariance[0] = 0.1;
+        mag_msg.magnetic_field_covariance[4] = 0.1;
+        mag_msg.magnetic_field_covariance[8] = 0.1;
         mag_pub.publish(mag_msg);
       }
       ros::spinOnce();

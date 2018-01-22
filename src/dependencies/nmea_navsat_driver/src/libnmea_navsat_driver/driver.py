@@ -114,9 +114,14 @@ class RosNMEADriver(object):
             current_fix.longitude = longitude
 
             hdop = data['hdop']
-            current_fix.position_covariance[0] = 0.1 #hdop ** 2
-            current_fix.position_covariance[4] = 0.1 #hdop ** 2
-            current_fix.position_covariance[8] = 0.4 #(2 * hdop) ** 2  # FIXME
+            if current_fix.status.status == NavSatStatus.STATUS_NO_FIX:
+                current_fix.position_covariance[0] = 80
+                current_fix.position_covariance[4] = 80
+                current_fix.position_covariance[8] = 150 
+            else:
+                current_fix.position_covariance[0] = 0.1
+                current_fix.position_covariance[4] = 0.1
+                current_fix.position_covariance[8] = 0.25
             current_fix.position_covariance_type = \
                 NavSatFix.COVARIANCE_TYPE_APPROXIMATED
 

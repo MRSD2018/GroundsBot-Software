@@ -12,6 +12,9 @@
 <!-- Navigation nodes -->
   <include file="$(find grudsby_localization)/launch/grudsby_localization_ekf.launch"/>
 
+  <node pkg="imu_repeater" type="imu_repeater.py" name="imu_repeater">
+  </node>
+
   <node name="grudsby_simple_planner" pkg="grudsby_simple_planner" type="grudsby_simple_planner">
     <rosparam>
       sp_kp_lin: 0.05

@@ -62,7 +62,7 @@ ComplementaryFilterROS::ComplementaryFilterROS(
   // Register IMU raw data subscriber.
   imu_subscriber_.reset(new ImuSubscriber(
       nh_, ros::names::resolve("imu") + "/data_raw", queue_size));
-
+  // switch to /data_raw_new_covariance if playing back from bag files
   // Register magnetic data subscriber.
   if (use_mag_) {
     mag_subscriber_.reset(new MagSubscriber(
