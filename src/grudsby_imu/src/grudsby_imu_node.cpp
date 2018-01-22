@@ -253,9 +253,9 @@ int main(int argc, char** argv)
         imu.angular_velocity.y = gyro.readX() - gyro_x_bias_;
         imu.angular_velocity.x = -1 * (gyro.readY() - gyro_y_bias_);
         imu.angular_velocity.z = gyro.readZ() - gyro_z_bias_;
-        imu.angular_velocity_covariance[0] = 0.01;  // NOTE: NEED TO ADJUST COVARIANCES
-        imu.angular_velocity_covariance[4] = 0.01;  // NOTE: NEED TO ADJUST COVARIANCES
-        imu.angular_velocity_covariance[8] = 0.01;  // NOTE: NEED TO ADJUST COVARIANCES
+        imu.angular_velocity_covariance[0] = 0.5;  // NOTE: NEED TO ADJUST COVARIANCES
+        imu.angular_velocity_covariance[4] = 0.5;  // NOTE: NEED TO ADJUST COVARIANCES
+        imu.angular_velocity_covariance[8] = 0.5;  // NOTE: NEED TO ADJUST COVARIANCES
 
         imu.linear_acceleration.y = accel.readX();
         imu.linear_acceleration.x = -1 * accel.readY();
@@ -263,9 +263,9 @@ int main(int argc, char** argv)
         imu.linear_acceleration_covariance[0] = 0.1;  // NOTE: NEED TO ADJUST COVARIANCES
         imu.linear_acceleration_covariance[4] = 0.1;  // NOTE: NEED TO ADJUST COVARIANCES
         imu.linear_acceleration_covariance[8] = 0.1;  // NOTE: NEED TO ADJUST COVARIANCES
-        imu.orientation_covariance[0] = 0.1;          // NOTE: NEED TO ADJUST COVARIANCES
-        imu.orientation_covariance[4] = 0.1;          // NOTE: NEED TO ADJUST COVARIANCES
-        imu.orientation_covariance[8] = 0.1;          // NOTE: NEED TO ADJUST COVARIANCES
+        imu.orientation_covariance[0] = 1;          // NOTE: NEED TO ADJUST COVARIANCES
+        imu.orientation_covariance[4] = 1;          // NOTE: NEED TO ADJUST COVARIANCES
+        imu.orientation_covariance[8] = 1;          // NOTE: NEED TO ADJUST COVARIANCES
 
         imu_raw_pub.publish(imu);
 
