@@ -352,7 +352,7 @@
 
     <include>
       <uri>model://grudsby_imu</uri>
-      <pose frame=''>0.43 -0.175 0.17 0 0 1.57</pose>
+      <pose frame=''>0.43 -0.175 0.17 0 0 0</pose>
     </include>
 
     <include>
@@ -372,8 +372,8 @@
 
      <joint name='base_imu_joint' type='fixed'>
       <parent>frame</parent>
-      <child>grudsby_imu::base_link</child>
-      <pose frame=''>0 0 0 0 -0 0</pose>
+      <child>grudsby_imu::base_link_sim</child>
+      <pose frame=''>0 0 0 0 -0 1.570</pose>
       <axis>
         <xyz>0 0 1</xyz>
       </axis>
@@ -381,7 +381,7 @@
 
     <joint name='base_gps_joint' type='fixed'>
       <parent>frame</parent>
-      <child>grudsby_gps::base_link</child>
+      <child>grudsby_gps::base_link_sim</child>
       <pose frame=''>0 0 0 0 -0 0</pose>
       <axis>
         <xyz>0 0 1</xyz>
@@ -466,9 +466,9 @@
       <publishTf>1</publishTf>
       <wheelTorque>50000</wheelTorque>
       <commandTopic>cmd_vel</commandTopic>
-      <odometryTopic>odom</odometryTopic>
-      <odometryFrame>odom</odometryFrame>
-      <robotBaseFrame>base_link</robotBaseFrame>
+      <odometryTopic>odom_sim</odometryTopic>
+      <odometryFrame>odom_sim</odometryFrame>
+      <robotBaseFrame>base_link_sim</robotBaseFrame>
       <legacyMode>false</legacyMode>
     </plugin>
 
