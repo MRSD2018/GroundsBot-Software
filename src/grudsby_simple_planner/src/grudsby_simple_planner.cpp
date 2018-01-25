@@ -247,13 +247,14 @@ int main(int argc, char** argv)
 
       x_towards_g = Vector3::Magnitude(v_vec) * pow(cos(theta), tuner);
 
+      double temp_max_theta_vel = max_theta_vel;
+
       // Bound if negative.  We want GroundsBot going forwards to goal, not
       // reverse
       if (cos(theta) < 0)
       {
         x_towards_g = 0;
       }
-
       // Use PID controller to set speed of x_vel and theta_vel
       // Calculate total error and delta error
       total_lin_error = total_lin_error + x_towards_g;
@@ -296,9 +297,9 @@ int main(int argc, char** argv)
       }
       prev_x_vel = x_vel_bound;
 
-      if (fabs(theta_vel) >= max_theta_vel)
+      if (fabs(theta_vel) >= temp_max_theta_vel)
       {
-        theta_vel_bound = sign(theta_vel) * max_theta_vel;
+        theta_vel_bound = sign(theta_vel) * temp_max_theta_vel;
       }
       prev_theta_vel = theta_vel_bound;
       // Publish /cmd_vel

@@ -99,8 +99,8 @@ bool inThreshold(double lat, double lon, double goal_lat, double goal_lon)
       sin(d_lat / 2) * sin(d_lat / 2) + cos(deg2rad(lat)) * cos(deg2rad(goal_lat)) * sin(d_lon / 2) * sin(d_lon / 2);
   double c = 2 * atan2(sqrt(a), sqrt(1 - a));
   double d = r * c;  // Distance in km
-
-  return d <= 0.0005;
+  ROS_ERROR("Dist: %f", d);
+  return d <= 0.0009;
 
   // Dumb version incase smart version doesn't work
   /*double glat_plus = goal_lat + 0.000003;
