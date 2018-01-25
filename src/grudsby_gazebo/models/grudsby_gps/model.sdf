@@ -60,6 +60,8 @@
       <velocityDrift>0 0 0</velocityDrift>
       <velocityGaussianNoise>0.001 0.001 0.001</velocityGaussianNoise>
       <status>1</status>
+      <referenceLatitude>40.44451099973759</referenceLatitude>
+      <referenceLongitude>-79.94093908574583</referenceLongitude>
     </plugin>
 
     <static>0</static>

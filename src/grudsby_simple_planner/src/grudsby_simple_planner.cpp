@@ -47,7 +47,7 @@ double tuner = 4;  // tuning factor
 
 bool goal_set = false;
 
-double deadband = .01;
+double deadband = .00001;
 
 /*
   odom_received: Callback function called when msg received on
@@ -93,7 +93,7 @@ void goalReceived(const geometry_msgs::PoseStamped::ConstPtr& goal_msg)
     ros::Duration(1.0).sleep();
     goal_set = false;
   }
-  listener.waitForTransform("/odom", "/utm", ros::Time::now(), ros::Duration(1.0));
+  /*listener.waitForTransform("/odom", "/utm", ros::Time::now(), ros::Duration(1.0));
   try
   {
     listener.transformPose("/odom", goal_pose_in_gps, goal_pose_in_odom);
@@ -103,7 +103,7 @@ void goalReceived(const geometry_msgs::PoseStamped::ConstPtr& goal_msg)
     ROS_ERROR("%s", ex.what());
     ros::Duration(1.0).sleep();
     goal_set = false;
-  }
+  }*/
 }
 
 /*
@@ -114,7 +114,7 @@ void goalReceived(const geometry_msgs::PoseStamped::ConstPtr& goal_msg)
 */
 void stopReceived(const std_msgs::Bool::ConstPtr& bool_msg)
 {
-  grudsby_stopped = (bool_msg->data != 0u);
+  grudsby_stopped = (bool_msg->data != 0);
 }
 
 /*

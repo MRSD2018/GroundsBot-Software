@@ -17,25 +17,6 @@
   </node>
   <include file="$(find grudsby_localization)/launch/grudsby_localization_for_bag_playback.launch"/>
   
-  <!-- node name="grudsby_simple_planner" pkg="grudsby_simple_planner" type="grudsby_simple_planner">
-    <rosparam>
-      sp_kp_lin: 0.005
-      sp_ki_lin: 0
-      sp_kd_lin: 0.04
-      sp_kp_ang: 0.01
-      sp_ki_ang: 0
-      sp_kd_ang: 4
-      wait_at_waypoint: true
-      goal_noise: 2.0 
-    </rosparam>
-  </node-->
-
-  <node name="grudsby_waypoint" pkg="grudsby_waypoint" type="grudsby_waypoint">
-<rosparam>
-      mower_path_file: '/media/joshjb17/Projects/GroundsBot-Software/data/mower_path.kml'
-      wait_at_waypoint: true
-    </rosparam>
-  </node>
   
 <!-- 
 	<node name="gucci_gang" pkg="gucci_gang" type="gucci_gang"/>
