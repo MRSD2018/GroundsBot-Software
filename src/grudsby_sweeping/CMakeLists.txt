@@ -3,7 +3,7 @@ set(CMAKE_CXX_STANDARD 11)
 project( boustrophedon )
 
 include_directories(include)
-set ( SOURCES src/boustrophedon.cpp)
+set ( SOURCES src/boustrophedon.cpp src/slice.cpp src/segment.cpp)
 add_executable(boustrophedon ${SOURCES})
 
 
