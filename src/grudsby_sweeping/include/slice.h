@@ -8,12 +8,12 @@
 class Slice
 {
   public:
-    Slice(double vx, double vy, double px, double py);
-    void increment(double tool_width);
+    Slice(double px, double py, double vx, double vy);
+    void increment(double e);
     Vector2 findIntersection(Segment s);
+    bool intersectsOnce(Segment s);
 //    double distanceToPoint(std::vector<double> point);
 
-  private:
     Vector2 normal;
     Vector2 point;
 };

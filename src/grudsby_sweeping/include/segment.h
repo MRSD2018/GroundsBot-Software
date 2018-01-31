@@ -7,8 +7,9 @@ class Segment
 {
   public:
     Segment(double ax, double ay, double bx, double by);
-    Vector2 get_a();
-    Vector2 get_b();
+    Vector2 getA();
+    Vector2 getB();
+    double getLength();    
   
     Vector2 a;
     Vector2 b;

@@ -284,7 +284,9 @@ struct Vector2
      * @param theta: The angle from the X axis.
      */
     static inline void ToPolar(Vector2 vector, double &rad, double &theta);
+    
 
+    static inline Vector2 Normal(Vector2 a);
 
     /**
      * Operator overloading.
@@ -512,6 +514,15 @@ void Vector2::ToPolar(Vector2 vector, double &rad, double &theta)
     theta = atan2(vector.Y, vector.X);
 }
 
+
+Vector2 Vector2::Normal(Vector2 a)
+{
+  Vector2 normalVector;
+  normalVector.X = -1* a.Y;
+  normalVector.Y = a.X;
+
+  return normalVector;
+}
 
 struct Vector2& Vector2::operator+=(const double rhs)
 {
