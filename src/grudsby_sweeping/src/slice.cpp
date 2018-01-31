@@ -8,6 +8,11 @@ Slice::Slice(double px, double py, double vx, double vy)
 
 }
 
+void Slice::setPoint(double px, double py)
+{
+  point = Vector2(px, py);
+}
+
 bool Slice::intersectsOnce(Segment s)
 {
   Vector2 v_slice = Vector2::Normal(this->normal);
@@ -39,7 +44,6 @@ Vector2 Slice::findIntersection(Segment s)
   
     intersectPoint = s.a + t*v_seg;
   }
- // std::vector<double> dsegment = {s.get_b()[0] = s.get_a()[0], s.get_b()[1] = s.get_a()[1]};
   return intersectPoint;
 }
 
@@ -48,4 +52,14 @@ void Slice::increment(double e)
   Vector2 incrementStep = e*this->normal/Vector2::Magnitude(this->normal);
 
   this->point = this->point + incrementStep;
+}
+
+double Slice::distanceToPoint(std::vector<double> point)
+{
+  Vector2 n = Vector2::Normalized(this->normal);
+  Vector2 v = Vector2(point[0] - this->point.X, point[1] - this->point.Y);
+
+  double d = Vector2::Dot(n, v);
+
+  return d;
 }

@@ -51,16 +51,28 @@ int main()
     }
     if(polygon[i][1] < minYVal)
     {
-      minXVal = polygon[i][1];
+      minYVal = polygon[i][1];
     }
   }
 
-  Slice slice = Slice(-2, -2, orthogonal.X, orthogonal.Y);
+  Slice slice = Slice(minXVal, minYVal, orthogonal.X, orthogonal.Y);
 
-/*  for(int i = 0; i < polygon.size(); i++)
+  std::vector<double> closestPoint = polygon[0];
+  double closestDistance = slice.distanceToPoint(polygon[0]);
+  for(int i = 1; i < polygon.size(); i++)
   {
+    double d = slice.distanceToPoint(polygon[i]);
     
-  }*/
+    if(d < closestDistance)
+    {
+      closestDistance = d;
+      closestPoint = polygon[i];
+    }
+
+    
+  }
+  slice.setPoint(closestPoint[0], closestPoint[1]);
+ 
   std::vector<Vector2> waypoints;
   
   //start slicing
