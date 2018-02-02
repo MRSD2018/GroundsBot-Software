@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "earthenginetestbed",
+  "private_key_id": "9d1dd70c178c63d5b84a275f73b607134e3799bb",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCnN6dxz9Mb0Q68\nySWzbQD9g7qEthsUd3pWF3f5Z5Q2istnnfDSC2J1W7uNYPBQSDjXYF+jEY76vrpj\nFrIiWKQsDgHIxIw6tFjSHB71FUAW+Df0Vb3NHpV4AYVM416smG2oxFrBW9T0fp/e\nFzz1sgpcWTTHaG0bSt+paLvneqEV0rU5SlbcaxPY0HuFAB39Nq4lBBq0lwj8lFYt\nltD3HYqNHXaDV1RR3vFUgnYMLr0gbKdtqEQPKBaD7Sw0Hxh/tB7GcygZZ3xGQVer\ndyhrLY5RrgRQeTYFOwSJnp+EITTtJIjWN/wSx3xkG5PaD5ygsI3J+fSHxgtj/vUj\nejDiZGENAgMBAAECggEAPcY2qrn/IHCcBCw/LEjhq8ZFWo+381isLi/fV5jnTTr7\nJ91WQRKJnhd0cydTwCTeMtrcme57prBdRQv2ZO/gPpIyIIxTzcAgbAaNfTcLhTDP\n4wjl5GgfCcVuDFiW+iYZpNZdPL+DLYu13aMyFwZeA33FHMG8RO/lLr2NZVeNOPUU\nsgAvM2MY+qaWpEf9MfOwrvjPii2O3rOZ1rG/SKfll+PAkDpU96/bFAw8ZsbgE/i8\nBVcWN90XnCx5BXdu2ANWlxKZ8K3TmgVt3aMtza2eqnzSDBYnRTbC4lFONlwtJ7cG\n1UoMq4NQJXijjrFtN6wXmnWbOqW3jb15p3PT+MhQFQKBgQDRjoEF3c8NsXtMThZ5\n0IvYkPH3O5n0oa54g+lHjg6gre9JoKD6OX+20GF3gbwVannHCCj1UE1j35/nP7t4\nzhg14KUH5lwxdp8wr155MhsEqkzXRFRE0ucwYPZboPAzYnFUaau1AfuMpO8ADY1m\n1ylcoYEmjDBslZCuxDY4Oj5AcwKBgQDMRvjM/zg3Bylac6blIR8+e9SoWj09gVQP\nL9odoNqSMmcBFDV89N4KoPswRNEszbhs2KIcPvuxfz14XVl693JJB4s5zlJKrNst\nbxss2cRiQUu/e9JY4ONwldxK9Ej16XBBwQ3j+TT1Sig957cG1sNaftXw7RlbI/Ck\n/zriTuH4fwKBgHSOcq00pknTgeT7Of0fRel7FVqSSBuNImHd3Q7zsKcml4W4VlFX\nUfX5CX1TJ64xvvI5U66+r4zxgRs6k6ep2kV9Yc13D6hjdj+6Cy4V9Hkvz/WcB9MQ\nC48ZH23voiqygp6U9/CB3cxooJbC8vdUjaj8G725E+YRepv6fr3fh2iJAoGAIwdQ\nhqaFFzqNJsuKJORHHUnSr4O52KAir+/+sPHySPuHmjHC8khzAtOT/zTtwYcNRuzm\n730FX+x3t/oZ6/IekNNQVntAtTlq5CGXQVueR1L3EEDFUyRNG/M2sUuubyy2aTAX\nl64WHLG4sNTZF70gBpaVTRj7Lhu9mi2CBWiNazUCgYA0doBHOAjaJVkN/QvxcC17\nZXKKXPhBTA3WmZ6H1ScFlqKHuIdg8xZPI/P2AHE5RMn8SiJ/CYCPefli/Et7Non4\nKSbeSEX5N+XaiWHqRFtk0EvS2CV9q6+nxNyzcRx8pIRAh8urvvWamcEHij2zvrVr\nyRedN7OSvpDIMkYh/FwczQ==\n-----END PRIVATE KEY-----\n",
+  "client_email": "earthengine@earthenginetestbed.iam.gserviceaccount.com",
+  "client_id": "115892012258221798454",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://accounts.google.com/o/oauth2/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/earthengine%40earthenginetestbed.iam.gserviceaccount.com"
+}
