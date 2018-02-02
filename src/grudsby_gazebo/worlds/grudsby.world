@@ -16,6 +16,12 @@
       </include>
       <pose frame=''>-0.0 -0.0 0.044505 0 -0 0</pose>
     </model>
-
+    <gui fullscreen='0'>
+      <camera name='user_camera'>
+        <pose frame=''>20.839 -9.905 21.978 0 1.0618 -3.063</pose>
+        <view_controller>orbit</view_controller>
+        <projection_type>perspective</projection_type>
+      </camera>
+    </gui>
   </world>
 </sdf>

@@ -153,7 +153,7 @@
             <ode>
               <mu>1</mu>
               <mu2>1</mu2>
-              <fdir1>0 0 0</fdir1>
+              <fdir1>.2 .2 .2</fdir1>
               <slip1>0</slip1>
               <slip2>0</slip2>
             </ode>
@@ -198,14 +198,14 @@
     <link name='wheel'>
       <pose frame=''>-0.042377 0.000111 -0.070039 0 -0 0</pose>
       <inertial>
-        <mass>1</mass>
+        <mass>0.05</mass>
         <inertia>
-          <ixx>0</ixx>
-          <ixy>0</ixy>
-          <ixz>0</ixz>
-          <iyy>0.1</iyy>
-          <iyz>0</iyz>
-          <izz>0</izz>
+          <ixx>0.01</ixx>
+          <ixy>0.01</ixy>
+          <ixz>0.01</ixz>
+          <iyy>0.01</iyy>
+          <iyz>0.01</iyz>
+          <izz>0.01</izz>
         </inertia>
         <pose frame=''>0 0 0 0 -0 0</pose>
       </inertial>
@@ -249,11 +249,11 @@
         <surface>
           <friction>
             <ode>
-              <mu>0</mu>
-              <mu2>0</mu2>
-              <fdir1>0 0 0</fdir1>
-              <slip1>0</slip1>
-              <slip2>0</slip2>
+              <mu>0.50</mu>
+              <mu2>0.5</mu2>
+              <fdir1>0.3 0.3 0.3</fdir1>
+              <slip1>0.2</slip1>
+              <slip2>0.2</slip2>
             </ode>
             <torsional>
               <coefficient>0</coefficient>

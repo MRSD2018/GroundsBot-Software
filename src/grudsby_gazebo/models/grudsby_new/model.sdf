@@ -470,6 +470,9 @@
       <odometryFrame>odom_sim</odometryFrame>
       <robotBaseFrame>base_link_sim</robotBaseFrame>
       <legacyMode>false</legacyMode>
+      <rosDebugLevel>na</rosDebugLevel>
+      <publishWheelTF>false</publishWheelTF>
+      <publishWheelJointState>false</publishWheelJointState>
     </plugin>
 
     <static>0</static>
