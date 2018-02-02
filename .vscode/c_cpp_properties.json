@@ -36,7 +36,12 @@
                 "/usr/include/linux",
                 "/usr/lib/gcc/x86_64-linux-gnu/5/include",
                 "${workspaceRoot}/devel/include",
-                "/opt/ros/kinetic/include/ros"
+                "/opt/ros/kinetic/include/ros",
+                "${workspaceRoot}/src/grudsby_imu/include",
+                "${workspaceRoot}/src/grudsby_odom_heading/include",
+                "${workspaceRoot}/src/grudsby_waypoint",
+                "${workspaceRoot}/src/grudsby_waypoint/include",
+                "/usr/include/gazebo-7"
             ],
             "defines": [],
             "intelliSenseMode": "clang-x64",
@@ -91,7 +96,7 @@
                 "/usr/share/arduino/hardware/tools/avr/avr/include/util/",
                 "/usr/share/arduino/hardware/tools/avr/lib/gcc/avr/4.*.*/include/",
                 "/usr/share/arduino/hardware/tools/avr/lib/gcc/avr/4.*.*/include-fixed/",
-                "~/sketchbook/libraries/"
+                "/home/henry/sketchbook/libraries/"
             ],
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
