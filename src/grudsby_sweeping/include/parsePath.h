@@ -7,10 +7,11 @@
 #include <sstream>
 #include <iterator>
 #include <math.h>
+#include <algorithm>
 class ParsePath
 {
   public:
-    ParsePath(std::string mowingPath,std::string implementWidth);
+    ParsePath(std::string mowingPath,double implementWidthMeters);
     void getRegion(std::vector<std::vector<double>>& region);
     double getImplementWidth();
   private:

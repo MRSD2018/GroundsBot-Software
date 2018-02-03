@@ -67,6 +67,7 @@ import config
 import ee
 import jinja2
 import webapp2
+import logging
 
 from google.appengine.api import memcache
 
@@ -166,7 +167,22 @@ class SaveMowingPlanHandler(webapp2.RequestHandler):
       content = json.dumps({'error': 'Request not formatted correctly'})
     self.response.headers['Content-Type'] = 'application/json'
     self.response.out.write(content)
+  def post(self):
+    dataJson = self.request.get('jsonData')
+    #logging.info(dataJson)
+    polygonData = json.loads(dataJson)
+    
+    if ('coordinates' in polygonData and 'regionID' in polygonData):
+      content = json.dumps({'result': 'Successfully received plan ' + polygonData['regionID']}) 
+      with io.open(PLAN_PATH + polygonData['regionID'] + '.json','w', encoding='utf-8') as f:
+        f.write(json.dumps(polygonData, ensure_ascii=False))
+    else:
+      content = json.dumps({'error': 'Request not formatted correctly'})
+    self.response.headers['Content-Type'] = 'application/json'
+    self.response.out.write(content)
 
+
+    
 
 class ApprovalHandler(webapp2.RequestHandler):
   """A servlet to handle requests for details about a Polygon."""

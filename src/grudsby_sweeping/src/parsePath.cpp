@@ -15,8 +15,10 @@ double deg2rad(double val)
   return val*3.14159265359/180.0;
 }
 
-ParsePath::ParsePath(std::string mowingPath,std::string implementWidth)
+ParsePath::ParsePath(std::string mowingPath,double implementWidthMeters)
 {
+  mowingPath.erase(remove_if(mowingPath.begin(), mowingPath.end(), isspace), mowingPath.end());
+
   // Parse points vector
   std::size_t first = mowingPath.find("[");
   std::size_t last = mowingPath.find("]");
@@ -48,8 +50,8 @@ ParsePath::ParsePath(std::string mowingPath,std::string implementWidth)
       }
       std::vector<double> newRow;
       std::string::size_type sz;
-      newRow.push_back(std::stod(latVal,&sz)); 
       newRow.push_back(std::stod(lngVal,&sz));
+      newRow.push_back(std::stod(latVal,&sz)); 
       myRegion.push_back(newRow); 
     }
   }
@@ -63,7 +65,7 @@ ParsePath::ParsePath(std::string mowingPath,std::string implementWidth)
   
   // Parse implement width
   std::string::size_type sz;
-  myImplementWidth = std::stod(implementWidth,&sz)/d;
+  myImplementWidth = implementWidthMeters/d;
 }
 
 void ParsePath::getRegion(std::vector<std::vector<double>>& region) 

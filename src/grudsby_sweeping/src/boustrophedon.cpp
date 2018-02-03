@@ -1,30 +1,21 @@
-#include <stdio.h>
-#include <iostream>
-#include <vector>
-#include <algorithm>
-#include <iomanip>
-#include "slice.h"
-#include "segment.h"
-#include "Vector2.hpp"
-#include "parsePath.h"
+#include "boustrophedon.h"
 
-int main(int argc, char *argv[])
+Boustrophedon::Boustrophedon(double implementWidth) 
 {
-  if (argc <= 2) 
-  {
-    std::cout << "Requires implement width and mowing path as inputs" << std::endl;
-    return -1;
-  }
+  myImplementWidth = implementWidth;
+}
+
+std::string Boustrophedon::planPath(std::string region)
+{
   
-  ParsePath parser(argv[1],argv[2]);
+  ParsePath parser(region, myImplementWidth);
 
   //initialize polygon
   std::vector<std::vector<double>> polygon;
   parser.getRegion(polygon);
   
   //the width of the mowing implement
-  double implementWidth = 1.0;
-  implementWidth = parser.getImplementWidth();
+  double implementWidth = parser.getImplementWidth();
 
   //create vector of segments
   std::vector<Segment> segments;
@@ -118,29 +109,29 @@ int main(int argc, char *argv[])
     slice.increment(implementWidth);
     numSlices++;
   }
-  std::cout << "{\"coordinates\":[";
+  std::stringstream ss;
+  ss << "{\"coordinates\":[";
   for (int i = 0; i < waypoints.size()-1; i++)
   {
-    std::cout << "{\"lat\":";
-    std::cout << std::setprecision(18) << waypoints[i].Y;
-    std::cout << ",\"lng\":";
-    std::cout << std::setprecision(18) << waypoints[i].X;
-    std::cout << "}";
+    ss << "{\"lat\":";
+    ss << std::setprecision(18) << std::fixed << waypoints[i].Y;
+    ss << ",\"lng\":";
+    ss << std::setprecision(18) << std::fixed << waypoints[i].X;
+    ss << "}";
     if (i < (waypoints.size()-2))
     {
-      std::cout << ",";
+      ss << ",";
     }
     //printf("Waypoint %d: (%.2f, %.2f)\n", i, waypoints[i].X, waypoints[i].Y);
   }
-  std::cout << "],\"regionID\":\"sve\"}" << std::endl;
+  ss << "],\"regionID\":\"sve\"}" << std::endl;
 
 
   Segment seg = Segment(-2, -1, 2, -1);
 
   Vector2 intersect = slice.findIntersection(seg);
   bool test = slice.intersectsOnce(seg);
-  //std::cout << test << std::endl;
   //printf("Intersection point: %.2f, %.2f", intersect.X, intersect.Y);
 
-  return 0;
+  return ss.str();
 }

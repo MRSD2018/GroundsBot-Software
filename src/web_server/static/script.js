@@ -58,7 +58,7 @@ grudsby.App = function(mapType, polygonIds) {
   
   // Timer for loading the mowing plan
   this.checkPlan();
-  var timer = setInterval(this.checkPlan.bind(this),10000);
+  var timer = setInterval(this.checkPlan.bind(this),1000);
 
   this.saveApproval();
 
