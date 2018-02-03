@@ -41,6 +41,15 @@ bool rc_control::is_autonomous()
   return false;
 }
 
+// Making false the default for safety reasons.
+bool rc_control::is_mower_on() {
+  if(channels[MOWER] == 1811)
+  {
+    return true;
+  }
+  return false;
+}
+
 
 void rc_control::get_RC_motor_outputs(int &outL, int &outR) 
 {
@@ -248,3 +257,5 @@ int rc_control::get_raw_mode()
 {
   return (int) channels[CONTROL_MODE];
 }
+
+
