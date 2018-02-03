@@ -2,15 +2,29 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-
+#include <iomanip>
 #include "slice.h"
 #include "segment.h"
 #include "Vector2.hpp"
+#include "parsePath.h"
 
-int main()
+int main(int argc, char *argv[])
 {
+  if (argc <= 2) 
+  {
+    std::cout << "Requires implement width and mowing path as inputs" << std::endl;
+    return -1;
+  }
+  
+  ParsePath parser(argv[1],argv[2]);
+
   //initialize polygon
-  std::vector<std::vector<double>> polygon = {{-2, -2}, {2, -2}, {2, 0}, {0, 2}, {-2, 0}};
+  std::vector<std::vector<double>> polygon;
+  parser.getRegion(polygon);
+  
+  //the width of the mowing implement
+  double implementWidth = 1.0;
+  implementWidth = parser.getImplementWidth();
 
   //create vector of segments
   std::vector<Segment> segments;
@@ -37,7 +51,7 @@ int main()
       longestSegment = segments[i];
     }
   }
-  printf("Segment: (%.2f, %.2f) (%.2f, %.2f)\n", longestSegment.a.X, longestSegment.a.Y, longestSegment.b.X, longestSegment.b.Y);
+  //printf("Segment: (%.2f, %.2f) (%.2f, %.2f)\n", longestSegment.a.X, longestSegment.a.Y, longestSegment.b.X, longestSegment.b.Y);
 
   Vector2 orthogonal = Vector2::Normal(longestSegment.b - longestSegment.a);
   //find starting point of slice (start at min X and min Y, the find closest point to that line)
@@ -68,13 +82,10 @@ int main()
       closestDistance = d;
       closestPoint = polygon[i];
     }
-
-    
   }
   slice.setPoint(closestPoint[0], closestPoint[1]);
  
   std::vector<Vector2> waypoints;
-  
   //start slicing
   bool slicing = true;
   int numSlices = 0;
@@ -86,7 +97,8 @@ int main()
     {
       if(slice.intersectsOnce(segments[i]))
       {
-        printf("Segment %d: (%.2f, %.2f) (%.2f, %.2f)\n", i, segments[i].a.X, segments[i].a.Y, segments[i].b.X, segments[i].b.Y);
+        
+        //printf("Segment %d: (%.2f, %.2f) (%.2f, %.2f)\n", i, segments[i].a.X, segments[i].a.Y, segments[i].b.X, segments[i].b.Y);
         slicing = true;
         Vector2 intersectPoint = slice.findIntersection(segments[i]);
         if(std::find(pointsList.begin(), pointsList.end(), intersectPoint) == pointsList.end())       
@@ -103,23 +115,32 @@ int main()
     waypoints[2*numSlices] = waypoints[2*numSlices + numSlices%2];
     waypoints[2*numSlices + 1] = holder;
 
-    slice.increment(1);
+    slice.increment(implementWidth);
     numSlices++;
   }
-
-  for(int i = 0; i < waypoints.size(); i++)
+  std::cout << "{\"coordinates\":[";
+  for (int i = 0; i < waypoints.size()-1; i++)
   {
-    printf("Waypoint %d: (%.2f, %.2f)\n", i, waypoints[i].X, waypoints[i].Y);
+    std::cout << "{\"lat\":";
+    std::cout << std::setprecision(18) << waypoints[i].Y;
+    std::cout << ",\"lng\":";
+    std::cout << std::setprecision(18) << waypoints[i].X;
+    std::cout << "}";
+    if (i < (waypoints.size()-2))
+    {
+      std::cout << ",";
+    }
+    //printf("Waypoint %d: (%.2f, %.2f)\n", i, waypoints[i].X, waypoints[i].Y);
   }
-
+  std::cout << "],\"regionID\":\"sve\"}" << std::endl;
 
 
   Segment seg = Segment(-2, -1, 2, -1);
 
   Vector2 intersect = slice.findIntersection(seg);
   bool test = slice.intersectsOnce(seg);
-  std::cout << test << std::endl;
-  printf("Intersection point: %.2f, %.2f", intersect.X, intersect.Y);
+  //std::cout << test << std::endl;
+  //printf("Intersection point: %.2f, %.2f", intersect.X, intersect.Y);
 
   return 0;
 }
