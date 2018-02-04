@@ -71,6 +71,29 @@ int main(int argc, char** argv)
         curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)strlen(toPost));
         res = curl_easy_perform(curl);
       }  
+      CURL *curl2;
+      curl2 = curl_easy_init();
+      curl_easy_setopt(curl2, CURLOPT_URL, (app_url_+"/approval?polygon_id=sve").c_str());
+      curl_easy_setopt(curl2, CURLOPT_WRITEFUNCTION, WriteCallback);
+      curl_easy_setopt(curl2, CURLOPT_WRITEDATA, &readBuffer);
+      res = curl_easy_perform(curl2);
+      curl_easy_cleanup(curl2);
+      std::size_t regionID = readBuffer.find("regionID");
+      std::size_t approval = readBuffer.find("approval");
+      if ((regionID == std::string::npos) || (approval == std::string::npos))
+      {
+        
+      }
+      else
+      {
+        std::string approved =readBuffer.substr(approval+12,4);
+        if( !approved.compare("true") ) 
+        {
+          ROS_ERROR("approved!");
+          //Send Mowing Plan
+        }
+      }
+      
     }
     curl_easy_cleanup(curl);
     ros::spinOnce();

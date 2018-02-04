@@ -1,21 +1,12 @@
 /**
- * @fileoverview Runs the grudsby Lights application. The code is executed in the
+ * @fileoverview Runs the grudsby application. The code is executed in the
  * user's browser. It communicates with the App Engine backend, renders output
  * to the screen, and handles user interactions.
  */
 
-
 grudsby = {};  // Our namespace.
 
-
-/**
- * Starts the grudsby Lights application. The main entry point for the app.
- * @param {string} eeMapId The Earth Engine map ID.
- * @param {string} eeToken The Earth Engine map token.
- * @param {string} serializedPolygonIds A serialized array of the IDs of the
- *     polygons to show on the map. For example: "['poland', 'moldova']".
- */
-grudsby.boot = function(eeMapId, eeToken, serializedPolygonIds) {
+grudsby.boot = function(eeMapId, eeToken) {
   // Load external libraries.
   google.load('visualization', '1.0');
   google.load('jquery', '1');
@@ -24,7 +15,7 @@ grudsby.boot = function(eeMapId, eeToken, serializedPolygonIds) {
   // Create the grudsby app.
   google.setOnLoadCallback(function() {
     var mapType = grudsby.App.getEeMapType(eeMapId, eeToken);
-    var app = new grudsby.App(mapType, JSON.parse(serializedPolygonIds));
+    var app = new grudsby.App(mapType);
   });
 };
 
@@ -34,16 +25,7 @@ grudsby.boot = function(eeMapId, eeToken, serializedPolygonIds) {
 ///////////////////////////////////////////////////////////////////////////////
 
 
-
-/**
- * The main grudsby Lights application.
- * This constructor renders the UI and sets up event handling.
- * @param {google.maps.ImageMapType} mapType The map type to render on the map.
- * @param {Array<string>} polygonIds The IDs of the polygons to show on the map.
- *     For example ['poland', 'moldova'].
- * @constructor
- */
-grudsby.App = function(mapType, polygonIds) {
+grudsby.App = function(mapType) {
   // Create and display the map.
   this.map = this.createMap(mapType);
 
@@ -60,27 +42,11 @@ grudsby.App = function(mapType, polygonIds) {
   this.checkPlan();
   var timer = setInterval(this.checkPlan.bind(this),1000);
 
-  this.saveApproval();
-
-  // Register a click handler to show a panel when the user clicks on a place.
-  // this.map.data.addListener('click', this.handlePolygonClick.bind(this));
-
-  // Register a click handler to hide the panel when the user clicks close.
-  //$('.panel .close').click(this.hidePanel.bind(this));
-
-  // Register a click handler to expand the panel when the user taps on toggle.
-  //$('.panel .toggler').click((function() {
-  //  $('.panel').toggleClass('expanded');
-  //}).bind(this));
+  // Write the unapproved state at the start of loading the page.
+  this.loadApproval();
 };
 
 
-/**
- * Creates a Google Map with a black background the given map type rendered.
- * The map is anchored to the DOM element with the CSS class 'map'.
- * @param {google.maps.ImageMapType} mapType The map type to include on the map.
- * @return {google.maps.Map} A map instance with the map type rendered.
- */
 grudsby.App.prototype.createMap = function(mapType) {
   var mapOptions = {
     center: grudsby.App.DEFAULT_CENTER,
@@ -89,10 +55,10 @@ grudsby.App.prototype.createMap = function(mapType) {
   };
   var mapEl = $('.map').get(0);
   var map = new google.maps.Map(mapEl, mapOptions);
-  //map.overlayMapTypes.push(mapType);
+  //map.overlayMapTypes.push(mapType); // For adding overlays
   map.setMapTypeId('satellite');
   grudsby.App.polyDrawingManager = new google.maps.drawing.DrawingManager({
-      drawingMode: null,//google.maps.drawing.OverlayType.POLYGON,
+      drawingMode: null,
       drawingControl: false,
       map: map,
       polygonOptions: {
@@ -165,11 +131,6 @@ grudsby.App.prototype.planInvalidated = function() {
   this.savePolygon();
 };
 
-/**
- * Adds the polygons with the passed-in IDs to the map.
- * @param {Array<string>} polygonIds The IDs of the polygons to show on the map.
- *     For example ['poland', 'moldova'].
- */
 grudsby.App.prototype.addPolygon = function() {
   polygonId = "sve";
   $.get('/region?polygon_id=' + polygonId).done((function(data) {
@@ -252,96 +213,36 @@ grudsby.App.prototype.saveApproval = function() {
     dataOut.approval = "true";
   };
 
-  
-
   $.get('/setApproval?jsonData=' +JSON.stringify(dataOut)).done((function(data) {
-      if (data['error']) 
-      {
-        console.log("Failure: %s", data.error);
-      }
-      else 
-      {
-        
-      };
-    }).bind(this));
-}
-/**
- * Handles a on click a polygon. Highlights the polygon and shows details about
- * it in a panel.
- * @param {Object} event The event object, which contains details about the
- *     polygon clicked.
- */
-/*grudsby.App.prototype.handlePolygonClick = function(event) {
-  this.clear();
-  var feature = event.feature;
-
-  // Instantly higlight the polygon and show the title of the polygon.
-  this.map.data.overrideStyle(feature, {strokeWeight: 8});
-  var title = feature.getProperty('title');
-  $('.panel').show();
-  $('.panel .title').show().text(title);
-
-  // Asynchronously load and show details about the polygon.
-  var id = feature.getProperty('id');
-  $.get('/details?polygon_id=' + id).done((function(data) {
-    if (data['error']) {
-      $('.panel .error').show().html(data['error']);
-    } else {
-      $('.panel .wiki-url').show().attr('href', data['wikiUrl']);
-      this.showChart(data['timeSeries']);
+    if (data['error']) 
+    {
+      console.log("Failure: %s", data.error);
     }
+    else 
+    {
+      
+    };
   }).bind(this));
-};*/
+}
 
-
-/** Clears the details panel and selected polygon. */
-/*grudsby.App.prototype.clear = function() {
-  $('.panel .title').empty().hide();
-  $('.panel .wiki-url').hide().attr('href', '');
-  $('.panel .chart').empty().hide();
-  $('.panel .error').empty().hide();
-  $('.panel').hide();
-  this.map.data.revertStyle();
-};*/
-
-
-/** Hides the details panel. */
-/*grudsby.App.prototype.hidePanel = function() {
-  $('.panel').hide();
-  this.clear();
-};*/
-
-
-/**
- * Shows a chart with the given timeseries.
- * @param {Array<Array<number>>} timeseries The timeseries data
- *     to plot in the chart.
- */
-/*grudsby.App.prototype.showChart = function(timeseries) {
-  timeseries.forEach(function(point) {
-    point[0] = new Date(parseInt(point[0], 10));
-  });
-  var data = new google.visualization.DataTable();
-  data.addColumn('date');
-  data.addColumn('number');
-  data.addRows(timeseries);
-  var wrapper = new google.visualization.ChartWrapper({
-    chartType: 'LineChart',
-    dataTable: data,
-    options: {
-      title: 'Brightness over time',
-      curveType: 'function',
-      legend: {position: 'none'},
-      titleTextStyle: {fontName: 'Roboto'}
+grudsby.App.prototype.loadApproval = function() {
+  $.get('/approval?polygon_id=sve').done((function(data) {
+    if (data['error']) 
+    {
+      console.log("Failure: %s", data.error);
     }
-  });
-  $('.panel .chart').show();
-  var chartEl = $('.chart').get(0);
-  wrapper.setContainerId(chartEl);
-  wrapper.draw();
-};*/
-
-
+    else 
+    {
+      grudsby.App.planApproved = false;
+      if (data.approval == "true")
+      { 
+        grudsby.App.planApproved = true;
+        $('.approvePlan').get(0).innerHTML="Mowing Plan Approved";
+        $('.approvePlan').get(0).setAttribute("style","background-color: #4CAF50");
+      }
+    };
+  }).bind(this)); 
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -349,14 +250,6 @@ grudsby.App.prototype.saveApproval = function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 
-/**
- * Generates a Google Maps map type (or layer) for the passed-in EE map id. See:
- * https://developers.google.com/maps/documentation/javascript/maptypes#ImageMapTypes
- * @param {string} eeMapId The Earth Engine map ID.
- * @param {string} eeToken The Earth Engine map token.
- * @return {google.maps.ImageMapType} A Google Maps ImageMapType object for the
- *     EE map with the given ID and token.
- */
 grudsby.App.getEeMapType = function(eeMapId, eeToken) {
   var eeMapOptions = {
     getTileUrl: function(tile, zoom) {
