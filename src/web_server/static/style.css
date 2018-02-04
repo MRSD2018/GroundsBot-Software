@@ -13,6 +13,8 @@
   margin: 0px;
   color: white;
   text-shadow: 0px 0px 20px black;
+  top: 22px;
+  left: 30px;
 }
 
 .grudsby .drawRegion {
@@ -26,7 +28,6 @@
     display: inline-block;
     font-size: 16px;
     left: 30px;
-    top: 90px;
     z-index: 1;
     width:230px;
 }
@@ -43,16 +44,9 @@
     display: inline-block;
     font-size: 16px;
     left: 30px;
-    top: 160px;
     z-index: 1;
     width:230px;
 }
-
-.grudsby h1 {
-    top: 22px;
-    font-size: 37px;
-    left: 30px;
-  }
 
 .grudsby .drawRegion:hover {
     box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
@@ -71,6 +65,41 @@ body,
   margin: 0px;
   padding: 0px;
   overflow: hidden;
+}
+
+
+/* Small screens. */
+
+@media (max-width: 500px) {
+  .grudsby h1 {
+    font-size: 19px;
+  }
+  .grudsby .approvePlan {
+    top: 115px;
+    height:45px;
+  }
+  .grudsby .drawRegion {
+    top: 55px;
+    height:45px;
+  }
+}
+  
+
+/* Large screens. */
+
+@media (min-width: 500px) {
+  .grudsby h1 {
+    font-size: 37px;
+  }
+  .grudsby .approvePlan {
+    top: 160px;
+    height:55px;
+  }
+  .grudsby .drawRegion {
+    top: 80px;
+    height:55px;
+  }
+
 }
 
 /*.grudsby .panel {
