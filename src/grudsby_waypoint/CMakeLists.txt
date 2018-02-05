@@ -19,6 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_filters
   tf2_geometry_msgs
   geodesy
+  grudsby_sweeping
 )
 
 ## System dependencies are found with CMake's conventions

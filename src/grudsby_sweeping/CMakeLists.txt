@@ -9,6 +9,19 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs 
   rospy
+  message_generation
+)
+
+add_message_files(
+  DIRECTORY msg
+  FILES
+  SimpleLatLng.msg
+  MowingPlan.msg
+)
+
+generate_messages(
+  DEPENDENCIES
+  std_msgs
 )
 
 catkin_package(
@@ -21,22 +34,22 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_library(${PROJECT_NAME}_lib
+add_library(${PROJECT_NAME}
   src/parsePath.cpp
   src/segment.cpp
   src/slice.cpp
   src/boustrophedon.cpp
 )
 
-add_dependencies(${PROJECT_NAME}_lib ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-add_executable(${PROJECT_NAME} src/boustrophedon_node.cpp)
+add_executable(${PROJECT_NAME}_planner src/boustrophedon_node.cpp)
 
-add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME}_planner ${catkin_EXPORTED_TARGETS})
 
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(${PROJECT_NAME}_planner
   ${catkin_LIBRARIES}
-  grudsby_sweeping_lib
+  grudsby_sweeping
   curl
 )
 

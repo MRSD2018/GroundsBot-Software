@@ -3,9 +3,10 @@
 Boustrophedon::Boustrophedon(double implementWidth) 
 {
   myImplementWidth = implementWidth;
+  messageSequence = 0;
 }
 
-std::string Boustrophedon::planPath(std::string region)
+std::string Boustrophedon::planPath(std::string region, grudsby_sweeping::MowingPlan& plan)
 {
   
   ParsePath parser(region, myImplementWidth);
@@ -110,6 +111,7 @@ std::string Boustrophedon::planPath(std::string region)
     numSlices++;
   }
   std::stringstream ss;
+  plan.waypoints.resize(0); 
   ss << "{\"coordinates\":[";
   for (int i = 0; i < waypoints.size()-1; i++)
   {
@@ -122,10 +124,16 @@ std::string Boustrophedon::planPath(std::string region)
     {
       ss << ",";
     }
+    grudsby_sweeping::SimpleLatLng newPoint;
+    newPoint.latitude = waypoints[i].Y;
+    newPoint.longitude = waypoints[i].X;
+    plan.waypoints.push_back(newPoint); 
     //printf("Waypoint %d: (%.2f, %.2f)\n", i, waypoints[i].X, waypoints[i].Y);
   }
   ss << "],\"regionID\":\"sve\"}" << std::endl;
-
+  plan.header.seq = messageSequence++;
+  plan.header.stamp = ros::Time::now();
+  
 
   Segment seg = Segment(-2, -1, 2, -1);
 
