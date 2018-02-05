@@ -12,6 +12,8 @@
 #include <string>
 #include <math.h>
 #include <ros/console.h>  // for logging
+#include "grudsby_sweeping/SimpleLatLng.h"
+#include "grudsby_sweeping/MowingPlan.h"
 
 ros::Publisher waypoint_pub;
 
@@ -179,6 +181,20 @@ void findWaypointCallback(const sensor_msgs::NavSatFix& msg)
   }
 }
 
+
+void mowingPlanCallback(const grudsby_sweeping::MowingPlan& msg)
+{
+  goals.resize(0);
+  for (grudsby_sweeping::SimpleLatLng waypoint : msg.waypoints)
+  {
+    Waypoint newPoint;
+    newPoint.latitude = waypoint.latitude;
+    newPoint.longitude = waypoint.longitude;
+    newPoint.altitude = 0;
+    goals.push_back(newPoint);  
+  } 
+}
+
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "waypoint_pub");
@@ -207,6 +223,10 @@ int main(int argc, char** argv)
 
   ros::Subscriber navsat_sub;
   navsat_sub = n.subscribe("/fix", 100, findWaypointCallback);
+
+  ros::Subscriber mowing_plan_sub;
+  mowing_plan_sub = n.subscribe("/grudsby/mowing_plan", 100, mowingPlanCallback);
+
 
   ros::Rate loop_rate(10);
 
