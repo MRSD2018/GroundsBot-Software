@@ -21,7 +21,7 @@ grudsby_sweeping::MowingPlan mowing_plan_;
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "grudsby_sweeping");
+  ros::init(argc, argv, "grudsby_sweeping_planner");
 
   ros::NodeHandle n;
 
@@ -31,11 +31,11 @@ int main(int argc, char** argv)
 
   ros::Rate loop_rate(1);
  
-  if (!n.getParam("grudsby_sweeping/implement_width", implement_width_))
+  if (!n.getParam("grudsby_sweeping_planner/implement_width", implement_width_))
   {
     implement_width_ = 0.5;
   }
-  if (!n.getParam("grudsby_sweeping/app_url", app_url_))
+  if (!n.getParam("grudsby_sweeping_planner/app_url", app_url_))
   {
     app_url_ = "http://localhost:8080";
   }

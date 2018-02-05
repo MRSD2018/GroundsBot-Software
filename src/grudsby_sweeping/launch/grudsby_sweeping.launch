@@ -1,6 +1,6 @@
 
 <launch>
-  <node name="grudsby_sweeping" pkg="grudsby_sweeping" type="grudsby_sweeping_planner">
+  <node name="grudsby_sweeping_planner" pkg="grudsby_sweeping" type="grudsby_sweeping_planner">
     <rosparam>
       implement_width: 0.3 
       app_url: "https://earthenginetestbed.appspot.com"
