@@ -72,14 +72,14 @@ void goalReceived(const geometry_msgs::PoseStamped::ConstPtr& goal_msg)
   static tf::TransformListener listener;
   total_lin_error = 0;
   total_ang_error = 0;
-
+  //ROS_ERROR("x,y,z: %f,%f,%f",goal_msg->pose.position.x,goal_msg->pose.position.y,goal_msg->pose.position.z);
   prev_x_towards_g = 0;
   prev_theta = 0;
 
   goal_set = true;
 
   geometry_msgs::PoseStamped goal_pose_in_gps;
-
+  
   goal_pose_in_gps = *goal_msg;
 
   listener.waitForTransform("/map", "/utm", ros::Time::now(), ros::Duration(1.0));

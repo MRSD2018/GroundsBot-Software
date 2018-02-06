@@ -4,8 +4,6 @@
  * to the screen, and handles user interactions.
  */
 
-
-
 var RotateIcon = function(options){
     this.options = options || {};
     this.rImg = options.img || new Image();
@@ -19,6 +17,8 @@ var RotateIcon = function(options){
     this.canvas = canvas;
 };
 RotateIcon.makeIcon = function(url) {
+    
+    
     return new RotateIcon({url: url});
 };
 RotateIcon.prototype.setRotation = function(options){
@@ -41,12 +41,6 @@ RotateIcon.prototype.setRotation = function(options){
 RotateIcon.prototype.getUrl = function(){
     return this.canvas.toDataURL('image/png');
 };
-
-
-
-
-
-
 
 grudsby = {};  // Our namespace.
 
@@ -93,7 +87,8 @@ grudsby.App = function(mapType) {
   var marker = new google.maps.Marker({
       position: {lat: 40.444505, lng: -79.940777},
       map: this.map,
-      title: 'grudsby'
+      title: 'grudsby',
+      zIndex:400
     });
   var step = 1;
   var angle = 1;
@@ -109,12 +104,18 @@ grudsby.App = function(mapType) {
             .setRotation({deg: -data.rot})
             .getUrl());
         marker.setOptions({
-            icon: $('.grudsby').attr('src'),
-            position: {lat: data.lat, lng: data.lng}
+            icon: {
+              url:$('.grudsby').attr('src'),
+              size: new google.maps.Size(80, 80),
+              origin: new google.maps.Point(0, 0),
+              anchor: new google.maps.Point(40, 40),
+              scaledSize: new google.maps.Size(80, 80) },
+            position: {lat: data.lat, lng: data.lng},
+
         });
       };
     }).bind(this));                           
-  }, 100);
+  }, 500);
        	
             
 };
@@ -176,6 +177,9 @@ grudsby.App.prototype.regionComplete = function(polygon) {
     grudsby.App.currentRegion.setMap(null);
   };
   polygon.setEditable(true);
+  polygon.setOptions({
+    zIndex:10
+  });
   grudsby.App.currentRegion = polygon;
   this.planInvalidated();
   var polyPath = polygon.getPath()
@@ -219,7 +223,8 @@ grudsby.App.prototype.addPolygon = function() {
         strokeColor: 'white',
         strokeWeight: 3,
         map: this.map,
-        editable: true
+        editable: true,
+        zIndex: 10
       });
       var polyPath = grudsby.App.currentRegion.getPath()
       google.maps.event.addListener(polyPath, 'set_at', this.polyMoved.bind(this));
@@ -260,18 +265,26 @@ grudsby.App.prototype.checkPlan = function() {
     }
     else 
     {
-      if (grudsby.App.currentPlan!=null)
+      if (grudsby.App.currentPlanText != data)
       {
-        grudsby.App.currentPlan.setMap(null);
+        var oldPlan = grudsby.App.currentPlan;
+        
+        grudsby.App.currentPlan = new google.maps.Polyline({
+          path: data.coordinates,
+          strokeColor: 'red',
+          strokeWeight: 2,
+          strokeOpacity: 1.0,
+          editable: false,
+          zIndex: 100
+        });
+
+        grudsby.App.currentPlan.setMap(this.map);
+        if (oldPlan!=null)
+        {
+          oldPlan.setMap(null);
+        };
       };
-      grudsby.App.currentPlan = new google.maps.Polyline({
-        path: data.coordinates,
-        strokeColor: 'red',
-        strokeWeight: 2,
-        strokeOpacity: 1.0,
-        map: this.map,
-        editable: false
-      });
+      grudsby.App.currentPlanText = data;
     };
   }).bind(this)); 
 }
@@ -340,6 +353,7 @@ grudsby.App.getEeMapType = function(eeMapId, eeToken) {
 grudsby.App.EE_URL = 'https://earthengine.googleapis.com';
 
 
+
 /** @type {number} The default zoom level for the map. */
 grudsby.App.DEFAULT_ZOOM = 20;
 
@@ -353,6 +367,10 @@ grudsby.App.polyDrawingManager;
 
 /** @type {Object} The current polygon. */
 grudsby.App.currentRegion;
+
+
+grudsby.App.currentPlanText = "";
+ 
 
 /** @type {Object} The current polygon. */
 grudsby.App.currentPlan;
