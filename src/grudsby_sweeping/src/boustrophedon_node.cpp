@@ -30,15 +30,22 @@ void odomCallback(const nav_msgs::Odometry& msg)
 {
   geometry_msgs::PoseStamped mapPose;
   mapPose.pose.position = msg.pose.pose.position;
-  
+  mapPose.pose.orientation = msg.pose.pose.orientation;
+  mapPose.header = msg.header;
+  //mapPoint.header.frame_id = "/map";
   geometry_msgs::PoseStamped gpsPose;
+
+
   static tf::TransformListener listener;
   listener.waitForTransform("/utm", "/map", ros::Time::now(), ros::Duration(1.0));
   try
   {
     
     listener.transformPose("/utm", mapPose, gpsPose);
-    std::string utm_zone_tmp;
+    std::string utm_zone_tmp = "17T"; // Our UTM zone in pittsburgh
+
+    //ROS_ERROR("x,y,z: %f,%f,%f",gpsPoint.point.x,gpsPoint.point.y,gpsPoint.point.z);
+
     double Lat;
     double Lng;
     RobotLocalization::NavsatConversions::UTMtoLL(
@@ -49,13 +56,13 @@ void odomCallback(const nav_msgs::Odometry& msg)
         Lng
     );
     double roll, pitch, yaw;
+    //ROS_ERROR("output lat lng:%f,%f",Lat,Lng);
     tf::Quaternion q(
-        msg.pose.pose.orientation.x,
-        msg.pose.pose.orientation.y,
-        msg.pose.pose.orientation.z,
-        msg.pose.pose.orientation.w
+        gpsPose.pose.orientation.x,
+        gpsPose.pose.orientation.y,
+        gpsPose.pose.orientation.z,
+        gpsPose.pose.orientation.w
     );
-    
     tf::Matrix3x3(q).getRPY(roll, pitch, yaw);
     std::stringstream ss;
     ss << "/setMowerPos?jsonData={\"lat\":";
@@ -63,8 +70,8 @@ void odomCallback(const nav_msgs::Odometry& msg)
     ss << ",\"lng\":";
     ss << std::setprecision(18) << std::fixed << Lng;
     ss << ",\"rot\":";
-    ss << std::setprecision(18) << std::fixed << 90-yaw;
-    ss << "}" << std::endl;
+    ss << std::setprecision(18) << std::fixed << -5+yaw*180.0/3.141529;
+    ss << "}";
     pos_message_ = ss.str();    
   }
   catch (tf::TransformException ex) 
@@ -72,7 +79,6 @@ void odomCallback(const nav_msgs::Odometry& msg)
     ROS_ERROR("%s", ex.what());
     ros::Duration(1.0).sleep();
   }
-
 
 }
 
@@ -87,7 +93,7 @@ int main(int argc, char** argv)
   ros::Subscriber odom_sub;
   odom_sub = n.subscribe("/odometry/filtered_map", 100, odomCallback); 
 
-  ros::Rate loop_rate(10);
+  ros::Rate loop_rate(2);
  
   if (!n.getParam("grudsby_sweeping_planner/implement_width", implement_width_))
   {
@@ -165,15 +171,16 @@ int main(int argc, char** argv)
       }
     }
     curl_easy_cleanup(curl);
-    
+    std::string posUpdate = app_url_+pos_message_;
+    //ROS_ERROR("submission: %s",posUpdate.c_str());    
     CURL *curl3;
     curl3 = curl_easy_init();
-    curl_easy_setopt(curl3, CURLOPT_URL, (app_url_+pos_message_).c_str());
+    curl_easy_setopt(curl3, CURLOPT_URL, posUpdate.c_str());
     curl_easy_setopt(curl3, CURLOPT_WRITEFUNCTION, WriteCallback);
     curl_easy_setopt(curl3, CURLOPT_WRITEDATA, &readBuffer);
     res = curl_easy_perform(curl3);
     curl_easy_cleanup(curl3);
-
+    
 
     ros::spinOnce();
   
