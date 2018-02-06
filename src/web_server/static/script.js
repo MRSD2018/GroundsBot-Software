@@ -4,6 +4,50 @@
  * to the screen, and handles user interactions.
  */
 
+
+
+var RotateIcon = function(options){
+    this.options = options || {};
+    this.rImg = options.img || new Image();
+    this.rImg.src = this.rImg.src || this.options.url;
+    this.options.width = this.options.width || this.rImg.width || 52;
+    this.options.height = this.options.height || this.rImg.height || 60;
+    canvas = document.createElement("canvas");
+    canvas.width = this.options.width;
+    canvas.height = this.options.height;
+    this.context = canvas.getContext("2d");
+    this.canvas = canvas;
+};
+RotateIcon.makeIcon = function(url) {
+    return new RotateIcon({url: url});
+};
+RotateIcon.prototype.setRotation = function(options){
+    var canvas = this.context,
+        angle = options.deg ? options.deg * Math.PI / 180:
+            options.rad,
+        centerX = this.options.width/2,
+        centerY = this.options.height/2;
+
+    canvas.clearRect(0, 0, this.options.width, this.options.height);
+    canvas.save();
+    canvas.translate(centerX, centerY);
+    canvas.rotate(angle);
+    canvas.translate(-centerX, -centerY);
+    canvas.drawImage(this.rImg, 0, 0);
+    canvas.restore();
+    return this;
+};
+
+RotateIcon.prototype.getUrl = function(){
+    return this.canvas.toDataURL('image/png');
+};
+
+
+
+
+
+
+
 grudsby = {};  // Our namespace.
 
 grudsby.boot = function(eeMapId, eeToken) {
@@ -44,6 +88,35 @@ grudsby.App = function(mapType) {
 
   // Write the unapproved state at the start of loading the page.
   this.loadApproval();
+
+
+  var marker = new google.maps.Marker({
+      position: {lat: 40.444505, lng: -79.940777},
+      map: this.map,
+      title: 'grudsby'
+    });
+  var step = 1;
+  var angle = 1;
+  setInterval(function(){
+    $.get('/mowerPos').done((function(data) {
+      if (data['error']) 
+      {
+        console.log("Failure: %s", data.error);
+      }
+      else 
+      {
+        $('.grudsby').attr('src', RotateIcon.makeIcon("/static/grudsby_top_tiny.png")
+            .setRotation({deg: -data.rot})
+            .getUrl());
+        marker.setOptions({
+            icon: $('.grudsby').attr('src'),
+            position: {lat: data.lat, lng: data.lng}
+        });
+      };
+    }).bind(this));                           
+  }, 100);
+       	
+            
 };
 
 

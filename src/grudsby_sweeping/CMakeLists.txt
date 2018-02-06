@@ -8,7 +8,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs 
+  nav_msgs
   rospy
+  geodesy
+  tf
   message_generation
 )
 
