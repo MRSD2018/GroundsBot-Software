@@ -126,6 +126,36 @@ class SetApprovalHandler(webapp2.RequestHandler):
     self.response.headers['Content-Type'] = 'application/json'
     self.response.out.write(content)
 
+class MowerPosHandler(webapp2.RequestHandler):
+  """A servlet to handle requests for details about an Approval."""
+  def get(self):
+    loadedPath = getString("mowerPos")
+    try:
+      content = json.dumps(json.loads(loadedPath), sort_keys=True, indent=2)
+    except ValueError, e:
+      content = json.dumps({'error': 'Stored data not formatted correctly'})
+    self.response.headers['Content-Type'] = 'application/json'
+    self.response.out.write(content)
+
+
+class SetMowerPosHandler(webapp2.RequestHandler):
+  """A servlet to save an Approval."""
+  def get(self):
+    rawJson = str(self.request.get('jsonData'))
+    try:
+      mowerPos = json.loads(rawJson)
+    except ValueError, e:
+      False
+    if ('lat' in mowerPos and 'lng' in mowerPos and 'rot' in mowerPos):
+      content = json.dumps({'result': 'Successfully received moweor position.'}) 
+      setString("mowerPos", json.dumps(mowerPos, ensure_ascii=False))
+    else:
+      content = json.dumps({'error': 'Request not formatted correctly'})
+    self.response.headers['Content-Type'] = 'application/json'
+    self.response.out.write(content)
+
+
+
 
 # Define webapp2 routing from URL paths to web request handlers. See:
 # http://webapp-improved.appspot.com/tutorials/quickstart.html
@@ -138,6 +168,8 @@ app = webapp2.WSGIApplication([
     ('/savePlan', SaveMowingPlanHandler),
     ('/approval', ApprovalHandler),
     ('/setApproval', SetApprovalHandler),
+    ('/mowerPos', MowerPosHandler),
+    ('/setMowerPos', SetMowerPosHandler),
 ])
 
 
