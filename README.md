@@ -31,7 +31,10 @@ sudo apt-get install ros-kinetic-rospack
 ```bash
 sudo apt-get install ros-kinetic-rospy
 ```
-
+-roscpp
+```bash
+sudo apt-get install ros-kinetic-roscpp
+```
 
 -ros teleop-twist-keyboard
 ```bash
