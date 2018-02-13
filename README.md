@@ -79,6 +79,13 @@ pip install rospkg
 Move these from the Libraries folder to your Arduino/libraries folder
 ```
 
+### Possible Build Errors:
+Camera1394stereo has a build order issue. If it doesn't build due to a missing .msg module, build the driver_base package first. 
+```
+catkin_make --pkg driver_base
+```
+
+
 ### Symlinking Gazebo Models:
 The Gazebo models must be symlinked into the default ~/.gazebo/models folder for gazebo to find them. 
 
