@@ -1,0 +1,6 @@
+global_frame: base_link
+rolling_window: true
+
+plugins:
+  - {name: obstacles_grudsby,           type: "costmap_2d::ObstacleLayer"}
+  - {name: inflation,                 type: "costmap_2d::InflationLayer"}

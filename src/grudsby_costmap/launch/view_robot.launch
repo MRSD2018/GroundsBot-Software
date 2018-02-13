@@ -1,4 +1,6 @@
 <?xml version="1.0"?>
 <launch>
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find grudsby_costmap)/rviz/robot.rviz" output="screen"/>
+  <param name="robot_description" command=" $(find xacro)/xacro.py '$(find grudsby_costmap)/urdf/grudsby.urdf.xacro' "/>
+
 </launch>
