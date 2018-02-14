@@ -1,0 +1,70 @@
+<?xml version='1.0'?>
+<sdf version='1.6'>
+  <model name='grudsby_gps'>
+    <link name='base_link_sim'>
+      <pose frame=''>0 0 0 0 0 0</pose>
+
+      <inertial>
+        <mass>0.002</mass>
+        <inertia>
+          <ixx>0</ixx>
+          <ixy>0</ixy>
+          <ixz>-0</ixz>
+          <iyy>0</iyy>
+          <iyz>0</iyz>
+          <izz>0</izz>
+        </inertia>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+      </inertial>
+
+      <visual name='visual'>
+        <pose frame=''>0 0 0 0 -0 1.5707</pose>
+        <geometry>
+          <mesh>
+            <uri>model://grudsby_gps/meshes/grudsby_gps.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <lighting>1</lighting>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Grey</name>
+          </script>
+          <shader type='vertex'>
+            <normal_map>__default__</normal_map>
+          </shader>
+        </material>
+        <cast_shadows>1</cast_shadows>
+        <transparency>0</transparency>
+      </visual>
+
+      <collision name='collision'>
+        <max_contacts>10</max_contacts>
+        <pose frame=''>0 0 0 0 -0 1.5707</pose>
+        <geometry>
+          <mesh>
+            <uri>model://grudsby_gps/meshes/grudsby_gps.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+    <plugin name="gps_plugin" filename="libhector_gazebo_ros_gps.so">
+      <alwayson>true</alwayson>
+      <updateRate>5.0</updateRate>
+      <bodyName>base_link_sim</bodyName>
+      <topicName>/fix_sim</topicName>
+      <velocityTopicName>/fix_velocity</velocityTopicName>
+      <drift>0.316227766 0.316227766 0.5</drift>
+      <gaussianNoise>0.01 0.01 0.01</gaussianNoise>
+      <velocityDrift>0 0 0</velocityDrift>
+      <velocityGaussianNoise>0.001 0.001 0.001</velocityGaussianNoise>
+      <status>1</status>
+      <referenceLatitude>40.44451099973759</referenceLatitude>
+      <referenceLongitude>-79.94093908574583</referenceLongitude>
+    </plugin>
+
+    <static>0</static>
+    <allow_auto_disable>1</allow_auto_disable>
+  </model>
+</sdf>

@@ -33,9 +33,9 @@ sudo apt-get install ros-kinetic-rospy
 ```
 
 
--ros teleop-tools
+-ros teleop-twist-keyboard
 ```bash
-sudo apt-get install ros-kinetic-teleop-tools
+sudo apt-get install ros-kinetic-teleop-twist-keyboard
 ```
 
 -uuid-msgs
@@ -58,6 +58,15 @@ sudo apt-get install ros-kinetic-tf2-geometry-msgs
 sudo apt-get install ros-kinetic-unique-id
 ```
 
+-hector-gazebo-plugins
+```bash
+sudo apt-get install ros-kinetic-hector-gazebo-plugins 
+```
+
+-grudsby_sweeping package
+```bash
+sudo apt install libcurl4-openssl-dev
+```
 
 -catkin_pkg
 ```bash
@@ -74,20 +83,19 @@ pip install rospkg
 Move these from the Libraries folder to your Arduino/libraries folder
 ```
 
--ros unique_id
+### Symlinking Gazebo Models:
+The Gazebo models must be symlinked into the default ~/.gazebo/models folder for gazebo to find them. 
+
+Given that the Groundsbot-Software folder is ~/Groundsbot-Software: 
+
 ```bash
-sudo apt-get install ros-kinetic-unique-id
+ln -s -d ~/Groundsbot-Software/src/grudsby_gazebo/models/grudsby_new ~/.gazebo/models/grudsby_new
+ln -s -d ~/Groundsbot-Software/src/grudsby_gazebo/models/grudsby_caster ~/.gazebo/models/grudsby_caster
+ln -s -d ~/Groundsbot-Software/src/grudsby_gazebo/models/grudsby_imu ~/.gazebo/models/grudsby_imu
+ln -s -d ~/Groundsbot-Software/src/grudsby_gazebo/models/grudsby_gps ~/.gazebo/models/grudsby_gps
+ln -s -d ~/Groundsbot-Software/src/grudsby_gazebo/models/grass ~/.gazebo/models/grass
 ```
 
--ros uuid-msgs
-```bash
-sudo apt-get install ros-kinetic-uuid-msgs
-```
-
--i2c-tools
-```bash
-sudo apt-get install libi2c-dev i2c-tools
-```
 ### Configuring Rosserial:
 The custom Ros-lib Arduino package has been included in the Libraries folder.
 Copy this library over to your Arduino/libraries folder.
@@ -102,6 +110,29 @@ then:
  rm -rf ~/Arduino/libraries/ros_lib/
  rosrun rosserial_arduino make_libraries.py ~/Arduino/libraries/
 ```
+
+### Style
+Use the ```.clang_format``` file to reformat code. 
+
+Packages must be run through clang-tidy: 
+
+- Install clang packages: 
+```bash
+sudo apt-get install clang libclang-dev clang-tidy-3.8 clang-format-3.8
+```
+
+- Add ```set(CMAKE_EXPORT_COMPILE_COMMANDS ON)``` to every package's CMakeLists.txt and re-run catkin_make
+
+- Check code with 
+```bash
+ run-clang-tidy-3.8.py -p ~/Groundsbot-Software/build grudsby_package 
+```
+- You can try the autofixer, but be sure to check it after
+```bash
+ run-clang-tidy-3.8.py -p ~/Groundsbot-Software/build grudsby_package -fix
+```
+
+
 
 
 

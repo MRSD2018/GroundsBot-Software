@@ -12,20 +12,27 @@
 <!-- Navigation nodes -->
   <include file="$(find grudsby_localization)/launch/grudsby_localization_ekf.launch"/>
 
+  <node pkg="imu_repeater" type="imu_repeater.py" name="imu_repeater">
+  </node>
+
   <node name="grudsby_simple_planner" pkg="grudsby_simple_planner" type="grudsby_simple_planner">
     <rosparam>
-      sp_kp_lin: 0.7
+      sp_kp_lin: 0.05
       sp_ki_lin: 0
-      sp_kd_lin: 0
-      sp_kp_ang: 4
+      sp_kd_lin: 8
+      sp_kp_ang: 2
       sp_ki_ang: 0
-      sp_kd_ang: 0
-
+      sp_kd_ang: 4
+      wait_at_waypoint: true
+      goal_noise: 2.0 
     </rosparam>
   </node>
 
-  <node name="grudsby_waypoint" pkg="grudsby_waypoint" type="grudsby_waypoint"/>
-  <param name="wait_at_waypoint" value="true"/>
+  <node name="grudsby_waypoint" pkg="grudsby_waypoint" type="grudsby_waypoint">
+<rosparam>
+      wait_at_waypoint: true
+    </rosparam>
+  </node>
 <!-- 
 	<node name="gucci_gang" pkg="gucci_gang" type="gucci_gang"/>
 -->

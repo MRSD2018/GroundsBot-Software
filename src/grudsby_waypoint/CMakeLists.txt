@@ -4,6 +4,9 @@ project(grudsby_waypoint)
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
@@ -16,6 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_filters
   tf2_geometry_msgs
   geodesy
+  grudsby_sweeping
 )
 
 ## System dependencies are found with CMake's conventions
