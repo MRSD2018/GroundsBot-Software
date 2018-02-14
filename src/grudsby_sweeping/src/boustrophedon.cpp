@@ -122,19 +122,22 @@ std::string Boustrophedon::planPath(std::string region, grudsby_sweeping::Mowing
     {
       waypoints.push_back(pointsList[j]);
     }
+    /*
     for (int j = 0; j < waypoints.size(); j++)
     {
       ROS_ERROR("Waypoint %d: (%.10f, %.10f)",j, waypoints[j], waypoints[j]);
-    }      
+    }*/      
   
    slice.increment(implementWidth);
     numSlices++;
   }
   
+  /*
   for (int i = 0; i < waypoints.size()-1; i++)
   {
     ROS_ERROR("Waypoint %d: (%.10f, %.10f)",i, waypoints[i], waypoints[i]);
   }
+  */
   std::stringstream ss;
   plan.waypoints.resize(0); 
   ss << "{\"coordinates\":[";
