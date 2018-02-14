@@ -7,6 +7,7 @@ Panels:
         - /Global Options1
         - /Status1
         - /Sensing1
+        - /Sensing1/PointCloud21
         - /Navigation1
         - /Navigation1/Exploration1
       Splitter Ratio: 0.494924009
@@ -29,7 +30,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: ""
+    SyncSource: PointCloud2
 Visualization Manager:
   Class: ""
   Displays:
@@ -129,14 +130,14 @@ Visualization Manager:
         - Alpha: 1
           Autocompute Intensity Bounds: true
           Autocompute Value Bounds:
-            Max Value: 0.405930012
-            Min Value: 0.405930012
+            Max Value: 2.81898332
+            Min Value: -0.408416748
             Value: true
           Axis: Z
           Channel Name: intensity
           Class: rviz/PointCloud2
           Color: 255; 255; 255
-          Color Transformer: RGB8
+          Color Transformer: AxisColor
           Decay Time: 0
           Enabled: true
           Invert Rainbow: false
@@ -151,7 +152,7 @@ Visualization Manager:
           Size (Pixels): 3
           Size (m): 0.00999999978
           Style: Flat Squares
-          Topic: /stereo_camera/points2
+          Topic: /tegra_stereo/points2
           Unreliable: false
           Use Fixed Frame: true
           Use rainbow: true
@@ -286,7 +287,6 @@ Visualization Manager:
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Default Light: true
     Fixed Frame: map
     Frame Rate: 30
   Name: root
@@ -306,7 +306,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 64.4301529
+      Distance: 23.6366291
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
@@ -321,10 +321,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.959800005
+      Pitch: 0.699800014
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 5.22039986
+      Yaw: 3.52539611
     Saved: ~
 Window Geometry:
   Displays:
@@ -342,5 +342,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1600
-  X: 0
-  Y: 27
+  X: 267
+  Y: 218
