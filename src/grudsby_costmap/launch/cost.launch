@@ -33,7 +33,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCL
 
 
 
-  <node pkg="tf" type="static_transform_publisher" name="stereomap"  args="0 0 0 0 0 0  map odom 100" />
+  <node pkg="tf" type="static_transform_publisher" name="stereomap"  args="0 0 0 0 0 3.14  map odom 100" />
   <node pkg="tf" type="static_transform_publisher" name="baseodom"  args="0 0 0 0 0 0  odom base_link 100" />
  <node pkg="tf" type="static_transform_publisher" name="stereomapx" args="0 0 1 0 1.57 3.14  base_link stereo_camera 100" />
 
