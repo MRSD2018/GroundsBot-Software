@@ -268,17 +268,19 @@ grudsby.App.prototype.checkPlan = function() {
       if (grudsby.App.currentPlanText != data)
       {
         var oldPlan = grudsby.App.currentPlan;
-        
-        grudsby.App.currentPlan = new google.maps.Polyline({
-          path: data.coordinates,
-          strokeColor: 'red',
-          strokeWeight: 2,
-          strokeOpacity: 1.0,
-          editable: false,
-          zIndex: 100
-        });
+        if (data.coordinates.length > 1) 
+        { 
+          grudsby.App.currentPlan = new google.maps.Polyline({
+            path: data.coordinates,
+            strokeColor: 'red',
+            strokeWeight: 2,
+            strokeOpacity: 1.0,
+            editable: false,
+            zIndex: 100
+          });
 
-        grudsby.App.currentPlan.setMap(this.map);
+          grudsby.App.currentPlan.setMap(this.map);
+        }
         if (oldPlan!=null)
         {
           oldPlan.setMap(null);

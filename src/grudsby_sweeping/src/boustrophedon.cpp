@@ -8,15 +8,15 @@ Boustrophedon::Boustrophedon(double implementWidth)
 
 std::string Boustrophedon::planPath(std::string region, grudsby_sweeping::MowingPlan& plan)
 {
-  
   ParsePath parser(region, myImplementWidth);
 
   //initialize polygon
   std::vector<std::vector<double>> polygon;
   parser.getRegion(polygon);
-  
+//  polygon = {{0,0}, {2, 0}, {4, 3}, {-2, 5}};
   //the width of the mowing implement
   double implementWidth = parser.getImplementWidth();
+//  implementWidth = 1;
 
   //create vector of segments
   std::vector<Segment> segments;
@@ -28,10 +28,10 @@ std::string Boustrophedon::planPath(std::string region, grudsby_sweeping::Mowing
   Segment newSegment = Segment(polygon[polygon.size()-1][0], polygon[polygon.size()-1][1],polygon[0][0],polygon[0][1]);
   segments.push_back(newSegment);
  
-/*  for(int i = 0; i < segments.size(); i++)
+  for(int i = 0; i < segments.size(); i++)
   {
-    printf("Segment %d: (%.2f, %.2f) (%.2f, %.2f)\n", i, segments[i].a.X, segments[i].a.Y, segments[i].b.X, segments[i].b.Y);
-  }*/
+    ROS_ERROR("Segment %d: (%.1f, %.1f) (%.1f, %.1f)\n", i, segments[i].a.X, segments[i].a.Y, segments[i].b.X, segments[i].b.Y);
+  }
 
   //find angle of slice (find the longest line segment and go parallel to it)
   Segment longestSegment = segments[0];
@@ -43,24 +43,26 @@ std::string Boustrophedon::planPath(std::string region, grudsby_sweeping::Mowing
       longestSegment = segments[i];
     }
   }
-  //printf("Segment: (%.2f, %.2f) (%.2f, %.2f)\n", longestSegment.a.X, longestSegment.a.Y, longestSegment.b.X, longestSegment.b.Y);
+  ROS_ERROR("Longest Segment: (%.1f, %.1f) (%.1f, %.1f)\n", longestSegment.a.X, longestSegment.a.Y, longestSegment.b.X, longestSegment.b.Y);
 
   Vector2 orthogonal = Vector2::Normal(longestSegment.b - longestSegment.a);
+
   //find starting point of slice (start at min X and min Y, the find closest point to that line)
   double minXVal = polygon[0][0];
   double minYVal = polygon[0][1];
   for(int i = 1; i < polygon.size(); i++)
   {
-    if(polygon[i][0] < minXVal)
+    if(sign(orthogonal.X)*polygon[i][0] < sign(orthogonal.X)*minXVal)
     {
       minXVal = polygon[i][0];
     }
-    if(polygon[i][1] < minYVal)
+    if(sign(orthogonal.Y)*polygon[i][1] < sign(orthogonal.Y)* minYVal)
     {
       minYVal = polygon[i][1];
     }
   }
-
+  
+  ROS_ERROR("Slice: (%.10f, %.10f) (%.10f, %.10f)\n", minXVal, minYVal, orthogonal.X, orthogonal.Y);
   Slice slice = Slice(minXVal, minYVal, orthogonal.X, orthogonal.Y);
 
   std::vector<double> closestPoint = polygon[0];
@@ -75,6 +77,7 @@ std::string Boustrophedon::planPath(std::string region, grudsby_sweeping::Mowing
       closestPoint = polygon[i];
     }
   }
+  ROS_ERROR("Closest Point: (%.1f, %.1f)\n", closestPoint[0], closestPoint[1]);
   slice.setPoint(closestPoint[0], closestPoint[1]);
  
   std::vector<Vector2> waypoints;
@@ -90,26 +93,51 @@ std::string Boustrophedon::planPath(std::string region, grudsby_sweeping::Mowing
       if(slice.intersectsOnce(segments[i]))
       {
         
-        //printf("Segment %d: (%.2f, %.2f) (%.2f, %.2f)\n", i, segments[i].a.X, segments[i].a.Y, segments[i].b.X, segments[i].b.Y);
         slicing = true;
         Vector2 intersectPoint = slice.findIntersection(segments[i]);
         if(std::find(pointsList.begin(), pointsList.end(), intersectPoint) == pointsList.end())       
         {
-          waypoints.push_back(intersectPoint);
+          pointsList.push_back(intersectPoint);
+          ROS_ERROR("Intersect Point: (%.10f, %.10f)\n", intersectPoint.X, intersectPoint.Y);
+          //waypoints.push_back(intersectPoint);
+          //ROS_ERROR("Waypoint: (%.10f, %.10f)\n", waypoints[waypoints.size()-1].X, waypoints[waypoints.size()-1].Y);
         }        
-        pointsList.push_back(intersectPoint);
 
       }
     }
-    
-    //switch waypoints on every odd slice
-    Vector2 holder = waypoints[2*numSlices + 1 - numSlices%2];
-    waypoints[2*numSlices] = waypoints[2*numSlices + numSlices%2];
-    waypoints[2*numSlices + 1] = holder;
 
-    slice.increment(implementWidth);
+    for (int j = 0; j < pointsList.size(); j++)
+    {
+      ROS_ERROR("Point in List %d: (%.10f, %.10f)",j, pointsList[j], pointsList[j]);
+    }
+    if(pointsList.size() == 2)
+    {
+     
+      Vector2 holder = pointsList[numSlices%2];
+      pointsList[1] = pointsList[1-numSlices%2];
+      pointsList[0] = holder;
+      
+    }
+    for (int j = 0; j < pointsList.size(); j++)
+    {
+      waypoints.push_back(pointsList[j]);
+    }
+    /*
+    for (int j = 0; j < waypoints.size(); j++)
+    {
+      ROS_ERROR("Waypoint %d: (%.10f, %.10f)",j, waypoints[j], waypoints[j]);
+    }*/      
+  
+   slice.increment(implementWidth);
     numSlices++;
   }
+  
+  /*
+  for (int i = 0; i < waypoints.size()-1; i++)
+  {
+    ROS_ERROR("Waypoint %d: (%.10f, %.10f)",i, waypoints[i], waypoints[i]);
+  }
+  */
   std::stringstream ss;
   plan.waypoints.resize(0); 
   ss << "{\"coordinates\":[";
@@ -128,7 +156,6 @@ std::string Boustrophedon::planPath(std::string region, grudsby_sweeping::Mowing
     newPoint.latitude = waypoints[i].Y;
     newPoint.longitude = waypoints[i].X;
     plan.waypoints.push_back(newPoint); 
-    //printf("Waypoint %d: (%.2f, %.2f)\n", i, waypoints[i].X, waypoints[i].Y);
   }
   ss << "],\"regionID\":\"sve\"}" << std::endl;
   plan.header.seq = messageSequence++;
