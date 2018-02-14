@@ -359,8 +359,21 @@
       <uri>model://grudsby_gps</uri>
       <pose frame=''>0.63 0.0075 .15 -.25 0 0</pose>
     </include>
+ 
+  	<include>
+    	<uri>model://hokuyo</uri>
+   	  <pose>0.63 0.0075 .15 0 0 0</pose>
+  	</include>
+  
+
 
     <!-- ##########################Joints##########################  -->
+
+
+    <joint name="hokuyo_joint" type="fixed">
+      <child>hokuyo::link</child>
+      <parent>main_frame</parent>
+    </joint>
     <joint name='base_caster_joint' type='fixed'>
       <parent>frame</parent>
       <child>grudsby_caster::base</child>
