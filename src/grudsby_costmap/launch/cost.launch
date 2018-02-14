@@ -36,7 +36,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCL
   <node pkg="tf" type="static_transform_publisher" name="stereomap"  args="0 0 0 0 0 0  map odom 100" />
   <node pkg="tf" type="static_transform_publisher" name="stereomapx" args="0 0 1 1.57 0 1.57  odom stereo_camera 100" />
 
-  <!-- <node name="map_server" pkg="map_server" type="map_server" args = "$(find grudsby_costmap)/map.yaml" /> -->
+  <node name="map_server" pkg="map_server" type="map_server" args = "$(find grudsby_costmap)/map.yaml" />
   <!--<param name="use-sim-time" value="true"/> -->
   <!-- <include file="$(find grudsby_costmap)/launch/gmapping.launch" /> -->
   <!-- <include file="$(find grudsby_gazebo)/launch/sim.launch" /> -->
