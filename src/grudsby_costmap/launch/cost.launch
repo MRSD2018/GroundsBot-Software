@@ -34,7 +34,8 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCL
   <param name="robot_description" command=" $(find xacro)/xacro.py '$(find grudsby_costmap)/urdf/grudsby.urdf.xacro' "/>
 
   <node pkg="tf" type="static_transform_publisher" name="stereomap"  args="0 0 0 0 0 0  map odom 100" />
-  <node pkg="tf" type="static_transform_publisher" name="stereomapx" args="0 0 1 1.57 0 1.57  odom stereo_camera 100" />
+  <node pkg="tf" type="static_transform_publisher" name="stereomapy"  args="0 0 0 0 0 0  odom base_link 100" />
+  <node pkg="tf" type="static_transform_publisher" name="stereomapx" args="0 0 1 1.57 0 1.57  base_link stereo_camera 100" />
 
   <node name="map_server" pkg="map_server" type="map_server" args = "$(find grudsby_costmap)/map.yaml" />
   <!--<param name="use-sim-time" value="true"/> -->
