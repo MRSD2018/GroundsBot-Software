@@ -1,14 +1,10 @@
-
-robot_base_frame: odom
-obstacle_range: 10 
-raytrace_range: 10
-footprint: [[-0.5, -0.33], [-0.5, 0.33], [0.5, 0.33], [0.5, -0.33]]
+#footprint: [[-0.5, -0.33], [-0.5, 0.33], [0.5, 0.33], [0.5, -0.33]]
 #robot_radius: ir_of_robot
-inflation_radius: 0.55
+#inflation_radius: 0.55
 
 plugins: 
     - {name: static_map,       type: "costmap_2d::StaticLayer"}
-    - {name: obstacles,        type: "costmap_2d::VoxelLayer"}
+    - {name: grudstacles,        type: "costmap_2d::ObstacleLayer"}
 
 publish_frequency: 1.0
 
@@ -16,8 +12,7 @@ static_map:
     height: 50
     always_send_full_cost_map: true
 
-obstacles:
+grudstacles:
     observation_sources: base_scan
-    max_obstacle_height: 50
-    track_unknown_space: true
     base_scan: {data_type: PointCloud2 , sensor_frame: /stereo_camera, clearing: true, marking: true, topic: /tegra_stereo/points2 , max_obstacle_height: 50 , min_obstacle_height: -50}
+
