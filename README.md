@@ -63,6 +63,10 @@ sudo apt-get install ros-kinetic-unique-id
 sudo apt-get install ros-kinetic-hector-gazebo-plugins 
 ```
 
+-grudsby_sweeping package
+```bash
+sudo apt install libcurl4-openssl-dev
+```
 
 -catkin_pkg
 ```bash
