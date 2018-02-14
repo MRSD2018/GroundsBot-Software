@@ -29,11 +29,11 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCL
 <launch>
  <!-- Publishes the voxel grid to rviz for display -->
 
-  <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find grudsby_costmap)/rviz/robot.rviz" output="screen"/> -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find grudsby_costmap)/rviz/robot.rviz" output="screen"/>
 
 
 
-  <node pkg="tf" type="static_transform_publisher" name="stereomap"  args="0 0 0 0 0 0  map odom 100" />
+  <node pkg="tf" type="static_transform_publisher" name="stereomap"  args="0 0 0 0 0 3.14  map odom 100" />
   <node pkg="tf" type="static_transform_publisher" name="baseodom"  args="0 0 0 0 0 0  odom base_link 100" />
  <node pkg="tf" type="static_transform_publisher" name="stereomapx" args="0 0 1 0 1.57 0  base_link stereo_camera 100" />
 
@@ -41,7 +41,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCL
   <node name="map_server" pkg="map_server" type="map_server" args = "$(find grudsby_costmap)/map.yaml" />
   <!--<param name="use-sim-time" value="true"/> -->
   <!-- <include file="$(find grudsby_costmap)/launch/gmapping.launch" /> -->
-  <include file="$(find grudsby_launch)/launch/vision.launch" />
+  <!-- <include file="$(find grudsby_launch)/launch/vision.launch" /> -->
 
   <arg name="no_static_map" default="true"/>
   <arg name="base_global_planner" default="navfn/NavfnROS"/>
