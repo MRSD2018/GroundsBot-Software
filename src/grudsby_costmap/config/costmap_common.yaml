@@ -1,7 +1,7 @@
 footprint: [[-0.5, -0.33], [-0.5, 0.33], [0.5, 0.33], [0.5, -0.33]]
 footprint_padding: 0.01
 
-robot_base_frame: base_link
+robot_base_frame: stereo_camera
 update_frequency: 4.0
 publish_frequency: 3.0
 transform_tolerance: 0.5
@@ -17,7 +17,7 @@ static:
     subscribe_to_updates: true
 
 obstacle_layer:
-  obstacles_grudsby:
+  obstacles_laser:
     observation_sources: grudscam
     grudscam: {data_type: PointCloud2, clearing: true, marking: true, topic: /stereo_camera/points2, inf_is_valid: true}
 

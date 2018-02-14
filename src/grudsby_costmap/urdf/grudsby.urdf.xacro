@@ -41,13 +41,31 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
     <link name="stereo_camera"/>
     <joint name="stereo_camera_joint" type="fixed">
-      <!-- <origin xyz="0 0 0 0.19 0 0.149" rpy="0 0 0 0 -1.5708 3.1416" /> -->
       <origin xyz="0 0 0" rpy="0 0 0" />
       <parent link="base_link" />
       <child link="stereo_camera" />
     </joint>
     <gazebo reference="stereo_camera">
     </gazebo>
+
+    <link name="map"/>
+    <joint name="map_joint" type="fixed">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <parent link="base_link" />
+      <child link="map" />
+    </joint>
+    <gazebo reference="map">
+    </gazebo>
+
+    <link name="odom"/>
+    <joint name="odom_joint" type="fixed">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <parent link="base_link" />
+      <child link="odom" />
+    </joint>
+    <gazebo reference="odom">
+    </gazebo>
+
 
 
 </robot>
