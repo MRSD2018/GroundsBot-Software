@@ -112,9 +112,9 @@ std::string Boustrophedon::planPath(std::string region, grudsby_sweeping::Mowing
     }
     if(pointsList.size() == 2)
     {
-     
-      Vector2 holder = pointsList[numSlices%2];
-      pointsList[1] = pointsList[1-numSlices%2];
+      int offset = slice.directionToPoint(polygon[0]) > 0; 
+      Vector2 holder = pointsList[(numSlices + offset)%2];
+      pointsList[1] = pointsList[1-(numSlices + offset)%2];
       pointsList[0] = holder;
       
     }
