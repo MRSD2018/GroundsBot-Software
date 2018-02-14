@@ -141,7 +141,7 @@ std::string Boustrophedon::planPath(std::string region, grudsby_sweeping::Mowing
   std::stringstream ss;
   plan.waypoints.resize(0); 
   ss << "{\"coordinates\":[";
-  for (int i = 0; i < waypoints.size()-1; i++)
+  for (int i = 0; i < waypoints.size(); i++)
   {
     ss << "{\"lat\":";
     ss << std::setprecision(18) << std::fixed << waypoints[i].Y;
