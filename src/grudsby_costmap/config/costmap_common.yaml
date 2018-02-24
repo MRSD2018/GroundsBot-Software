@@ -1,0 +1,18 @@
+#footprint: [[-0.5, -0.33], [-0.5, 0.33], [0.5, 0.33], [0.5, -0.33]]
+#robot_radius: ir_of_robot
+#inflation_radius: 0.55
+
+plugins: 
+    - {name: static_map,       type: "costmap_2d::StaticLayer"}
+    - {name: grudstacles,        type: "costmap_2d::ObstacleLayer"}
+
+publish_frequency: 1.0
+
+static_map:
+    height: 50
+    always_send_full_cost_map: true
+
+grudstacles:
+    observation_sources: base_scan
+    base_scan: {data_type: PointCloud2 , sensor_frame: /stereo_camera, clearing: true, marking: true, topic: /tegra_stereo/points2 , max_obstacle_height: 50 , min_obstacle_height: -50}
+

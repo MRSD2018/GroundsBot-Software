@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <package>
-  <name>grudsby_vision</name>
+  <name>grudsby_costmap</name>
   <version>0.0.0</version>
-  <description>Grudsbys eyes</description>
+  <description> costmap </description>
 
-  <maintainer email="zhenrychen@cmu.edu">henry</maintainer>
+  <maintainer email="jphaneuf@andrewcmu.edu">joe</maintainer>
   <license>GRUDSBY</license>
 
 
