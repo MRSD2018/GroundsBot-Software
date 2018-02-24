@@ -360,20 +360,25 @@
       <pose frame=''>0.63 0.0075 .15 -.25 0 0</pose>
     </include>
  
-  	<include>
-    	<uri>model://hokuyo</uri>
-   	  <pose>0.63 0.0075 .15 0 0 0</pose>
-  	</include>
+    <include>
+      <uri>model://grudsby_laser</uri>
+      <pose frame=''>0.17 0.0075 0.33 0 0 0</pose>
+    </include>
   
 
 
     <!-- ##########################Joints##########################  -->
 
 
-    <joint name="hokuyo_joint" type="fixed">
-      <child>hokuyo::link</child>
-      <parent>main_frame</parent>
+    <joint name="laser_joint" type="fixed">
+      <child>grudsby_laser::base_link_sim</child>
+      <parent>frame</parent>
+      <pose frame=''>0 0 0 0 -0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+      </axis>
     </joint>
+    
     <joint name='base_caster_joint' type='fixed'>
       <parent>frame</parent>
       <child>grudsby_caster::base</child>
