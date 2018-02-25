@@ -44,11 +44,10 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCL
     <param    name="base_local_planner"  value="$(arg base_local_planner)"/>  
     <rosparam file="$(find grudsby_costmap)/config/planner.yaml" command="load"/>
 
-    <rosparam file="$(find grudsby_costmap)/config/costmap_common.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find grudsby_costmap)/config/shared_costmap.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find grudsby_costmap)/config/shared_costmap.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find grudsby_costmap)/config/local_costmap.yaml" command="load" />
+    <rosparam file="$(find grudsby_costmap)/config/global_costmap.yaml" command="load" />
     
   </node>
 </launch>
-
-
-
-
