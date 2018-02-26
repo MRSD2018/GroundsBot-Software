@@ -6,5 +6,5 @@ inflation_radius: 0.55
 
 observation_sources: laser_scan_sensor
 
-laser_scan_sensor: {sensor_frame: world, data_type: LaserScan, topic: /laser/scan_sim, marking: true, clearing: true}
+laser_scan_sensor: {sensor_frame: /stereo_camera, data_type: PointCloud2, topic: /tegra_stereo/points2, marking: true, clearing: true}
 
