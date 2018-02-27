@@ -29,7 +29,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCL
 <launch>
 
 
-  <!-- <node pkg="grudsby_costmap" type="obstacles.py" name="obstacle_detect"/> -->
+  <node pkg="grudsby_costmap" type="obstacles.py" name="obstacle_detect"/>
 
   <node name="map_server"          pkg="map_server" type="map_server" args = "$(find grudsby_costmap)/map/map.yaml">
     <param name="frame_id" value="base_link"/>
