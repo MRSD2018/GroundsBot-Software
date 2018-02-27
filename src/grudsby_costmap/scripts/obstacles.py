@@ -27,14 +27,14 @@ class Obstacle_Range:
     self.threshold = threshold
 
 throttle_ranges = [ \
-  Obstacle_Range( name = 'dead', range_min = 5 , range_max = 7 , 
-                  throttle = 0.0 , threshold = 10 ) ,
+  Obstacle_Range( name = 'dead', range_min = 5 , range_max = 6.5 , 
+                  throttle = 0.0 , threshold = 2 ) ,
   Obstacle_Range( name = 'near', range_min = 7 , range_max = 8 , 
-                  throttle = 0.2 , threshold = 20 ) ,
+                  throttle = 0.2 , threshold = 5 ) ,
   Obstacle_Range( name = 'mid' , range_min = 8 , range_max = 9 , 
-                  throttle = 0.5 , threshold = 50 ) ,
+                  throttle = 0.5 , threshold = 10 ) ,
   Obstacle_Range( name = 'far' , range_min = 9 , range_max = 10 , 
-                  throttle = 0.8 , threshold = 70) ]
+                  throttle = 0.8 , threshold = 12) ]
 
 ################################################################################
 ## throttle_from_occupancy_grid ################################################
