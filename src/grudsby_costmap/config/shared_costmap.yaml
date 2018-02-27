@@ -26,32 +26,11 @@ obstacles:
   stereo_mark: {
       sensor_frame: /gps,
       data_type: LaserScan, 
-      #min_obstacle_height: 0.0,
-      #max_obstacle_height: 1.0,
       topic: /scan, 
       marking: true, 
       clearing: true,
-      #mark_threshold: 2,
       inf_is_valid: true
   }
-  #z_resolution: 0.2
-  #z_height: 100
-  #publish_voxel_map: true
-
-
-  #stereo_clear: {
-      #sensor_frame: /stereo_camera,
-      #data_type: LaserScan, 
-      #min_obstacle_height: -10.0,
-      #max_obstacle_height: 10.0,
-      #topic: /scan, 
-      #marking: false, 
-      #clearing: true,
-      ##unknown_threshold: 1,
-      #inf_is_valid: true
-  #}
-  
-
 
 inflation:
     inflation_radius: 1.0
