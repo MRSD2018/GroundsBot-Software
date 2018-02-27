@@ -18,17 +18,23 @@ from nav_msgs.msg import OccupancyGrid
 ################################################################################
 
 class Obstacle_Range:
-  def __init__( self , name = '' , range_min = 0, range_max = 0 , throttle = 0):
+  def __init__( self , name = '' , range_min = 0, range_max = 0 , 
+                throttle = 0 , threshold = 1):
     self.name      = name 
     self.range_min = range_min 
     self.range_max = range_max 
     self.throttle  = throttle
+    self.threshold = threshold
 
 throttle_ranges = [ \
-  Obstacle_Range( name = 'dead', range_min = 0 , range_max = 1 , throttle = 0.0 ) ,
-  Obstacle_Range( name = 'near', range_min = 1 , range_max = 2 , throttle = 0.2 ) ,
-  Obstacle_Range( name = 'mid' , range_min = 2 , range_max = 4 , throttle = 0.5 ) ,
-  Obstacle_Range( name = 'far' , range_min = 4 , range_max = 10 , throttle = 0.8 ) ]
+  Obstacle_Range( name = 'dead', range_min = 5 , range_max = 7 , 
+                  throttle = 0.0 , threshold = 10 ) ,
+  Obstacle_Range( name = 'near', range_min = 7 , range_max = 8 , 
+                  throttle = 0.2 , threshold = 20 ) ,
+  Obstacle_Range( name = 'mid' , range_min = 8 , range_max = 9 , 
+                  throttle = 0.5 , threshold = 50 ) ,
+  Obstacle_Range( name = 'far' , range_min = 9 , range_max = 10 , 
+                  throttle = 0.8 , threshold = 70) ]
 
 ################################################################################
 ## throttle_from_occupancy_grid ################################################
@@ -43,9 +49,10 @@ def throttle_from_occupancy_grid ( grid , grid_resolution , ranges ):
     low  = int ( np.floor ( r.range_min / grid_resolution ) )
     high = int ( np.ceil  ( r.range_max / grid_resolution ) )
     try : 
-      if np.any ( grid [ low : high , : ] ):
+      n_occupied = np.count_nonzero ( grid [ low : high , : ] )
+      if n_occupied > r.threshold :
         throttle = min ( throttle , r.throttle )
-        #print 'obstacle detected in {}'.format(r.name )
+        #print '{} spaced occupied in {}'.format(n_occupied,r.name)
     except IndexError:
       print 'occupancy grid index out of range during obstacle check'
   return throttle
@@ -80,7 +87,10 @@ class Obstacle_Detection:
     w       = msg.info.width      # cells
     h       = msg.info.height     # cells
     costmap = np.array ( msg.data )
+    #Costmap 'width' is Grudsby Forward, so transpose
+    #Last element in array is 'top right' if looking top down, Grudsby facing up
     costmap = costmap.reshape ( h , w )
+    costmap = costmap.T
 
     throttle_msg        = Throttle()
     throttle_msg.header = msg.header # ?
