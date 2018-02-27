@@ -1,6 +1,6 @@
 <launch>
-  <include file="$(find camera1394stereo)/launch/stereo_camera.launch"/>  
-  <include file="$(find tegra_stereo)/launch/tegra_stereo.launch" />
+  <include file="$(find grudsby_launch)/launch/vision.launch"/>  
+
 
   <node name="disparity_view" pkg="image_view" type="disparity_view">
   	<remap from="image" to="/tegra_stereo/disparity"/>

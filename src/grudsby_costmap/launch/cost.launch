@@ -27,44 +27,27 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCL
 
 
 <launch>
- <!-- Publishes the voxel grid to rviz for display -->
-
   <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find grudsby_costmap)/rviz/robot.rviz" output="screen"/> -->
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find grudsby_costmap)/rviz/robot.rviz" output="screen"/>
-
-  <node pkg="tf" type="static_transform_publisher" name="stereomap"  args="0 0 0 0 0 3.14  map odom 100" />
-  <node pkg="tf" type="static_transform_publisher" name="baseodom"  args="0 0 0 0 0 0  odom base_link 100" />
-  <node pkg="tf" type="static_transform_publisher" name="stereomapx" args="0 0 1 0 1.57 3.14  base_link stereo_camera 100" />
+  <!-- node pkg="tf" type="static_transform_publisher" name="stereomap"  args="0 0 0 0 0 3.14  map odom 100" /> -->
+  <!--  <node pkg="tf" type="static_transform_publisher" name="baseodom"  args="0 0 0 0 0 0  odom base_link 100" /> -->
+  <!-- <node pkg="tf" type="static_transform_publisher" name="stereomapx" args="0 0 1 0 1.57 3.14  base_link stereo_camera 100" /> -->
 
 
-  <node name="map_server" pkg="map_server" type="map_server" args = "$(find grudsby_costmap)/map/map.yaml" />
-  <!--<param name="use-sim-time" value="true"/> -->
-  <!-- <include file="$(find grudsby_costmap)/launch/gmapping.launch" /> -->
-  <!-- <include file="$(find grudsby_launch)/launch/vision.launch" /> -->
+  <node name="map_server"          pkg="map_server" type="map_server" args = "$(find grudsby_costmap)/map/map.yaml" />
+  <arg  name="no_static_map"       default="true"/>
+  <arg  name="base_global_planner" default="navfn/NavfnROS"/>
+  <arg  name="base_local_planner"  default="dwa_local_planner/DWAPlannerROS"/>
 
-  <arg name="no_static_map" default="true"/>
-  <arg name="base_global_planner" default="navfn/NavfnROS"/>
-  <arg name="base_local_planner" default="dwa_local_planner/DWAPlannerROS"/>
-
-  <!-- Run the costmap node -->
-  <!-- <node name="costmap_node" pkg="costmap_2d" type="costmap_2d_node" > -->
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
 
-    <param name="base_global_planner" value="$(arg base_global_planner)"/>
-    <param name="base_local_planner" value="$(arg base_local_planner)"/>  
+    <param    name="base_global_planner" value="$(arg base_global_planner)"/>
+    <param    name="base_local_planner"  value="$(arg base_local_planner)"/>  
     <rosparam file="$(find grudsby_costmap)/config/planner.yaml" command="load"/>
 
-    <!-- observation sources located in costmap_common.yaml -->
-    <rosparam file="$(find grudsby_costmap)/config/costmap_common.yaml" command="load" ns="local_costmap" />
-
-    <!-- local costmap, needs size -->
-
-    <!-- static global costmap, static map provides size -->
+    <rosparam file="$(find grudsby_costmap)/config/shared_costmap.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find grudsby_costmap)/config/shared_costmap.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find grudsby_costmap)/config/local_costmap.yaml" command="load" />
+    <rosparam file="$(find grudsby_costmap)/config/global_costmap.yaml" command="load" />
     
-    <!-- global costmap with laser, for odom_navigation_demo -->
   </node>
 </launch>
-
-
-
-
