@@ -96,11 +96,12 @@ The Gazebo models must be symlinked into the default ~/.gazebo/models folder for
 Given that the Groundsbot-Software folder is ~/Groundsbot-Software: 
 
 ```bash
-ln -s  ~/Groundsbot-Software/src/grudsby_gazebo/models/grudsby_new ~/.gazebo/models/grudsby_new/
-ln -s  ~/Groundsbot-Software/src/grudsby_gazebo/models/grudsby_caster ~/.gazebo/models/grudsby_caster/
-ln -s  ~/Groundsbot-Software/src/grudsby_gazebo/models/grudsby_imu ~/.gazebo/models/grudsby_imu/
-ln -s  ~/Groundsbot-Software/src/grudsby_gazebo/models/grudsby_gps ~/.gazebo/models/grudsby_gps/
-ln -s  ~/Groundsbot-Software/src/grudsby_gazebo/models/grass ~/.gazebo/models/grass/
+
+ln -s -d ~/Groundsbot-Software/src/grudsby_gazebo/models/grudsby_new/ ~/.gazebo/models/grudsby_new/
+ln -s -d ~/Groundsbot-Software/src/grudsby_gazebo/models/grudsby_caster/ ~/.gazebo/models/grudsby_caster/
+ln -s -d ~/Groundsbot-Software/src/grudsby_gazebo/models/grudsby_imu/ ~/.gazebo/models/grudsby_imu/
+ln -s -d ~/Groundsbot-Software/src/grudsby_gazebo/models/grudsby_gps/ ~/.gazebo/models/grudsby_gps/
+ln -s -d ~/Groundsbot-Software/src/grudsby_gazebo/models/grass/ ~/.gazebo/models/grass/
 ```
 
 ### Configuring Rosserial:
