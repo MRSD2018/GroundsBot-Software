@@ -5,8 +5,11 @@ import roslib
 import tf
 roslib.load_manifest('sim_repeater')
 
+from laser_geometry import LaserProjection
 from sensor_msgs.msg import NavSatFix
 from sensor_msgs.msg import Imu
+from sensor_msgs.msg import LaserScan
+from sensor_msgs.msg import PointCloud2
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Vector3Stamped
 from sensor_msgs.msg import MagneticField
@@ -22,6 +25,9 @@ class DiffTf:
         rospy.init_node("sim_repeater")
         self.nodename = rospy.get_name()
         rospy.loginfo("-I- %s started" % self.nodename)
+
+        #laser geometry projector#
+        self.projector = LaserProjection()
         #### parameters #######
         self.rate = 100
         self.w = 0.508 #wheelbase len
@@ -30,8 +36,10 @@ class DiffTf:
         self.gpsPub = rospy.Publisher("/fix", NavSatFix, queue_size=10)
         self.imuPub = rospy.Publisher("/imu/data_raw", Imu, queue_size=10)
         self.magPub = rospy.Publisher("/imu/mag", MagneticField, queue_size=10)
+        self.laserPub = rospy.Publisher("/tegra_stereo/points2", PointCloud2, queue_size=10)
         self.odomPub = rospy.Publisher("/grudsby/arduino_response", ArduinoResponse, queue_size=10)
         rospy.Subscriber("/odom_sim", Odometry, self.odomResponseCallback) 
+        rospy.Subscriber("/laser/scan_sim", LaserScan, self.laserResponseCallback) 
         rospy.Subscriber("/fix_sim", NavSatFix, self.responseCallback)
         rospy.Subscriber("/imu/data_sim", Imu, self.imuResponseCallback)
         rospy.Subscriber("/mag", Vector3Stamped, self.magResponseCallback)
@@ -47,6 +55,13 @@ class DiffTf:
     #############################################################################
         pass
 
+    #############################################################################
+    def laserResponseCallback(self, msg):
+    #############################################################################
+        scan_in = msg
+        cloud_out = self.projector.projectLaser(scan_in)
+        cloud_out.header.frame_id = "stereo_camera"
+        self.laserPub.publish(cloud_out)
 
     #############################################################################
     def responseCallback(self, msg):

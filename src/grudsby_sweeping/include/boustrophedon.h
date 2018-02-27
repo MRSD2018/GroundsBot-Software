@@ -14,7 +14,7 @@
 #include "grudsby_sweeping/MowingPlan.h"
 #include "ros/ros.h"
 #include "ros/console.h"
-
+#include "sign.h"
 
 class Boustrophedon
 {

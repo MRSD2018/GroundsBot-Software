@@ -63,3 +63,19 @@ double Slice::distanceToPoint(std::vector<double> point)
 
   return d;
 }
+
+int Slice::directionToPoint(std::vector<double> point)
+{
+  if(distanceToPoint(point) > 0)
+  {
+    return 1;
+  }
+  else if(distanceToPoint(point) < 0)
+  {
+    return -1;
+  }
+  else
+  {
+    return 0;
+  }
+}
