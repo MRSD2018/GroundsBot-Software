@@ -2,6 +2,7 @@ obstacle_range: 10
 raytrace_range: 10
 footprint: [[-0.375, -0.225],  [0.375, -0.225],[0.375, 0.225],[-0.375, 0.225]]
 footprint_padding: 0.01
+always_send_full_costmap: true
 
 
 
