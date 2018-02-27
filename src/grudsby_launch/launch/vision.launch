@@ -1,0 +1,4 @@
+<launch>
+  <include file="$(find camera1394stereo)/launch/stereo_camera.launch"/>  
+  <include file="$(find tegra_stereo)/launch/tegra_stereo.launch" />
+</launch>
