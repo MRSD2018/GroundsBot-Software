@@ -12,6 +12,7 @@ from tf.broadcaster import TransformBroadcaster
 from std_msgs.msg import Int32
 from std_msgs.msg import Float32
 from grudsby_lowlevel.msg import ArduinoResponse
+from grudsby_costmap.msg import Throttle
 
 #############################################################################
 
@@ -26,12 +27,19 @@ class DiffTf:
         self.nodename = rospy.get_name()
         rospy.loginfo("-I- %s started" % self.nodename)
 
+        ## Throttle info ############################################################
+        self.enabled              = True
+        self.max_speed_percentage = 1
+
         #### parameters #######
         self.rate = 100
 
         self.w = float(0.508)  # wheelbase len
 
         # subscriptions
+        rospy.Subscriber("/velocity_throttle",
+                         Throttle, self.throttleCallback)
+
         rospy.Subscriber("/grudsby/arduino_response",
                          ArduinoResponse, self.responseCallback)
 
@@ -56,6 +64,12 @@ class DiffTf:
     def update(self):
         #############################################################################
         pass
+
+    def throttleCallback(self, msg):
+        #############################################################################
+        throttle_msg = Throttle()
+        self.enabled = msg.enable
+        self.max_speed_percentage = msg.max_speed_percentage
 
     #############################################################################
     def responseCallback(self, msg):
@@ -85,12 +99,21 @@ class DiffTf:
 
     #############################################################################
     def cmdCallback(self, msg):
-        #############################################################################
+        #########################################################################
         self.dx = msg.linear.x
         self.dr = msg.angular.z
         self.dy = msg.linear.y
         self.right = 1.0 * self.dx + self.dr * self.w / 2.0
-        self.left = 1.0 * self.dx - self.dr * self.w / 2.0
+        self.left  = 1.0 * self.dx - self.dr * self.w / 2.0
+
+        ########################################################################
+        self.left  = self.max_speed_percentage * self.left
+        self.right = self.max_speed_percentage * self.right
+
+        if not self.enabled: 
+          self.left  = 0
+          self.right = 0
+
         self.lMotorPub.publish(self.left)
         self.rMotorPub.publish(self.right)
 
@@ -104,3 +127,4 @@ if __name__ == '__main__':
         diffTf.spin()
     except rospy.ROSInterruptException:
         pass
+
