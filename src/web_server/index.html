@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>GroundsBot</title>
+    <meta charset="utf-8">
+
+    <!-- Support for browsers on mobile phones. -->
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <!-- Google Web Fonts. -->
+    <link href='https://fonts.googleapis.com/css?family=Roboto+Condensed'
+          rel='stylesheet' type='text/css'>
+
+    <!-- Custom CSS styles for our application. -->
+    <link rel="stylesheet" href="/static/style.css">
+
+    <!-- The Google JavaScript loader tool (for the Maps, Charts APIs). -->
+    <script src="https://www.google.com/jsapi"></script>
+
+    <!-- Our custom JavaScript for grudsby Lights. -->
+    <script src="/static/script.js"></script>
+
+  </head>
+  <body>
+
+    <!-- The DOM of our application. -->
+    <div class="grudsby">
+
+      <!-- The title of the application. -->
+      <h1>GroundsBot Mowing Selection</h1>
+
+      <!-- The button to draw a polygon. -->
+      <button class="drawRegion">Draw New Region</button>
+
+      <!-- The button to draw a polygon. -->
+      <button class="approvePlan">Approve Mowing Plan</button>
+
+      <!-- A container which the Maps API will populate with a map. -->
+      <div class="map"></div>
+
+      <img id="grudsby" src="/static/grudsby_top_tiny.png"/>
+
+      <a href="https://earthengine.google.org">
+        <img class="powered-by-ee"
+             alt="Powered by Google Earth Engine"
+             src="/static/google_earthengine_powered_400px.png">
+      </a>
+    </div>
+
+
+    <!-- Boot our JavaScript once the body has loaded. -->
+    <script>
+      grudsby.boot(
+          '{{ eeMapId | safe }}',
+          '{{ eeToken | safe }}');
+    </script>
+
+  </body>
+</html>

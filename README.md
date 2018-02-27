@@ -63,6 +63,10 @@ sudo apt-get install ros-kinetic-unique-id
 sudo apt-get install ros-kinetic-hector-gazebo-plugins 
 ```
 
+-grudsby_sweeping package
+```bash
+sudo apt install libcurl4-openssl-dev
+```
 
 -catkin_pkg
 ```bash
@@ -78,6 +82,13 @@ pip install rospkg
 ```
 Move these from the Libraries folder to your Arduino/libraries folder
 ```
+
+### Possible Build Errors:
+Camera1394stereo has a build order issue. If it doesn't build due to a missing .msg module, build the driver_base package first. 
+```
+catkin_make --pkg driver_base
+```
+
 
 ### Symlinking Gazebo Models:
 The Gazebo models must be symlinked into the default ~/.gazebo/models folder for gazebo to find them. 
