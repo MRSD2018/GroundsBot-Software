@@ -7,12 +7,16 @@
    <include file="$(find grudsby_imu)/launch/grudsby_imu.launch"/>
 
   <!-- GPS launch file-->
-  <include file="$(find nmea_navsat_driver)/launch/launch_nmea_driver.launch"/>:
+  <include file="$(find nmea_navsat_driver)/launch/launch_nmea_driver.launch"/>
 
 <!-- Navigation nodes -->
   <include file="$(find grudsby_localization)/launch/grudsby_localization_ekf.launch"/>
 
   <node pkg="imu_repeater" type="imu_repeater.py" name="imu_repeater"/>
+
+<!-- Bumblebee Vision nodes -->
+  <include file="$(find grudsby_launch)/launch/vision.launch"/>
+  <include file="$(find grudsby_costmap)/launch/cost.launch"/>
   
 
   <node name="grudsby_simple_planner" pkg="grudsby_simple_planner" type="grudsby_simple_planner">

@@ -1,0 +1,5 @@
+<launch>
+  <node pkg="tf2_ros" type="static_transform_publisher" name="bl_stereocamera" args="0.409575 0 0.485575 1.57079 3.14157 1.57079 base_link stereo_camera"/> 
+  <include file="$(find camera1394stereo)/launch/stereo_camera.launch"/>  
+  <include file="$(find tegra_stereo)/launch/tegra_stereo.launch" />
+</launch>
