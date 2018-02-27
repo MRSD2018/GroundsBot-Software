@@ -36,7 +36,8 @@ class DiffTf:
         self.gpsPub = rospy.Publisher("/fix", NavSatFix, queue_size=10)
         self.imuPub = rospy.Publisher("/imu/data_raw", Imu, queue_size=10)
         self.magPub = rospy.Publisher("/imu/mag", MagneticField, queue_size=10)
-        self.laserPub = rospy.Publisher("/tegra_stereo/points2", PointCloud2, queue_size=10)
+        #self.laserPub = rospy.Publisher("/tegra_stereo/points2", PointCloud2, queue_size=10)
+        self.laserPub = rospy.Publisher("/tegra_stereo/points2", LaserScan, queue_size=10)
         self.odomPub = rospy.Publisher("/grudsby/arduino_response", ArduinoResponse, queue_size=10)
         rospy.Subscriber("/odom_sim", Odometry, self.odomResponseCallback) 
         rospy.Subscriber("/laser/scan_sim", LaserScan, self.laserResponseCallback) 
@@ -59,7 +60,24 @@ class DiffTf:
     def laserResponseCallback(self, msg):
     #############################################################################
         scan_in = msg
-        cloud_out = self.projector.projectLaser(scan_in)
+        max_range = 25
+        '''
+        newRanges = list(scan_in.ranges)
+        for i in range(0, len(scan_in.ranges)):
+          if scan_in.ranges[i] == float('inf'):
+            newRanges[i] = max_range
+
+        scan_in.ranges = tuple(newRanges)
+
+        for val in scan_in.ranges:
+            rospy.logerr("%f", val)
+        '''
+        ###############################################
+        cloud_out = LaserScan()
+        cloud_out = scan_in
+        
+        ################################################
+        #cloud_out = self.projector.projectLaser(scan_in)
         cloud_out.header.frame_id = "stereo_camera"
         self.laserPub.publish(cloud_out)
 

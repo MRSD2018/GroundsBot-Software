@@ -5,7 +5,6 @@ footprint_padding: 0.01
 
 
 
-
 update_frequency: 10.0
 publish_frequency: 10.0
 robot_base_frame: /base_link
@@ -25,12 +24,14 @@ obstacles_laser:
   observation_sources: base_scan
   base_scan: {
       sensor_frame: /stereo_camera,
-      data_type: PointCloud2, 
+#      data_type: PointCloud2, 
+      data_type: LaserScan, 
       min_obstacle_height: 0.0,
       max_obstacle_height: 1,
       topic: /tegra_stereo/points2, 
       marking: true, 
-      clearing: true
+      clearing: true,
+      inf_is_valid: true
   }
 
 inflation:

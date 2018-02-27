@@ -2,6 +2,7 @@ global_costmap:
   global_frame: odom
   rolling_window: true
   track_unknown_space: true
+#  inf_is_valid: true
   height: 50
   width: 50
   origin_x: -25
