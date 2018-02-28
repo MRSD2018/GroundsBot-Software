@@ -15,6 +15,7 @@ class Slice
     Vector2 findIntersection(Segment s);
     bool intersectsOnce(Segment s);
     double distanceToPoint(std::vector<double> point);
+    int directionToPoint(std::vector<double> point);
 
     Vector2 normal;
     Vector2 point;
