@@ -1,33 +1,38 @@
-obstacle_range: 10 
-raytrace_range: 10
 footprint: [[-0.375, -0.225],  [0.375, -0.225],[0.375, 0.225],[-0.375, 0.225]]
 footprint_padding: 0.01
+always_send_full_costmap: true
 
 
-
-update_frequency: 10.0
-publish_frequency: 10.0
-robot_base_frame: /base_link
-static_map: false
-rolling_window: true  
+update_frequency: 5.0
+publish_frequency: 5.0
+robot_base_frame: base_link
+#static_map: false
+#rolling_window: true  
+#inf_is_valid: true
 
 resolution: 0.1 
 transform_tolerance: 0.2
 
-
 static:
-    map_topic: /map
-    subscribe_to_updates: true
-
+#    map_topic: /map
+#    subscribe_to_updates: true
+  enabled: true
+  height: 50
+  width: 50
+  origin_x: -25
+  origin_y: -25
 
 obstacles_laser:
+  obstacle_range: 8
+  raytrace_range: 10
+  enabled: true
   observation_sources: base_scan
   base_scan: {
       sensor_frame: /stereo_camera,
 #      data_type: PointCloud2, 
       data_type: LaserScan, 
-      min_obstacle_height: 0.0,
-      max_obstacle_height: 1,
+      min_obstacle_height: -5,
+      max_obstacle_height: 100,
       topic: /tegra_stereo/points2, 
       marking: true, 
       clearing: true,

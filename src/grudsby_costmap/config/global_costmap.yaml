@@ -1,7 +1,8 @@
 global_costmap:
-  global_frame: odom
-  rolling_window: true
-  track_unknown_space: true
+  global_frame: map
+  static_map: true
+  rolling_window: false
+  track_unknown_space: false
 #  inf_is_valid: true
   height: 50
   width: 50
