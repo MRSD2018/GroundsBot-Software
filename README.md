@@ -83,17 +83,25 @@ pip install rospkg
 Move these from the Libraries folder to your Arduino/libraries folder
 ```
 
+### Possible Build Errors:
+Camera1394stereo has a build order issue. If it doesn't build due to a missing .msg module, build the driver_base package first. 
+```
+catkin_make --pkg driver_base
+```
+
+
 ### Symlinking Gazebo Models:
 The Gazebo models must be symlinked into the default ~/.gazebo/models folder for gazebo to find them. 
 
 Given that the Groundsbot-Software folder is ~/Groundsbot-Software: 
 
 ```bash
-ln -s  ~/Groundsbot-Software/src/grudsby_gazebo/models/grudsby_new ~/.gazebo/models/grudsby_new/
-ln -s  ~/Groundsbot-Software/src/grudsby_gazebo/models/grudsby_caster ~/.gazebo/models/grudsby_caster/
-ln -s  ~/Groundsbot-Software/src/grudsby_gazebo/models/grudsby_imu ~/.gazebo/models/grudsby_imu/
-ln -s  ~/Groundsbot-Software/src/grudsby_gazebo/models/grudsby_gps ~/.gazebo/models/grudsby_gps/
-ln -s  ~/Groundsbot-Software/src/grudsby_gazebo/models/grass ~/.gazebo/models/grass/
+
+ln -s -d ~/Groundsbot-Software/src/grudsby_gazebo/models/grudsby_new/ ~/.gazebo/models/grudsby_new/
+ln -s -d ~/Groundsbot-Software/src/grudsby_gazebo/models/grudsby_caster/ ~/.gazebo/models/grudsby_caster/
+ln -s -d ~/Groundsbot-Software/src/grudsby_gazebo/models/grudsby_imu/ ~/.gazebo/models/grudsby_imu/
+ln -s -d ~/Groundsbot-Software/src/grudsby_gazebo/models/grudsby_gps/ ~/.gazebo/models/grudsby_gps/
+ln -s -d ~/Groundsbot-Software/src/grudsby_gazebo/models/grass/ ~/.gazebo/models/grass/
 ```
 
 ### Configuring Rosserial:

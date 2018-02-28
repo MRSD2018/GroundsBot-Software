@@ -1,0 +1,76 @@
+<?xml version='1.0'?>
+<sdf version='1.6'>
+  <model name='grudsby_laser'>
+    <link name='base_link_sim'>
+      <pose frame=''>0 0 0 0 0 0</pose>
+
+      <inertial>
+      <mass>1.2</mass>
+        <inertia>
+          <ixx>0.001087473</ixx>
+          <iyy>0.001087473</iyy>
+          <izz>0.001092437</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+      </inertial>
+
+      <visual name="visual">
+        <geometry>
+          <cylinder>
+            <radius>.005</radius>
+            <length>.10</length>
+          </cylinder>
+        </geometry>
+      </visual>
+
+      <collision name="collision">
+        <geometry>
+          <cylinder>
+            <!-- Radius and length provided by Velodyne -->
+            <radius>.005</radius>
+            <length>.10</length>
+          </cylinder>
+        </geometry>
+      </collision>
+    
+      <sensor type="gpu_ray" name="laser_sensor">
+        <pose>0 0 0 0 0 0</pose>
+        <update_rate>10</update_rate>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>300</samples>
+              <resolution>1</resolution>
+              <min_angle>-0.785398</min_angle>
+              <max_angle>0.785398</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>0.10</min>
+            <max>10.0</max>
+            <resolution>0.01</resolution>
+          </range>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.01</stddev>
+          </noise>
+        </ray>
+
+        <plugin name="laser_plugin" filename="libgazebo_ros_gpu_laser.so">
+          <alwaysOn>true</alwaysOn>
+          <bodyName>base_link_sim</bodyName>
+          <topicName>laser/scan_sim</topicName>
+          <serviceName>laser_service</serviceName>
+        </plugin>
+        <visualize>true</visualize>
+      </sensor>
+
+      <static>0</static>
+      <allow_auto_disable>1</allow_auto_disable>
+    </link>
+  </model>
+</sdf>

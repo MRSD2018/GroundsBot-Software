@@ -1,0 +1,13 @@
+<launch>
+  <include file="$(find grudsby_launch)/launch/vision.launch"/>  
+
+
+  <node name="disparity_view" pkg="image_view" type="disparity_view">
+  	<remap from="image" to="/tegra_stereo/disparity"/>
+   </node> 
+
+	<node name="left_view" pkg="image_view" type="image_view">
+		<remap from="image" to="/stereo_camera/left/image_raw"/>
+	</node>		
+  
+</launch>
