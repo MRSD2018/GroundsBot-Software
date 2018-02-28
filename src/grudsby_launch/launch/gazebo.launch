@@ -1,0 +1,24 @@
+<launch>
+
+<!-- Navigation nodes -->
+  
+  <param name="/use_sim_time" value="true"/>
+  <include file="$(find grudsby_gazebo)/launch/sim.launch"/>
+  <node pkg="grudsby_lowlevel" type="vel_to_odom.py" name="grudsby_lowlevel"/>
+  <node pkg="sim_repeater" type="sim_repeater.py" name="sim_repeater"/>
+  <node pkg="imu_repeater" type="imu_repeater.py" name="imu_repeater"/>
+  <node pkg="imu_complementary_filter" type="complementary_filter_node" 
+      name="complementary_filter_gain_node" output="screen">
+    <param name="do_bias_estimation" value="true" />
+    <param name="do_adaptive_gain" value="true" />
+    <param name="use_mag" value="true" />
+    <param name="gain_acc" value="0.05" />
+    <param name="gain_mag" value="0.03" />
+  </node>
+  <include file="$(find grudsby_localization)/launch/grudsby_localization_for_bag_playback.launch"/>
+  
+  
+<!-- 
+	<node name="gucci_gang" pkg="gucci_gang" type="gucci_gang"/>
+-->
+</launch>
