@@ -35,6 +35,18 @@ std::string latest_mowing_region_;
 
 std::string pos_message_;
 
+double resolution_;
+
+double occupied_thresh_;
+
+double free_thresh_;
+
+double negate_;
+
+double outer_edge_buffer_;
+
+std::string map_directory_;
+
 void odomCallback(const nav_msgs::Odometry& msg)
 {
   geometry_msgs::PoseStamped mapPose;
@@ -278,6 +290,34 @@ int main(int argc, char** argv)
 
   ros::Publisher mowing_plan_pub = n.advertise<grudsby_sweeping::MowingPlan>("grudsby/mowing_plan", 1000);
  
+  if (!n.getParam("grudsby_sweeping_planner/app_url", app_url_))
+  {
+    app_url_ = "http://localhost:8080";
+  }
+  if (!n.getParam("grudsby_sweeping_planner/resolution", resolution_))
+  {
+    resolution_ = 0.05;
+  }
+  if (!n.getParam("grudsby_sweeping_planner/occupied_thresh", occupied_thresh_))
+  {
+    occupied_thresh_ = 0.65;
+  }
+  if (!n.getParam("grudsby_sweeping_planner/free_thresh", free_thresh_))
+  {
+    free_thresh_ = 0.196;
+  }
+  if (!n.getParam("grudsby_sweeping_planner/negate", negate_))
+  {
+    negate_ = 1;
+  }
+  if (!n.getParam("grudsby_sweeping_planner/outer_edge_buffer", outer_edge_buffer_))
+  {
+    outer_edge_buffer_ = 1;
+  }
+  if (!n.getParam("grudsby_sweeping_planner/map_directory", map_directory_))
+  {
+    map_directory_ = "/media/josh/Projects/GroundsBot-Software/data";
+  }
   ros::Subscriber odom_sub;
   odom_sub = n.subscribe("/odometry/filtered_map", 100, odomCallback); 
 
@@ -286,6 +326,10 @@ int main(int argc, char** argv)
   if (!n.getParam("grudsby_sweeping_planner/implement_width", implement_width_))
   {
     implement_width_ = 0.5;
+  }
+   if (!n.getParam("grudsby_sweeping_planner/app_url", app_url_))
+  {
+    app_url_ = "http://localhost:8080";
   }
   if (!n.getParam("grudsby_sweeping_planner/app_url", app_url_))
   {
@@ -348,7 +392,7 @@ int main(int argc, char** argv)
           if (!plan_approved_)
           {
             // Draw the png file of the region
-            outputBorder(latest_mowing_region_, 0.05, 0.65, 0.196, 1, 2, "/media/josh/Projects/GroundsBot-Software/data");
+            outputBorder(latest_mowing_region_, resolution_, occupied_thresh_, free_thresh_, negate_, outer_edge_buffer_, map_directory_);
             //Send Mowing Plan to grudsby
             mowing_plan_pub.publish(mowing_plan_); 
             
