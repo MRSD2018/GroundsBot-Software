@@ -179,12 +179,25 @@ void outputBorder(std::string region, double resolution, double occupied_thresh,
       // Output PNG
       std::vector<double> test_point;
       test_point.push_back(min_x + x*resolution);
-      test_point.push_back(min_y + y*resolution);
+      test_point.push_back(max_y - y*resolution);
       bool inRegion = (winding_num::wn_PnPoly(test_point, parsedRegion) != 0);
       for (int i = 0; i < parsedRegion.size()-1; i++) 
       {
         double dist = sqrt(pow((parsedRegion[i][0]-test_point[0]),2.0) + pow((parsedRegion[i][1]-test_point[1]),2.0)); 
         inRegion = inRegion || (dist < outer_edge_buffer);
+        Vector2 fullVec;
+        fullVec.X = parsedRegion[i+1][0] - parsedRegion[i][0];
+        fullVec.Y = parsedRegion[i+1][1] - parsedRegion[i][1];
+        Vector2 unitFull = Vector2::Normalized(fullVec);  
+        Vector2 testVec;
+        testVec.X = test_point[0] - parsedRegion[i][0];
+        testVec.Y = test_point[1] - parsedRegion[i][1];
+        double dotted = Vector2::Dot(testVec,unitFull);
+        if ((dotted > 0) && (dotted < Vector2::Magnitude(fullVec)))
+        {
+          Vector2 orthVec = testVec - dotted*unitFull;
+          inRegion = inRegion || (Vector2::Magnitude(orthVec) < outer_edge_buffer);
+        } 
       }      
        
       if (!inRegion) 
@@ -194,7 +207,7 @@ void outputBorder(std::string region, double resolution, double occupied_thresh,
     }
   }
   
-  ROS_ERROR("Output the map to png");
+  ROS_INFO("Output the map to png");
  
   int width_mat = mat[0].size();
   int height_mat = mat.size();
