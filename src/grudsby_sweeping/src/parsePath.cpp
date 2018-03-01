@@ -17,8 +17,24 @@ double deg2rad(double val)
 
 ParsePath::ParsePath(std::string mowingPath,double implementWidthMeters)
 {
-  mowingPath.erase(remove_if(mowingPath.begin(), mowingPath.end(), isspace), mowingPath.end());
+  ParsePath::parseLatLng(mowingPath, myRegion);
+  int R = 6371; // Radius of the earth in km
+  double dLon = deg2rad(1); 
+  double a = 
+    cos(deg2rad(myRegion[0][0])) * cos(deg2rad(myRegion[0][0])) * 
+    sin(dLon/2) * sin(dLon/2); 
+  double c = 2 * atan2(sqrt(a), sqrt(1-a)); 
+  double d = R * c * 1000.0; // Distance in m
+  
+  // Parse implement width
+  std::string::size_type sz;
+  myImplementWidth = implementWidthMeters/d;
+}
 
+void ParsePath::parseLatLng(std::string mowingPath, std::vector<std::vector<double>> &myRegion)
+{
+  mowingPath.erase(remove_if(mowingPath.begin(), mowingPath.end(), isspace), mowingPath.end());
+  
   // Parse points vector
   std::size_t first = mowingPath.find("[");
   std::size_t last = mowingPath.find("]");
@@ -55,18 +71,8 @@ ParsePath::ParsePath(std::string mowingPath,double implementWidthMeters)
       myRegion.push_back(newRow); 
     }
   }
-  int R = 6371; // Radius of the earth in km
-  double dLon = deg2rad(1); 
-  double a = 
-    cos(deg2rad(myRegion[0][0])) * cos(deg2rad(myRegion[0][0])) * 
-    sin(dLon/2) * sin(dLon/2); 
-  double c = 2 * atan2(sqrt(a), sqrt(1-a)); 
-  double d = R * c * 1000.0; // Distance in m
-  
-  // Parse implement width
-  std::string::size_type sz;
-  myImplementWidth = implementWidthMeters/d;
 }
+
 
 void ParsePath::getRegion(std::vector<std::vector<double>>& region) 
 {
