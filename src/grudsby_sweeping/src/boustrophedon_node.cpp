@@ -98,7 +98,10 @@ void outputBorder(std::string region, double resolution, double occupied_thresh,
 
   static tf::TransformListener listener;
 
-  listener.waitForTransform("/map", "/utm", ros::Time::now(), ros::Duration(1.0));
+  if (!listener.waitForTransform("/map", "/utm", ros::Time::now(), ros::Duration(1.0)))
+  { 
+    return;
+  }
   double max_x = -9999999999;
   double max_y = -9999999999;
   double min_x = 9999999999;
@@ -121,7 +124,7 @@ void outputBorder(std::string region, double resolution, double occupied_thresh,
     coord.pose.position.x = goal_easting_x;
     coord.pose.position.y = goal_northing_y;
     coord.pose.position.z = 0;
-    
+    coord.pose.orientation.w = 1; 
     try
     {
       listener.transformPose("/map", coord, coord_in_map);
