@@ -68,6 +68,11 @@ sudo apt-get install ros-kinetic-hector-gazebo-plugins
 sudo apt install libcurl4-openssl-dev
 ```
 
+-grudsby_navStack package
+```bash
+sudo apt install ros-kinetic-move-base
+```
+
 -catkin_pkg
 ```bash
 pip install catkin_pkg
