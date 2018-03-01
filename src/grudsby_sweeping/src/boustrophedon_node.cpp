@@ -2,6 +2,7 @@
 #include "ros/console.h"
 #include "ros/ros.h"
 #include <string>
+#include <math.h>
 #include <algorithm>
 #include <iostream>
 #include <curl/curl.h>
@@ -40,7 +41,6 @@ void odomCallback(const nav_msgs::Odometry& msg)
   mapPose.pose.position = msg.pose.pose.position;
   mapPose.pose.orientation = msg.pose.pose.orientation;
   mapPose.header = msg.header;
-  //mapPoint.header.frame_id = "/map";
   geometry_msgs::PoseStamped gpsPose;
 
 
@@ -113,8 +113,8 @@ void outputBorder(std::string region, double resolution, double occupied_thresh,
     std::string utm_zone_tmp;
     //ROS_ERROR("input lat lng:%f,%f",goal_lat,goal_long);
     RobotLocalization::NavsatConversions::LLtoUTM(
-      latlng[0],
       latlng[1],
+      latlng[0],
       goal_northing_y,
       goal_easting_x,
       utm_zone_tmp
@@ -125,32 +125,36 @@ void outputBorder(std::string region, double resolution, double occupied_thresh,
     coord.pose.position.y = goal_northing_y;
     coord.pose.position.z = 0;
     coord.pose.orientation.w = 1; 
+    coord.header.frame_id = "/utm";
     try
     {
       listener.transformPose("/map", coord, coord_in_map);
       latlng[0] = coord_in_map.pose.position.x;
       latlng[1] = coord_in_map.pose.position.y;
+      //ROS_ERROR("Lat %f Lng %f",latlng[0],latlng[1]);
       max_x = std::max(max_x,latlng[0]);
       min_x = std::min(min_x,latlng[0]);
       max_y = std::max(max_y,latlng[1]);
       min_y = std::min(min_y,latlng[1]);
-
+    
+      //ROS_ERROR("MIN %f %f   MAX %f %f",min_x,min_y,max_x,max_y);
     }
     catch (tf::TransformException ex)  //NOLINT
     {
       ROS_ERROR("%s", ex.what());
     }
   }
+  ROS_INFO("Got Transforms"); 
   // Push all edges out by "outer_edge_buffer"
   parsedRegion.push_back(parsedRegion[0]); 
-  max_x += 3*outer_edge_buffer;
-  min_x -= 3*outer_edge_buffer;
-  max_y += 3*outer_edge_buffer;
-  min_y -= 3*outer_edge_buffer;      
-
+  
+  max_x += 2*outer_edge_buffer;
+  min_x -= 2*outer_edge_buffer;
+  max_y += 2*outer_edge_buffer;
+  min_y -= 2*outer_edge_buffer;      
   double width = (max_x-min_x)/resolution;
   double height = (max_y-min_y)/resolution;
-
+  ROS_INFO("Outputting yaml");
   // Output YAML
   std::ofstream file_out((map_directory + "/map.yaml").c_str(), std::ios::binary);
   file_out << "image: map.png" << std::endl;
@@ -160,27 +164,38 @@ void outputBorder(std::string region, double resolution, double occupied_thresh,
   file_out << "free_thresh: " << free_thresh << std::endl;
   file_out << "negate: " << negate << std::endl;
   file_out.close();
-
-  int no_cols = std::floor((max_x-min_x)/resolution);
-  int no_rows = std::floor((max_y-min_y)/resolution);
+  
+  ROS_INFO("Building map");
+  //ROS_ERROR("MIN %f %f   MAX %f %f",min_x,min_y,max_x,max_y);
+  int no_cols = std::ceil((max_x-min_x)/resolution);
+  int no_rows = std::ceil((max_y-min_y)/resolution);
   const int init_val = 255;
   std::vector< std::vector<uint8_t> > mat;
   mat.resize(no_rows, std::vector<uint8_t>(no_cols, init_val) ); 
-  for (int x = min_x; x < max_x; x += resolution)
+  for (int x = 0; x < no_cols; x++)//min_x; x < max_x; x += resolution)
   {
-    for (int y = min_y; y < max_y; y += resolution)
+    for (int y = 0; y < no_rows; y++)//= min_y; y < max_y; y += resolution)
     {
       // Output PNG
       std::vector<double> test_point;
-      test_point.push_back(x);
-      test_point.push_back(y);
-      if (winding_num::wn_PnPoly(test_point, parsedRegion) != 0)
+      test_point.push_back(min_x + x*resolution);
+      test_point.push_back(min_y + y*resolution);
+      bool inRegion = (winding_num::wn_PnPoly(test_point, parsedRegion) != 0);
+      for (int i = 0; i < parsedRegion.size()-1; i++) 
+      {
+        double dist = sqrt(pow((parsedRegion[i][0]-test_point[0]),2.0) + pow((parsedRegion[i][1]-test_point[1]),2.0)); 
+        inRegion = inRegion || (dist < outer_edge_buffer);
+      }      
+       
+      if (!inRegion) 
       { 
-        mat[y][x] = static_cast<uint8_t>(255);
+        mat[y][x] = static_cast<uint8_t>(0);
       }
     }
-  } 
+  }
   
+  ROS_ERROR("Output the map to png");
+ 
   int width_mat = mat[0].size();
   int height_mat = mat.size();
  
@@ -320,7 +335,7 @@ int main(int argc, char** argv)
           if (!plan_approved_)
           {
             // Draw the png file of the region
-            outputBorder(latest_mowing_region_, 2.0, 0.65, 0.196, 1, 2, "/media/josh/Projects/GroundsBot-Software/data");
+            outputBorder(latest_mowing_region_, 0.05, 0.65, 0.196, 1, 2, "/media/josh/Projects/GroundsBot-Software/data");
             //Send Mowing Plan to grudsby
             mowing_plan_pub.publish(mowing_plan_); 
             

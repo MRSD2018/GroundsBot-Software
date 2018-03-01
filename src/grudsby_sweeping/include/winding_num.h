@@ -8,6 +8,9 @@
 
 #ifndef WINDING_NUM_H
 #define WINDING_NUM_H
+#include "ros/console.h" 
+#include "ros/ros.h" 
+
 #include "Vector2.hpp"
 #include <vector>
 // a Point is defined by its coordinates {int x, y;}
@@ -37,9 +40,9 @@ double isLeft( std::vector<double> P0, std::vector<double> P1, std::vector<doubl
 double wn_PnPoly( std::vector<double> P, std::vector<std::vector<double> > V)
 {
     int    wn = 0;    // the  winding number counter
-     
+    //ROS_ERROR("Winding P Size: %d V Size %d x %d",P.size(), V.size(), V[0].size());     
 
-    int n = V.size(); 
+    int n = V.size()-1; 
     // loop through all edges of the polygon
     for (int i=0; i<n; i++) {   // edge from V[i] to  V[i+1]
         if (V[i][1] <= P[1]) {          // start y <= P.y
