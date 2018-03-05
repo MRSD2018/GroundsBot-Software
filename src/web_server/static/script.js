@@ -78,7 +78,7 @@ grudsby.App = function(mapType) {
   
   // Timer for loading the mowing plan
   this.checkPlan();
-  var timer = setInterval(this.checkPlan.bind(this),1000);
+  var timer = setInterval(this.checkPlan.bind(this),250);
 
   // Write the unapproved state at the start of loading the page.
   this.loadApproval();

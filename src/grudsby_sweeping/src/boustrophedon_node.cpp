@@ -321,7 +321,7 @@ int main(int argc, char** argv)
   ros::Subscriber odom_sub;
   odom_sub = n.subscribe("/odometry/filtered_map", 100, odomCallback); 
 
-  ros::Rate loop_rate(2);
+  ros::Rate loop_rate(5);
  
   if (!n.getParam("grudsby_sweeping_planner/implement_width", implement_width_))
   {
