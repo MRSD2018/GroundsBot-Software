@@ -9,7 +9,7 @@
       free_thresh: 0.196
       negate: 1
       outer_edge_buffer: 1
-      map_directory: "/media/josh/Projects/GroundsBot-Software/data"
+      map_directory: "/home/nvidia/GroundsBot-Software/data"
     </rosparam>
   </node>
 </launch>

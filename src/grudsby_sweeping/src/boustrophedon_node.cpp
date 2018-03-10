@@ -316,7 +316,7 @@ int main(int argc, char** argv)
   }
   if (!n.getParam("grudsby_sweeping_planner/map_directory", map_directory_))
   {
-    map_directory_ = "/media/josh/Projects/GroundsBot-Software/data";
+    map_directory_ = "/home/nvidia/GroundsBot-Software/data";
   }
   ros::Subscriber odom_sub;
   odom_sub = n.subscribe("/odometry/filtered_map", 100, odomCallback); 

@@ -26,7 +26,7 @@ ros::Time last_stop_update;
 ros::Time last_goal_update;
 bool wait_at_waypoint;
 std::string mower_path;
-double goal_publish_rate = 1; // Rate in hertz to publish new goals.
+double goal_publish_rate = 2; // Rate in hertz to publish new goals.
 
 struct Waypoint
 {

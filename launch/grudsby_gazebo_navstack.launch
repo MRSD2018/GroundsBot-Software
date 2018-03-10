@@ -16,7 +16,7 @@
   <remap from="/goal" to="/move_base_simple/goal"/>
   <node name="grudsby_waypoint" pkg="grudsby_waypoint" type="grudsby_waypoint">
   <rosparam>
-      mower_path_file: '/home/zeumer/Documents/groundsbot/GroundsBot-Software/data/mower_path.kml'
+      mower_path_file: '/home/nvidia/GroundsBot-Software/data/mower_path.kml'
       wait_at_waypoint: true
     </rosparam>
   </node>
