@@ -1,9 +1,9 @@
 footprint: [[-0.375, -0.225],  [0.375, -0.225],[0.375, 0.225],[-0.375, 0.225]]
-footprint_padding: 0.01
+footprint_padding: 0.1
 always_send_full_costmap: true
 
 
-update_frequency: 5.0
+update_frequency: 10.0
 publish_frequency: 5.0
 robot_base_frame: base_link
 #static_map: false
@@ -40,4 +40,4 @@ obstacles_laser:
   }
 
 inflation:
-    inflation_radius: 3.0
+    inflation_radius: 5.0
