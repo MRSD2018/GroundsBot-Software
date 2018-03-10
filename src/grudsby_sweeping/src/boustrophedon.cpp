@@ -30,7 +30,7 @@ std::string Boustrophedon::planPath(std::string region, grudsby_sweeping::Mowing
  
   for(int i = 0; i < segments.size(); i++)
   {
-    ROS_ERROR("Segment %d: (%.1f, %.1f) (%.1f, %.1f)\n", i, segments[i].a.X, segments[i].a.Y, segments[i].b.X, segments[i].b.Y);
+    ROS_INFO("Segment %d: (%.1f, %.1f) (%.1f, %.1f)\n", i, segments[i].a.X, segments[i].a.Y, segments[i].b.X, segments[i].b.Y);
   }
 
   //find angle of slice (find the longest line segment and go parallel to it)
@@ -43,7 +43,7 @@ std::string Boustrophedon::planPath(std::string region, grudsby_sweeping::Mowing
       longestSegment = segments[i];
     }
   }
-  ROS_ERROR("Longest Segment: (%.1f, %.1f) (%.1f, %.1f)\n", longestSegment.a.X, longestSegment.a.Y, longestSegment.b.X, longestSegment.b.Y);
+  ROS_INFO("Longest Segment: (%.1f, %.1f) (%.1f, %.1f)\n", longestSegment.a.X, longestSegment.a.Y, longestSegment.b.X, longestSegment.b.Y);
 
   Vector2 orthogonal = Vector2::Normal(longestSegment.b - longestSegment.a);
 
@@ -62,7 +62,7 @@ std::string Boustrophedon::planPath(std::string region, grudsby_sweeping::Mowing
     }
   }
   
-  ROS_ERROR("Slice: (%.10f, %.10f) (%.10f, %.10f)\n", minXVal, minYVal, orthogonal.X, orthogonal.Y);
+  ROS_INFO("Slice: (%.10f, %.10f) (%.10f, %.10f)\n", minXVal, minYVal, orthogonal.X, orthogonal.Y);
   Slice slice = Slice(minXVal, minYVal, orthogonal.X, orthogonal.Y);
 
   std::vector<double> closestPoint = polygon[0];
@@ -77,7 +77,7 @@ std::string Boustrophedon::planPath(std::string region, grudsby_sweeping::Mowing
       closestPoint = polygon[i];
     }
   }
-  ROS_ERROR("Closest Point: (%.1f, %.1f)\n", closestPoint[0], closestPoint[1]);
+  ROS_INFO("Closest Point: (%.1f, %.1f)\n", closestPoint[0], closestPoint[1]);
   slice.setPoint(closestPoint[0], closestPoint[1]);
  
   std::vector<Vector2> waypoints;
@@ -98,7 +98,7 @@ std::string Boustrophedon::planPath(std::string region, grudsby_sweeping::Mowing
         if(std::find(pointsList.begin(), pointsList.end(), intersectPoint) == pointsList.end())       
         {
           pointsList.push_back(intersectPoint);
-          ROS_ERROR("Intersect Point: (%.10f, %.10f)\n", intersectPoint.X, intersectPoint.Y);
+          ROS_INFO("Intersect Point: (%.10f, %.10f)\n", intersectPoint.X, intersectPoint.Y);
           //waypoints.push_back(intersectPoint);
           //ROS_ERROR("Waypoint: (%.10f, %.10f)\n", waypoints[waypoints.size()-1].X, waypoints[waypoints.size()-1].Y);
         }        
@@ -108,7 +108,7 @@ std::string Boustrophedon::planPath(std::string region, grudsby_sweeping::Mowing
 
     for (int j = 0; j < pointsList.size(); j++)
     {
-      ROS_ERROR("Point in List %d: (%.10f, %.10f)",j, pointsList[j], pointsList[j]);
+      ROS_INFO("Point in List %d: (%.10f, %.10f)",j, pointsList[j].X, pointsList[j].Y);
     }
     if(pointsList.size() == 2)
     {
@@ -170,3 +170,5 @@ std::string Boustrophedon::planPath(std::string region, grudsby_sweeping::Mowing
 
   return ss.str();
 }
+
+

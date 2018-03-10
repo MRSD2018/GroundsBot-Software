@@ -55,5 +55,6 @@ target_link_libraries(${PROJECT_NAME}_planner
   ${catkin_LIBRARIES}
   grudsby_sweeping
   curl
+  png
 )
 

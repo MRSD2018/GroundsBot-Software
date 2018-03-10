@@ -14,6 +14,7 @@ class ParsePath
     ParsePath(std::string mowingPath,double implementWidthMeters);
     void getRegion(std::vector<std::vector<double>>& region);
     double getImplementWidth();
+    static void parseLatLng(std::string mowingPath, std::vector<std::vector<double>> &myRegion);
   private:
     std::vector<std::vector<double>> myRegion;
     double myImplementWidth;
