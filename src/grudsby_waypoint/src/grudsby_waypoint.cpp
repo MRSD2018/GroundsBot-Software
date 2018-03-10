@@ -14,13 +14,19 @@
 #include <ros/console.h>  // for logging
 #include "grudsby_sweeping/SimpleLatLng.h"
 #include "grudsby_sweeping/MowingPlan.h"
+#include "tf/transform_listener.h"
+#include <tf/transform_datatypes.h>
+
+
 
 ros::Publisher waypoint_pub;
 
 ros::Publisher stop_pub;
 ros::Time last_stop_update;
+ros::Time last_goal_update;
 bool wait_at_waypoint;
 std::string mower_path;
+double goal_publish_rate = 1; // Rate in hertz to publish new goals.
 
 struct Waypoint
 {
@@ -119,72 +125,111 @@ bool inThreshold(double lat, double lon, double goal_lat, double goal_lon)
   return false;*/
 }
 
-void findWaypointCallback(const sensor_msgs::NavSatFix& msg)
+void findWaypointCallback(const nav_msgs::Odometry& msg)
 {
   ROS_INFO("Building new goal message");
-  double grudsby_lat = msg.latitude;
-  double grudsby_long = msg.longitude;
-  double grudsby_alt = msg.altitude;
+ 
+  geometry_msgs::PoseStamped mapPose;
+  mapPose.pose.position = msg.pose.pose.position;
+  mapPose.pose.orientation = msg.pose.pose.orientation;
+  mapPose.header = msg.header;
+  geometry_msgs::PoseStamped gpsPose;
 
-  geometry_msgs::PoseStamped goal;
-
-  goal.header.stamp = ros::Time::now();
-  goal.header.frame_id = "utm";
-  goal.pose.orientation.w = 1.0;
-
-  if (!goals.empty())
+  static tf::TransformListener listener;
+  listener.waitForTransform("/utm", "/map", ros::Time::now(), ros::Duration(1.0));
+  try
   {
-    double goal_lat = goals.front().latitude;
-    double goal_long = goals.front().longitude;
 
-    if (inThreshold(grudsby_lat, grudsby_long, goal_lat, goal_long))
-    {
-      ROS_INFO("Updating goal waypoint");
-      if (goals.size() > 1)
-      {
-        if (goals.front().altitude > 0.5)
-        {
-          last_stop_update = ros::Time::now();
-        }
-        goals.erase(goals.begin());
-        goal_lat = goals.front().latitude;
-        goal_long = goals.front().longitude;
-      }
-      else
-      {
-        last_stop_update = ros::Time::now();
-        ROS_WARN("No new waypoints. Repeating previous waypoint.");
-      }
-    }
+    listener.transformPose("/utm", mapPose, gpsPose);
+    std::string utm_zone_tmp = "17T"; // Our UTM zone in pittsburgh
 
-    double goal_easting_x = 0;
-    double goal_northing_y = 0;
-    std::string utm_zone_tmp;
-    //ROS_ERROR("input lat lng:%f,%f",goal_lat,goal_long);
-    RobotLocalization::NavsatConversions::LLtoUTM(
-        goal_lat, 
-        goal_long, 
-        goal_northing_y, 
-        goal_easting_x, 
-        utm_zone_tmp
+    //ROS_ERROR("x,y,z: %f,%f,%f",gpsPoint.point.x,gpsPoint.point.y,gpsPoint.point.z);
+
+    double grudsby_lat;
+    double grudsby_long;
+    RobotLocalization::NavsatConversions::UTMtoLL(
+        gpsPose.pose.position.y,
+        gpsPose.pose.position.x,
+        utm_zone_tmp,
+        grudsby_lat,
+        grudsby_long
     );
 
-    goal.pose.position.x = goal_easting_x;
-    goal.pose.position.y = goal_northing_y;
-    goal.pose.position.z = grudsby_alt;
-    //ROS_ERROR("UTM Goal: Northing: %f, Easting: %f, zone: %s", goal_northing_y, goal_easting_x, utm_zone_tmp.c_str());
+    //ROS_ERROR("lat: %f, lng: %f.",grudsby_lat, grudsby_long);
+    double grudsby_alt = 0;
 
-    waypoint_pub.publish(goal);
+    geometry_msgs::PoseStamped goal;
 
-    ros::Duration wait = ros::Time::now() - last_stop_update;
-    std_msgs::Bool stop;
-    stop.data = (wait_at_waypoint && (wait.toSec() < 2.5));  //NOLINT
-    stop_pub.publish(stop);
+    goal.header.stamp = ros::Time::now();
+    goal.header.frame_id = "utm";
+    goal.pose.orientation.w = 1.0;
+
+    if (!goals.empty())
+    {
+      double goal_lat = goals.front().latitude;
+      double goal_long = goals.front().longitude;
+      
+      ros::Duration time_since_goal = ros::Time::now() - last_goal_update;
+      double time_duration = time_since_goal.toSec();
+ 
+      if (inThreshold(grudsby_lat, grudsby_long, goal_lat, goal_long))
+      {
+        ROS_INFO("Updating goal waypoint");
+        if (goals.size() > 1)
+        {
+          if (goals.front().altitude > 0.5)
+          {
+            last_stop_update = ros::Time::now();
+          }
+          goals.erase(goals.begin());
+          goal_lat = goals.front().latitude;
+          goal_long = goals.front().longitude;
+          time_duration = 100000; // Make sure new goals are sent immediately
+        }
+        else
+        {
+          last_stop_update = ros::Time::now();
+          ROS_WARN("No new waypoints. Repeating previous waypoint.");
+        }
+      }
+
+
+      if (time_duration > 1.0/goal_publish_rate) 
+      {   
+        last_goal_update = ros::Time::now();
+        double goal_easting_x = 0;
+        double goal_northing_y = 0;
+        std::string utm_zone_tmp;
+        //ROS_ERROR("input lat lng:%f,%f",goal_lat,goal_long);
+        RobotLocalization::NavsatConversions::LLtoUTM(
+            goal_lat, 
+            goal_long, 
+            goal_northing_y, 
+            goal_easting_x, 
+            utm_zone_tmp
+        );
+
+        goal.pose.position.x = goal_easting_x;
+        goal.pose.position.y = goal_northing_y;
+        goal.pose.position.z = grudsby_alt;
+        //ROS_ERROR("UTM Goal: Northing: %f, Easting: %f, zone: %s", goal_northing_y, goal_easting_x, utm_zone_tmp.c_str());
+
+        waypoint_pub.publish(goal);
+      }
+      ros::Duration wait = ros::Time::now() - last_stop_update;
+      std_msgs::Bool stop;
+      stop.data = (wait_at_waypoint && (wait.toSec() < 2.5));  //NOLINT
+      stop_pub.publish(stop);
+    }
+    else
+    {
+      ROS_WARN("No waypoints in vector.");
+    }
   }
-  else
-  {
-    ROS_WARN("No waypoints in vector.");
-  }
+  catch (tf::TransformException ex)  //NOLINT
+    {
+      ROS_ERROR("%s", ex.what());
+    }
 }
 
 
@@ -227,8 +272,10 @@ int main(int argc, char** argv)
 
   stop_pub = n.advertise<std_msgs::Bool>("/grudsby/stop", 100);
 
-  ros::Subscriber navsat_sub;
-  navsat_sub = n.subscribe("/fix", 100, findWaypointCallback);
+  ros::Subscriber map_sub;
+  map_sub = n.subscribe("/odometry/filtered_map", 100, findWaypointCallback);
+
+
 
   ros::Subscriber mowing_plan_sub;
   mowing_plan_sub = n.subscribe("/grudsby/mowing_plan", 100, mowingPlanCallback);

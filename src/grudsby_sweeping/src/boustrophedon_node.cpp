@@ -347,7 +347,6 @@ int main(int argc, char** argv)
     CURL *curl;
     CURLcode res;
     std::string readBuffer;
-
     curl = curl_easy_init();
     if(curl) {
       curl_easy_setopt(curl, CURLOPT_URL, (app_url_+"/region?polygon_id=sve").c_str());
@@ -362,14 +361,18 @@ int main(int argc, char** argv)
       }
       else
       {
-        latest_mowing_region_ = readBuffer; 
-        std::string plan = "jsonData="+planner.planPath(readBuffer, mowing_plan_);
-        char* toPost = new char [plan.length()+1];
-        std::strcpy (toPost,plan.c_str());
-        curl_easy_setopt(curl, CURLOPT_URL, (app_url_+"/savePlan").c_str());
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, toPost);
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)strlen(toPost));
-        res = curl_easy_perform(curl);
+        if (latest_mowing_region_.compare(readBuffer)!=0)
+        { 
+          //ROS_ERROR("Planning new plan");
+          latest_mowing_region_ = readBuffer; 
+          std::string plan = "jsonData="+planner.planPath(readBuffer, mowing_plan_);
+          char* toPost = new char [plan.length()+1];
+          std::strcpy (toPost,plan.c_str());
+          curl_easy_setopt(curl, CURLOPT_URL, (app_url_+"/savePlan").c_str());
+          curl_easy_setopt(curl, CURLOPT_POSTFIELDS, toPost);
+          curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)strlen(toPost));
+          res = curl_easy_perform(curl);
+       }
       }  
       CURL *curl2;
       curl2 = curl_easy_init();
@@ -395,7 +398,7 @@ int main(int argc, char** argv)
             outputBorder(latest_mowing_region_, resolution_, occupied_thresh_, free_thresh_, negate_, outer_edge_buffer_, map_directory_);
             //Send Mowing Plan to grudsby
             mowing_plan_pub.publish(mowing_plan_); 
-            
+            ROS_ERROR("Sent a new plan to grudsby");            
           }
           plan_approved_ = true;
         }
@@ -408,6 +411,7 @@ int main(int argc, char** argv)
     curl_easy_cleanup(curl);
     std::string posUpdate = app_url_+pos_message_;
     //ROS_ERROR("submission: %s",posUpdate.c_str());    
+    //ROS_ERROR("Sending position");
     CURL *curl3;
     curl3 = curl_easy_init();
     curl_easy_setopt(curl3, CURLOPT_URL, posUpdate.c_str());
