@@ -13,14 +13,14 @@ robot_base_frame: base_link
 resolution: 0.1 
 transform_tolerance: 0.2
 
-static:
-#    map_topic: /map
-#    subscribe_to_updates: true
+static_map:
+  map_topic: /map
+  subscribe_to_updates: true
   enabled: true
-  height: 50
-  width: 50
-  origin_x: -25
-  origin_y: -25
+#  height: 50
+#  width: 50
+#  origin_x: -25
+#  origin_y: -25
 
 obstacles_laser:
   obstacle_range: 8
