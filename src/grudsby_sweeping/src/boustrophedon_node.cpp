@@ -90,7 +90,7 @@ void odomCallback(const nav_msgs::Odometry& msg)
     ss << ",\"lng\":";
     ss << std::setprecision(18) << std::fixed << Lng;
     ss << ",\"rot\":";
-    ss << std::setprecision(18) << std::fixed << -5+yaw*180.0/3.141529;
+    ss << std::setprecision(18) << std::fixed << -10+yaw*180.0/3.141529;
     ss << "}";
     pos_message_ = ss.str();    
   }
@@ -308,7 +308,7 @@ int main(int argc, char** argv)
   }
   if (!n.getParam("grudsby_sweeping_planner/negate", negate_))
   {
-    negate_ = 1;
+    negate_ = 0;
   }
   if (!n.getParam("grudsby_sweeping_planner/outer_edge_buffer", outer_edge_buffer_))
   {
