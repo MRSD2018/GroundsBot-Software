@@ -86,7 +86,6 @@ sudo apt install libcurl4-openssl-dev
 -grudsby_navStack package
 ```bash
 sudo apt install ros-kinetic-move-base
-sudo apt install ros-kinetic-map-server
 sudo apt-get install ros-kinetic-dwa-local-planner
 sudo apt-get instlal ros-kinetic-laser-geometry
 ```
