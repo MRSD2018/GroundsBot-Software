@@ -9,6 +9,7 @@
 #include <fstream>
 #include "navsat_conversions.h"
 #include "nav_msgs/Odometry.h"
+#include "std_msgs/Bool.h"
 #include "geometry_msgs/PoseStamped.h"
 #include "tf/transform_listener.h"
 #include <tf/transform_datatypes.h>
@@ -46,6 +47,7 @@ double negate_;
 double outer_edge_buffer_;
 
 std::string map_directory_;
+
 
 void odomCallback(const nav_msgs::Odometry& msg)
 {
@@ -288,6 +290,8 @@ int main(int argc, char** argv)
 
   ros::NodeHandle n;
 
+  ros::Publisher costmap_reset_pub = n.advertise<std_msgs::Bool>("move_base/update_map_server", 1000);
+  
   ros::Publisher mowing_plan_pub = n.advertise<grudsby_sweeping::MowingPlan>("grudsby/mowing_plan", 1000);
  
   if (!n.getParam("grudsby_sweeping_planner/app_url", app_url_))
@@ -397,6 +401,8 @@ int main(int argc, char** argv)
             // Draw the png file of the region
             outputBorder(latest_mowing_region_, resolution_, occupied_thresh_, free_thresh_, negate_, outer_edge_buffer_, map_directory_);
             //Send Mowing Plan to grudsby
+            std_msgs::Bool costmap_reset; 
+            costmap_reset_pub.publish(costmap_reset); 
             mowing_plan_pub.publish(mowing_plan_); 
             ROS_ERROR("Sent a new plan to grudsby");            
           }
