@@ -325,7 +325,7 @@ int main(int argc, char** argv)
   ros::Subscriber odom_sub;
   odom_sub = n.subscribe("/odometry/filtered_map", 100, odomCallback); 
 
-  ros::Rate loop_rate(5);
+  ros::Rate loop_rate(10);
  
   if (!n.getParam("grudsby_sweeping_planner/implement_width", implement_width_))
   {
@@ -345,14 +345,16 @@ int main(int argc, char** argv)
   plan_approved_ = false; 
   
   int count = 0;
-
+ 
   while (ros::ok())
   {
     CURL *curl;
     CURLcode res;
     std::string readBuffer;
     curl = curl_easy_init();
-    if(curl) {
+    if(curl) 
+    {
+      curl_easy_reset(curl); 
       curl_easy_setopt(curl, CURLOPT_URL, (app_url_+"/region?polygon_id=sve").c_str());
       curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
       curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
@@ -372,19 +374,18 @@ int main(int argc, char** argv)
           std::string plan = "jsonData="+planner.planPath(readBuffer, mowing_plan_);
           char* toPost = new char [plan.length()+1];
           std::strcpy (toPost,plan.c_str());
+          curl_easy_reset(curl); 
           curl_easy_setopt(curl, CURLOPT_URL, (app_url_+"/savePlan").c_str());
           curl_easy_setopt(curl, CURLOPT_POSTFIELDS, toPost);
           curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)strlen(toPost));
           res = curl_easy_perform(curl);
-       }
-      }  
-      CURL *curl2;
-      curl2 = curl_easy_init();
-      curl_easy_setopt(curl2, CURLOPT_URL, (app_url_+"/approval?polygon_id=sve").c_str());
-      curl_easy_setopt(curl2, CURLOPT_WRITEFUNCTION, WriteCallback);
-      curl_easy_setopt(curl2, CURLOPT_WRITEDATA, &readBuffer);
-      res = curl_easy_perform(curl2);
-      curl_easy_cleanup(curl2);
+        }
+      } 
+      curl_easy_reset(curl); 
+      curl_easy_setopt(curl, CURLOPT_URL, (app_url_+"/approval?polygon_id=sve").c_str());
+      curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+      curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+      res = curl_easy_perform(curl);
       std::size_t regionID = readBuffer.find("regionID");
       std::size_t approval = readBuffer.find("approval");
       if ((regionID == std::string::npos) || (approval == std::string::npos))
@@ -413,20 +414,18 @@ int main(int argc, char** argv)
           plan_approved_ = false;
         }
       }
-    }
-    curl_easy_cleanup(curl);
-    std::string posUpdate = app_url_+pos_message_;
-    //ROS_ERROR("submission: %s",posUpdate.c_str());    
-    //ROS_ERROR("Sending position");
-    CURL *curl3;
-    curl3 = curl_easy_init();
-    curl_easy_setopt(curl3, CURLOPT_URL, posUpdate.c_str());
-    curl_easy_setopt(curl3, CURLOPT_WRITEFUNCTION, WriteCallback);
-    curl_easy_setopt(curl3, CURLOPT_WRITEDATA, &readBuffer);
-    res = curl_easy_perform(curl3);
-    curl_easy_cleanup(curl3);
-    
+      std::string posUpdate = app_url_+pos_message_;
+      //ROS_ERROR("submission: %s",posUpdate.c_str());    
+      //ROS_ERROR("Sending position");
+      curl_easy_reset(curl); 
+      curl_easy_setopt(curl, CURLOPT_URL, posUpdate.c_str());
+      curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+      curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+      res = curl_easy_perform(curl);
+    } 
 
+    curl_easy_cleanup(curl);
+    
     ros::spinOnce();
   
     loop_rate.sleep();
