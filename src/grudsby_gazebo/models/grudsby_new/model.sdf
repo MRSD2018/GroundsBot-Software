@@ -4,7 +4,7 @@
 
     <!-- ####################Grudsby Robot Links##########################  -->
     <link name='frame'>
-      <pose frame=''>-0.00546 -0.000272 0.044505 0 0 0</pose>
+      <pose frame=''>0 0 0 0 0 0</pose>
       <inertial>
         <mass>51</mass>
         <inertia>
@@ -15,7 +15,7 @@
           <iyz>0</iyz>
           <izz>6.79</izz>
         </inertia>
-        <pose frame=''>0 0 0 0 -0 0</pose>
+        <pose frame=''>0.255 0 0 0 -0 0</pose>
       </inertial>
       <gravity>1</gravity>
       <self_collide>0</self_collide>
@@ -43,7 +43,7 @@
       <collision name='collision'>
         <laser_retro>0</laser_retro>
         <max_contacts>10</max_contacts>
-        <pose frame=''>-0.09 0 0 0 -0 0</pose>
+        <pose frame=''>0.165 0 0.007 0 -0 0</pose>
         <geometry>
           <box>
             <size>1.02 0.53 0.25</size>
@@ -152,7 +152,7 @@
       </collision>
     </link>
     <link name='right_wheel'>
-      <pose frame=''>-0.255 -0.246272 -0.007 0 -0 0</pose>
+      <pose frame=''>-0 -0.256272 0 0 -0 0</pose>
       <inertial>
         <mass>2</mass>
         <inertia>
@@ -248,7 +248,7 @@
       </collision>
     </link>
     <link name='left_wheel'>
-      <pose frame=''>-0.255 0.264272 -0.007 0 -0 0</pose>
+      <pose frame=''>0 0.254272 0 0 -0 0</pose>
       <inertial>
         <mass>2</mass>
         <inertia>
@@ -347,22 +347,22 @@
     <!-- ######################Imported Models#####################  -->
     <include>
       <uri>model://grudsby_caster</uri>
-      <pose frame=''>0.63 0.0075 0.02 0 0 0</pose>
+      <pose frame=''>0.885 0 0.027 0 0 0</pose>
     </include>
 
     <include>
       <uri>model://grudsby_imu</uri>
-      <pose frame=''>0.43 -0.175 0.17 0 0 0</pose>
+      <pose frame=''>0.73393 -0.1723 0.148415 0 0 0</pose>
     </include>
 
     <include>
       <uri>model://grudsby_gps</uri>
-      <pose frame=''>0.63 0.0075 .15 -.25 0 0</pose>
+      <pose frame=''>0.82963 0 .157 -0.25 0 0</pose>
     </include>
  
     <include>
       <uri>model://grudsby_laser</uri>
-      <pose frame=''>0.17 0.0075 0.33 0 0 0</pose>
+      <pose frame=''>0.93209511 0 0.1717 0 0 0</pose>
     </include>
   
 
