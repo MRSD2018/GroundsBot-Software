@@ -437,12 +437,14 @@ void findWaypointCallback(const nav_msgs::Odometry& msg)
 void mowingPlanCallback(const grudsby_sweeping::MowingPlan& msg)
 {
   goals.resize(0);
+  std::ofstream outf(mower_path.c_str());
   for (grudsby_sweeping::SimpleLatLng waypoint : msg.waypoints)
   {
     Waypoint newPoint;
     newPoint.latitude = waypoint.latitude;
     newPoint.longitude = waypoint.longitude;
     newPoint.altitude = 0;
+    outf << newPoint.longitude << ',' << newPoint.latitude << ',' << newPoint.altitude << ' ' << std::endl;
     goals.push_back(newPoint);  
   } 
 }
