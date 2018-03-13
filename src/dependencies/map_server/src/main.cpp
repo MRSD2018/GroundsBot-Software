@@ -61,7 +61,7 @@ class MapServer
 {
   public:
     /** Trivial constructor */
-    MapServer(const std::string& fname, double res)
+    MapServer(const std::string& fname, double res, const std::string& mapname)
     {
       std::string mapfname = "";
       double origin[3];
@@ -116,18 +116,22 @@ class MapServer
           std::string modeS = "";
           doc["mode"] >> modeS;
 
-          if(modeS=="trinary")
+          if(modeS=="trinary") 
+          {
             mode = TRINARY;
+          }
           else if(modeS=="scale")
             mode = SCALE;
           else if(modeS=="raw")
+          {
             mode = RAW;
+          }
           else{
             ROS_ERROR("Invalid mode tag \"%s\".", modeS.c_str());
             exit(-1);
           }
         } catch (YAML::Exception) {
-          ROS_DEBUG("The map does not contain a mode tag or it is invalid... assuming Trinary");
+          ROS_INFO("The map does not contain a mode tag or it is invalid... assuming Trinary");
           mode = TRINARY;
         }
         try {
@@ -192,7 +196,7 @@ class MapServer
       metadata_pub.publish( meta_data_message_ );
 
       // Latched publisher for data
-      map_pub = n.advertise<nav_msgs::OccupancyGrid>("map", 1, true);
+      map_pub = n.advertise<nav_msgs::OccupancyGrid>(mapname.c_str(), 1, true);
       map_pub.publish( map_resp_.map );
     }
 
@@ -233,19 +237,23 @@ MapServer *current_server_;
 
 std::string filename_;
 
+std::string topicname_;
+
+std::string mapname_;
+
 double resolution_;
 
 void updateMapServerCallback(const std_msgs::Bool& msg)
 {
   delete current_server_;
-  current_server_ = new MapServer(filename_, resolution_);
+  current_server_ = new MapServer(filename_, resolution_, mapname_);
 }
 
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "map_server", ros::init_options::AnonymousName);
   ros::NodeHandle n;   
-  if(argc != 3 && argc != 2)
+  if(argc != 4)
   {
     ROS_ERROR("%s", USAGE);
     exit(-1);
@@ -254,14 +262,17 @@ int main(int argc, char **argv)
     ROS_WARN("Using deprecated map server interface. Please switch to new interface.");
   }
   filename_ = argv[1];
-  resolution_ = (argc == 2) ? 0.0 : atof(argv[2]);
+  topicname_ = argv[2]; 
+  mapname_ = argv[3];   
+  resolution_ = 0.0 ;
   
   ros::Subscriber update_sub;
-  update_sub = n.subscribe("/move_base/update_map_server", 100, updateMapServerCallback);
+  //"/move_base/update_map_server"
+  update_sub = n.subscribe(topicname_.c_str(), 100, updateMapServerCallback);
  
   try
   {
-    current_server_ = new MapServer(filename_, resolution_);
+    current_server_ = new MapServer(filename_, resolution_, mapname_);
     ros::spin();
   }
   catch(std::runtime_error& e)

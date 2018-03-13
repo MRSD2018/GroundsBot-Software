@@ -18,6 +18,11 @@
   <rosparam>
       mower_path_file: '/home/nvidia/GroundsBot-Software/data/mower_path.kml'
       wait_at_waypoint: true
+      resolution: 0.05
+      occupied_thresh: 0.65
+      free_thresh: 0.196
+      negate: 0
+      map_directory: "/home/nvidia/GroundsBot-Software/data"
     </rosparam>
   </node>
   
