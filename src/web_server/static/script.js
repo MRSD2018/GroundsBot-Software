@@ -361,7 +361,7 @@ grudsby.App.DEFAULT_ZOOM = 20;
 
 
 /** @type {Object} The default center of the map. */
-grudsby.App.DEFAULT_CENTER = {lng: -79.940813, lat: 40.444522};
+grudsby.App.DEFAULT_CENTER = {lng: -78.906790, lat: 33.671536};
 
 /** @type {Object} The polygon drawing manager. */
 grudsby.App.polyDrawingManager;

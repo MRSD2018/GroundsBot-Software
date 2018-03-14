@@ -22,11 +22,6 @@ static_map:
 #  origin_x: -25
 #  origin_y: -25
 
-lines_map:
-  map_topic: /map_lines
-  subscribe_to_updates: true
-  enabled: true
-
 obstacles_laser:
   obstacle_range: 8
   raytrace_range: 10

@@ -27,13 +27,10 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCL
 
 
 <launch>
-
-  <node name="map_server"          pkg="map_server" type="map_server" args = "/home/nvidia/GroundsBot-Software/data/map.yaml /move_base/update_map_server map">
+  <node name="grudsby_map_server" pkg="grudsby_map_server" type="grudsby_map_server" args = "">
     <param name="frame_id" value="map"/>
-  </node>
-
-  <node name="map_server_lines"          pkg="map_server" type="map_server" args = "/home/nvidia/GroundsBot-Software/data/map_lines.yaml /move_base/update_map_lines map_lines">
-    <param name="frame_id" value="map"/>
+    <param name="resolution" value="0.05"/>
+    <param name="outer_edge_buffer" value="1"/>
   </node>
 
   <arg  name="no_static_map"       default="true"/>
