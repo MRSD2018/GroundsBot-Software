@@ -15,7 +15,7 @@
   <node pkg="imu_repeater" type="imu_repeater.py" name="imu_repeater"/>
 
 <!-- Bumblebee Vision nodes -->
-  <include file="$(find grudsby_launch)/launch/vision.launch"/>
+<!--  <include file="$(find grudsby_launch)/launch/vision.launch"/>
   <include file="$(find grudsby_costmap)/launch/cost.launch"/>
   
 
@@ -37,6 +37,7 @@
       wait_at_waypoint: true
     </rosparam>
   </node>
+-->
 <!-- 
 	<node name="gucci_gang" pkg="gucci_gang" type="gucci_gang"/>
 -->
