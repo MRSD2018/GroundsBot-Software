@@ -29,9 +29,36 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCL
 <launch>
 
 
+  <node pkg="grudsby_costmap" type="obstacles.py" name="obstacle_detect"/>
+
   <node name="map_server"          pkg="map_server" type="map_server" args = "$(find grudsby_costmap)/map/map.yaml">
     <param name="frame_id" value="base_link"/>
   </node>
+
+  <node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" name="pointcloud_to_laserscan">
+    <remap from="/cloud_in" to= "/tegra_stereo/points2"/> 
+    <rosparam>
+      target_frame: gps # Leave disabled to output scan in pointcloud frame
+      transform_tolerance: 0.01
+      min_height: 0.0
+      max_height: 10.0
+
+      angle_min: -1.5708 # -M_PI/2
+      angle_max: 1.5708 # M_PI/2
+      angle_increment: 0.0087 # M_PI/360.0
+      scan_time: 0.3333
+      range_min: 0.45
+      range_max: 4.0
+      use_inf: true
+
+      # Concurrency level, affects number of pointclouds queued for processing and number of threads used
+      # 0 : Detect number of cores
+      # 1 : Single threaded
+      # 2->inf : Parallelism level
+      concurrency_level: 1
+    </rosparam>
+  </node>
+
   <arg  name="no_static_map"       default="true"/>
   <arg  name="base_global_planner" default="navfn/NavfnROS"/>
   <arg  name="base_local_planner"  default="dwa_local_planner/DWAPlannerROS"/>
@@ -56,4 +83,3 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCL
 <!-- node pkg="tf" type="static_transform_publisher" name="stereomap"  args="0 0 0 0 0 3.14  map odom 100" /> -->
 <!--  <node pkg="tf" type="static_transform_publisher" name="baseodom"  args="0 0 0 0 0 0  odom base_link 100" /> -->
 <!-- <node pkg="tf" type="static_transform_publisher" name="stereomapx" args="0 0 1 0 1.57 3.14  base_link stereo_camera 100" /> -->
-
