@@ -15,19 +15,19 @@ robot_base_frame: base_link
 resolution: 0.1 
 transform_tolerance: 0.2
 
-static_map:
-  map_topic: /map
-  subscribe_to_updates: true
-  enabled: true
+#static_map:
+#  map_topic: /map
+#  subscribe_to_updates: true
+#  enabled: true
 #  height: 50
 #  width: 50
 #  origin_x: -25
 #  origin_y: -25
 
-lines_map:
-  map_topic: /map_lines
-  subscribe_to_updates: true
-  enabled: true
+#lines_map:
+#  map_topic: /map_lines
+#  subscribe_to_updates: true
+#  enabled: true
 
 
 obstacles:

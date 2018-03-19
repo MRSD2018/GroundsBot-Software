@@ -15,8 +15,8 @@
   <node pkg="imu_repeater" type="imu_repeater.py" name="imu_repeater"/>
 
 <!-- Bumblebee Vision nodes -->
-<!--  <include file="$(find grudsby_launch)/launch/vision.launch"/>
-  <include file="$(find grudsby_costmap)/launch/cost.launch"/>
+  <include file="$(find grudsby_launch)/launch/vision.launch"/>
+<!--  <include file="$(find grudsby_costmap)/launch/cost.launch"/> -->
   
 
   <node name="grudsby_simple_planner" pkg="grudsby_simple_planner" type="grudsby_simple_planner">
