@@ -19,7 +19,7 @@
 <!--  <include file="$(find grudsby_costmap)/launch/cost.launch"/> -->
   
 
-  <node name="grudsby_simple_planner" pkg="grudsby_simple_planner" type="grudsby_simple_planner">
+  <!-- node name="grudsby_simple_planner" pkg="grudsby_simple_planner" type="grudsby_simple_planner">
     <rosparam>
       sp_kp_lin: 0.75
       sp_ki_lin: 0.01
@@ -30,7 +30,7 @@
       wait_at_waypoint: true
       goal_noise: 2.0 
     </rosparam>
-  </node>
+  </node -->
 
   <node name="grudsby_waypoint" pkg="grudsby_waypoint" type="grudsby_waypoint">
 <rosparam>
