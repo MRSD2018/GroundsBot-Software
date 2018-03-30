@@ -6,13 +6,25 @@ Boustrophedon::Boustrophedon(double implementWidth)
   messageSequence = 0;
 }
 
-std::string Boustrophedon::planPath(std::string region, grudsby_sweeping::MowingPlan& plan)
+std::string Boustrophedon::planPath(std::string region, grudsby_sweeping::MowingPlan& plan, grudsby_sweeping::MowingPlan& mowing_region)
 {
   ParsePath parser(region, myImplementWidth);
 
   //initialize polygon
-  std::vector<std::vector<double>> polygon;
+  std::vector<std::vector<double> > polygon;
   parser.getRegion(polygon);
+
+  mowing_region.waypoints.resize(0); 
+  for (int i = 0; i < polygon.size(); i++)
+  {
+    grudsby_sweeping::SimpleLatLng newPoint;
+    newPoint.latitude = polygon[i][1];
+    newPoint.longitude = polygon[i][0];
+    mowing_region.waypoints.push_back(newPoint); 
+  }
+  mowing_region.header.seq = messageSequence++;
+  mowing_region.header.stamp = ros::Time::now();
+  
 //  polygon = {{0,0}, {2, 0}, {4, 3}, {-2, 5}};
   //the width of the mowing implement
   double implementWidth = parser.getImplementWidth();

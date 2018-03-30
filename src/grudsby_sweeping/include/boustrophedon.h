@@ -20,7 +20,7 @@ class Boustrophedon
 {
   public:
     Boustrophedon(double implementWidth);
-    std::string planPath(std::string region, grudsby_sweeping::MowingPlan& plan);
+    std::string planPath(std::string region, grudsby_sweeping::MowingPlan& plan, grudsby_sweeping::MowingPlan& mowing_region);
 
   private:
     double myImplementWidth;

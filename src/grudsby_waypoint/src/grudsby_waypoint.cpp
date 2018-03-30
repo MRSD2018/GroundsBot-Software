@@ -23,8 +23,7 @@
 
 
 ros::Publisher waypoint_pub;
-ros::Publisher map_lines_reset_pub;
-
+ros::Publisher waypoint_lines_pub;
 ros::Publisher stop_pub;
 ros::Time last_stop_update;
 ros::Time last_goal_update;
@@ -37,6 +36,8 @@ double resolution_;
 double negate_;
 
 std::string map_directory_;
+
+int message_sequence_ = 0;
 
 struct Waypoint
 {
@@ -136,191 +137,6 @@ bool inThreshold(double lat, double lon, double goal_lat, double goal_lon)
 }
 
 
-void outputBorder(double newLat, double newLng, double oldLat, double oldLng, double resolution,  double negate,  std::string map_directory)
-{
-  // Parse region
-  std::vector<std::vector<double>> parsedRegion;
-  std::vector<double> oldLatLng;
-  oldLatLng.push_back(oldLng);
-  oldLatLng.push_back(oldLat);
-  parsedRegion.push_back(oldLatLng);
-  std::vector<double> newLatLng;
-  newLatLng.push_back(newLng);
-  newLatLng.push_back(newLat);
-  parsedRegion.push_back(newLatLng);
-  
-  static tf::TransformListener listener;
-
-  if (!listener.waitForTransform("/map", "/utm", ros::Time::now(), ros::Duration(1.0)))
-  { 
-    return;
-  }
-  double max_x = -9999999999;
-  double max_y = -9999999999;
-  double min_x = 9999999999;
-  double min_y = 9999999999; 
-  for (std::vector<double> &latlng : parsedRegion)
-  {
-    double goal_easting_x = 0;
-    double goal_northing_y = 0;
-    std::string utm_zone_tmp;
-    //ROS_ERROR("input lat lng:%f,%f",goal_lat,goal_long);
-    RobotLocalization::NavsatConversions::LLtoUTM(
-      latlng[1],
-      latlng[0],
-      goal_northing_y,
-      goal_easting_x,
-      utm_zone_tmp
-    );
-    
-    geometry_msgs::PoseStamped coord, coord_in_map;
-    coord.pose.position.x = goal_easting_x;
-    coord.pose.position.y = goal_northing_y;
-    coord.pose.position.z = 0;
-    coord.pose.orientation.w = 1; 
-    coord.header.frame_id = "/utm";
-    try
-    {
-      listener.transformPose("/map", coord, coord_in_map);
-      latlng[0] = coord_in_map.pose.position.x;
-      latlng[1] = coord_in_map.pose.position.y;
-      //ROS_ERROR("Lat %f Lng %f",latlng[0],latlng[1]);
-      max_x = std::max(max_x,latlng[0]);
-      min_x = std::min(min_x,latlng[0]);
-      max_y = std::max(max_y,latlng[1]);
-      min_y = std::min(min_y,latlng[1]);
-    
-      //ROS_ERROR("MIN %f %f   MAX %f %f",min_x,min_y,max_x,max_y);
-    }
-    catch (tf::TransformException ex)  //NOLINT
-    {
-      ROS_ERROR("%s", ex.what());
-    }
-  }
-  ROS_INFO("Got Transforms"); 
-  // Push all edges out by "outer_edge_buffer"
-  parsedRegion.push_back(parsedRegion[0]); 
-  
-  max_x += 4;
-  min_x -= 4;
-  max_y += 4;
-  min_y -= 4;      
-  double width = (max_x-min_x)/resolution;
-  double height = (max_y-min_y)/resolution;
-  ROS_INFO("Outputting yaml");
-  // Output YAML
-  std::ofstream file_out((map_directory + "/map_lines.yaml").c_str(), std::ios::binary);
-  file_out << "image: map_lines.png" << std::endl;
-  file_out << "resolution: " << resolution << std::endl;
-  file_out << "origin: [" << min_x << ", " << min_y << ", 0.0]" << std::endl;
-  file_out << "occupied_thresh: 0.0" << std::endl;
-  file_out << "free_thresh: 1.0" << std::endl;
-  file_out << "mode: raw" << std::endl;
-  file_out << "negate: " << negate << std::endl;
-  file_out.close();
-  
-  ROS_INFO("Building map");
-  //ROS_ERROR("MIN %f %f   MAX %f %f",min_x,min_y,max_x,max_y);
-  int no_cols = std::ceil((max_x-min_x)/resolution);
-  int no_rows = std::ceil((max_y-min_y)/resolution);
-  const int init_val = 255;
-  std::vector< std::vector<uint8_t> > mat;
-  mat.resize(no_rows, std::vector<uint8_t>(no_cols, init_val) ); 
-  for (int x = 0; x < no_cols; x++)//min_x; x < max_x; x += resolution)
-  {
-    for (int y = 0; y < no_rows; y++)//= min_y; y < max_y; y += resolution)
-    {
-      // Output PNG
-      std::vector<double> test_point;
-      test_point.push_back(min_x + x*resolution);
-      test_point.push_back(max_y - y*resolution);
-      double minDist = 99999999999;
-      for (int i = 0; i < parsedRegion.size()-1; i++) 
-      {
-        double dist = sqrt(pow((parsedRegion[i][0]-test_point[0]),2.0) + pow((parsedRegion[i][1]-test_point[1]),2.0)); 
-        minDist = std::min(minDist, dist);
-        Vector2 fullVec;
-        fullVec.X = parsedRegion[i+1][0] - parsedRegion[i][0];
-        fullVec.Y = parsedRegion[i+1][1] - parsedRegion[i][1];
-        Vector2 unitFull = Vector2::Normalized(fullVec);  
-        Vector2 testVec;
-        testVec.X = test_point[0] - parsedRegion[i][0];
-        testVec.Y = test_point[1] - parsedRegion[i][1];
-        double dotted = Vector2::Dot(testVec,unitFull);
-        if ((dotted > 0) && (dotted < Vector2::Magnitude(fullVec)))
-        {
-          Vector2 orthVec = testVec - dotted*unitFull;
-          minDist = std::min(minDist, Vector2::Magnitude(orthVec));
-        } 
-      }      
-      double mapped = std::min(pow(minDist,0.5)*5.0,5.0)*10.0;
-      mat[y][x] = static_cast<uint8_t>(mapped);
-      
-    }
-  }
-  
-  ROS_INFO("Output the map to png");
- 
-  int width_mat = mat[0].size();
-  int height_mat = mat.size();
- 
-  FILE *fp = fopen((map_directory+"/map_lines.png").c_str(), "wb");
-  if(!fp) ROS_ERROR("Failed to open png file.");
-
-  png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-  if (!png) ROS_ERROR("File to write is not a png file.");
-
-  png_infop info = png_create_info_struct(png);
-  if (!info) ROS_ERROR("Failure greating png info struct");
-
-  if (setjmp(png_jmpbuf(png))) ROS_ERROR("Couldn't set jmpbuf.");
-
-  png_init_io(png, fp);
-
-  // Output is 8bit depth, RGBA format.
-  png_set_IHDR(
-    png,
-    info,
-    width_mat, height_mat,
-    8,
-    PNG_COLOR_TYPE_RGBA,
-    PNG_INTERLACE_NONE,
-    PNG_COMPRESSION_TYPE_DEFAULT,
-    PNG_FILTER_TYPE_DEFAULT
-  );
-  png_write_info(png, info);
-
-  png_byte color_type = PNG_COLOR_TYPE_PALETTE;
-  png_byte bit_depth = 16;
-  png_bytep *row_pointers;
-  row_pointers = (png_bytep*)malloc(sizeof(png_bytep) * height_mat);
-  for(int y = 0; y < height_mat; y++) {
-    row_pointers[y] = (png_byte*)malloc(png_get_rowbytes(png,info));
-  }
-
-  for(int y = 0; y < height_mat; y++) {
-    png_bytep row = row_pointers[y];
-    for(int x = 0; x < width_mat; x++) {
-      png_bytep px = &(row[x * 4]);
-      px[0] = mat[y][x]; 
-      px[1] = mat[y][x]; 
-      px[2] = mat[y][x]; 
-      px[3] = 255; // No transparency 
-      //printf("%4d, %4d = RGBA(%3d, %3d, %3d, %3d)\n", x, y, px[0], px[1], px[2], px[3]);
-    }
-  }
- 
-  png_write_image(png, row_pointers);
-  png_write_end(png, NULL);
-
-  for(int y = 0; y < height; y++) {
-    free(row_pointers[y]);
-  }
-  free(row_pointers);
-
-  fclose(fp);
-}
-
 void findWaypointCallback(const nav_msgs::Odometry& msg)
 {
   ROS_INFO("Building new goal message");
@@ -382,10 +198,22 @@ void findWaypointCallback(const nav_msgs::Odometry& msg)
           double old_lng = goal_long;
           goal_lat = goals.front().latitude;
           goal_long = goals.front().longitude;
+          grudsby_sweeping::MowingPlan map_lines;
+          map_lines.header.seq = message_sequence_++;
+          map_lines.header.stamp = ros::Time::now();
+          map_lines.waypoints.resize(0);
+          grudsby_sweeping::SimpleLatLng line_point;
+          line_point.latitude = old_lat;
+          line_point.longitude = old_lng;
+          map_lines.waypoints.push_back(line_point); 
+          line_point.latitude = goal_lat;
+          line_point.longitude = goal_long;
+          map_lines.waypoints.push_back(line_point); 
+          waypoint_lines_pub.publish(map_lines);
+
+
           time_duration = 100000; // Make sure new goals are sent immediately
-          outputBorder(goal_lat, goal_long, old_lat, old_lng, resolution_, negate_, map_directory_);
-          std_msgs::Bool costmap_reset; 
-          map_lines_reset_pub.publish(costmap_reset);
+          
         }
         else
         {
@@ -468,30 +296,17 @@ int main(int argc, char** argv)
   {
     ROS_INFO("Loaded mower path from param");
   }
-  if (!n.getParam("grudsby_sweeping_planner/resolution", resolution_))
-  {
-    resolution_ = 0.05;
-  }
-  if (!n.getParam("grudsby_sweeping_planner/negate", negate_))
-  {
-    negate_ = 0;
-  }
-  if (!n.getParam("grudsby_sweeping_planner/map_directory", map_directory_))
-  {
-    map_directory_ = "/home/nvidia/GroundsBot-Software/data";
-  }
-
+  
   parseKMLFile();
 
   waypoint_pub = n.advertise<geometry_msgs::PoseStamped>("/goal", 1000);
 
   stop_pub = n.advertise<std_msgs::Bool>("/grudsby/stop", 100);
   
-  map_lines_reset_pub = n.advertise<std_msgs::Bool>("move_base/update_map_lines", 1000);
+  waypoint_lines_pub = n.advertise<grudsby_sweeping::MowingPlan>("grudsby/waypoint_lines", 1000);
 
   ros::Subscriber map_sub;
   map_sub = n.subscribe("/odometry/filtered_map", 100, findWaypointCallback);
-
 
 
   ros::Subscriber mowing_plan_sub;
