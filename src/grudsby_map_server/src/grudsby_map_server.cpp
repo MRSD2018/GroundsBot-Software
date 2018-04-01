@@ -325,7 +325,7 @@ void waypointLinesCallback(const grudsby_sweeping::MowingPlan& msg)
           minDist = std::min(minDist, Vector2::Magnitude(orthVec));
         } 
       }      
-      double mapped = std::min(pow(minDist,0.5)*5.0,5.0)*5.0;
+      double mapped = std::min(pow(minDist,0.5)*5.0,5.0)*15.0;
 
       bool inRegion = (winding_num::wn_PnPoly(test_point, parsed_outline_) != 0);
       for (int i = 0; i < parsed_outline_.size()-1; i++) 

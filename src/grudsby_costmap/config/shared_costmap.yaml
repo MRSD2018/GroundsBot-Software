@@ -52,4 +52,4 @@ obstacles_laser:
   }
 
 inflation:
-    inflation_radius: 2.0
+    inflation_radius: 3
