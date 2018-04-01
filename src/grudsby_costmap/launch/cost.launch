@@ -27,15 +27,15 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCL
 
 
 <launch>
-<!--
+
   <node name="grudsby_map_server" pkg="grudsby_map_server" type="grudsby_map_server" args = "">
     <param name="frame_id" value="map"/>
     <param name="resolution" value="0.05"/>
     <param name="outer_edge_buffer" value="1"/>
   </node>
--->
 
-  <arg  name="no_static_map"       default="true"/>
+
+  <arg  name="no_static_map"       default="false"/>
   <arg  name="base_global_planner" default="navfn/NavfnROS"/>
   <arg  name="base_local_planner"  default="dwa_local_planner/DWAPlannerROS"/>
 

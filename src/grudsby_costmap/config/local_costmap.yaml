@@ -8,4 +8,4 @@ local_costmap:
 
   plugins:
     - {name: obstacles,           type: "costmap_2d::ObstacleLayer"}
-  #  - {name: inflation,                 type: "costmap_2d::InflationLayer"}
+    - {name: inflation,                 type: "costmap_2d::InflationLayer"}
