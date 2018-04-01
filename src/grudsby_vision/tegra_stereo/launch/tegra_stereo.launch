@@ -3,8 +3,8 @@
 
 <arg name="nodelet_manager_name" value="nodelet_manager" />
     <!-- for more info on P1, P2 see http://www.sciencedirect.com/science/article/pii/S1877050916306561?via%3Dihub-->
-    <arg name="P1" default="11" /> <!-- Stereo matching param: Penalties for small disparity changes -->
-    <arg name="P2" default="150" /> <!-- Stereo matching param: Penalties for large discontinuities -->
+    <arg name="P1" default="600" /> <!-- Stereo matching param: Penalties for small disparity changes -->
+    <arg name="P2" default="800" /> <!-- Stereo matching param: Penalties for large discontinuities -->
 
     <node pkg="nodelet" type="nodelet" name="$(arg nodelet_manager_name)" args="manager" output="screen">
     </node>
@@ -27,10 +27,6 @@
         <param name="camera_calibration_file_left_" type="str" value="$(find tegra_stereo)/cfg/left.yaml" />
         <param name="camera_calibration_file_right_" type="str" value="$(find tegra_stereo)/cfg/right.yaml" />
 
-        <remap to="/wide_stereo/left/camera_info" from="/stereo/left/camera_info"/>
-        <remap to="/wide_stereo/right/camera_info" from="/stereo/right/camera_info"/>
-        <remap to="/wide_stereo/left/image_rect" from="/stereo/left/image_raw"/>
-        <remap to="/wide_stereo/right/image_rect" from="/stereo/right/image_raw"/>
 
     </node>
 </launch>

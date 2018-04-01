@@ -125,7 +125,7 @@ void TegraStereoProc::imageCallback (
 
         left_model_.rectifyImage (left_raw_ptr->image, left_rect, cv::INTER_LINEAR);
         right_model_.rectifyImage (right_raw_ptr->image, right_rect, cv::INTER_LINEAR);
-        //publishRectifiedImages(left_rect, right_rect, l_image_msg, r_image_msg);
+        publishRectifiedImages(left_rect, right_rect, l_image_msg, r_image_msg);
         processRectified(left_rect, right_rect, l_image_msg);
     }
     else
@@ -143,8 +143,9 @@ void TegraStereoProc::publishRectifiedImages (const cv::Mat &left_rect,
 {
 
 
-    if(pub_rect_left_.getNumSubscribers() > 0 )
+    if(pub_rect_left_.getNumSubscribers() > 0 || true)
     {
+	NODELET_INFO("Publishing Left rect image");
         sensor_msgs::ImagePtr left_rect_msg = cv_bridge::CvImage (l_image_msg->header, l_image_msg->encoding, left_rect).toImageMsg();
         if(out_left_frame_id.length() > 0)
         {
@@ -154,7 +155,7 @@ void TegraStereoProc::publishRectifiedImages (const cv::Mat &left_rect,
         pub_rect_left_.publish (left_rect_msg, boost::make_shared<sensor_msgs::CameraInfo>(mCameraInfoLeft_));
     }
 
-    if(pub_rect_right_.getNumSubscribers() >0 )
+    if(pub_rect_right_.getNumSubscribers() >0 || true)
     {
         sensor_msgs::ImagePtr right_rect_msg = cv_bridge::CvImage (r_image_msg->header, r_image_msg->encoding, right_rect).toImageMsg();
         if(out_right_frame_id.length() > 0)
