@@ -35,7 +35,7 @@ transform_tolerance: 0.2
 
 
 obstacles_laser:
-  obstacle_range: 8
+  obstacle_range: 5
   raytrace_range: 10
   enabled: true
   observation_sources: base_scan
@@ -50,4 +50,4 @@ obstacles_laser:
   }
 
 inflation:
-    inflation_radius: 1.0
+    inflation_radius: .2
