@@ -7,5 +7,5 @@ local_costmap:
   width: 10.0
 
   plugins:
-    - {name: obstacles,           type: "costmap_2d::ObstacleLayer"}
+    - {name: obstacles_laser,           type: "costmap_2d::ObstacleLayer"}
     - {name: inflation,                 type: "costmap_2d::InflationLayer"}

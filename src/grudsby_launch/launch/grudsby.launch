@@ -15,9 +15,9 @@
   <node pkg="imu_repeater" type="imu_repeater.py" name="imu_repeater"/>
 
 <!-- Bumblebee Vision nodes -->
-  <include file="$(find grudsby_launch)/launch/vision.launch"/>
+  <!-- <include file="$(find grudsby_launch)/launch/vision.launch"/> -->
  
-  <include file="$(find grudsby_costmap)/launch/cost.launch"/> 
+  <!-- <include file="$(find grudsby_costmap)/launch/cost.launch"/> -->
   
 
   <!-- node name="grudsby_simple_planner" pkg="grudsby_simple_planner" type="grudsby_simple_planner">
@@ -34,13 +34,13 @@
   </node -->
  
   <remap from="/goal" to="/move_base_simple/goal"/>
-  <node name="grudsby_waypoint" pkg="grudsby_waypoint" type="grudsby_waypoint">
+<!--  <node name="grudsby_waypoint" pkg="grudsby_waypoint" type="grudsby_waypoint">
 <rosparam>
       wait_at_waypoint: true
     </rosparam>
-  </node>
+  </node>-->
   
-  <include file="$(find grudsby_sweeping)/launch/grudsby_sweeping.launch"/>
+  <!--<include file="$(find grudsby_sweeping)/launch/grudsby_sweeping.launch"/>-->
 
 <!-- 
 	<node name="gucci_gang" pkg="gucci_gang" type="gucci_gang"/>
