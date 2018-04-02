@@ -20,7 +20,7 @@
 #include "Vector2.hpp"
 #include <algorithm>
 #include <cmath>
-
+#include <iomanip>
 
 ros::Publisher waypoint_pub;
 ros::Publisher waypoint_lines_pub;
@@ -272,7 +272,7 @@ void mowingPlanCallback(const grudsby_sweeping::MowingPlan& msg)
     newPoint.latitude = waypoint.latitude;
     newPoint.longitude = waypoint.longitude;
     newPoint.altitude = 0;
-    outf << newPoint.longitude << ',' << newPoint.latitude << ',' << newPoint.altitude << ' ' << std::endl;
+    outf << std::setprecision(10) << newPoint.longitude << std::setprecision(10) << ',' << newPoint.latitude << std::setprecision(10) << ',' << newPoint.altitude << ' ' << std::endl;
     goals.push_back(newPoint);  
   } 
 }

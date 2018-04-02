@@ -6,11 +6,11 @@
     <param name="frame_id" value="map"/>
   </node> --> 
 
-<!--  <node name="grudsby_map_server" pkg="grudsby_map_server" type="grudsby_map_server" args = "">
+ <node name="grudsby_map_server" pkg="grudsby_map_server" type="grudsby_map_server" args = "">
     <param name="frame_id" value="map"/>
     <param name="resolution" value="0.05"/>
     <param name="outer_edge_buffer" value="1"/>
-  </node> -->
+  </node> 
 
 
   <arg  name="no_static_map"       default="false"/>
