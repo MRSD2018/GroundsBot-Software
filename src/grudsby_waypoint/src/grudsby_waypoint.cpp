@@ -102,6 +102,7 @@ void parseKMLFile()
       ROS_INFO("Added GPS waypoint: %f, %f, %f", tmp.latitude, tmp.longitude, tmp.altitude);
     }
   }
+  infile.close();
 }
 
 double deg2rad(double deg)
@@ -274,7 +275,8 @@ void mowingPlanCallback(const grudsby_sweeping::MowingPlan& msg)
     newPoint.altitude = 0;
     outf << std::setprecision(10) << newPoint.longitude << std::setprecision(10) << ',' << newPoint.latitude << std::setprecision(10) << ',' << newPoint.altitude << ' ' << std::endl;
     goals.push_back(newPoint);  
-  } 
+  }
+  outf.close();  
 }
 
 int main(int argc, char** argv)
