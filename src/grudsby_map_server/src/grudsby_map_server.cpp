@@ -150,10 +150,10 @@ bool parseMowingPlan()
   // Push all edges out by "outer_edge_buffer"
   parsed_outline_.push_back(parsed_outline_[0]); 
   
-  max_x_ += 2*outer_edge_buffer_;
-  min_x_ -= 2*outer_edge_buffer_;
-  max_y_ += 2*outer_edge_buffer_;
-  min_y_ -= 2*outer_edge_buffer_;      
+  max_x_ += 12*outer_edge_buffer_;
+  min_x_ -= 12*outer_edge_buffer_;
+  max_y_ += 12*outer_edge_buffer_;
+  min_y_ -= 12*outer_edge_buffer_;      
   double width = (max_x_-min_x_)/resolution_;
   double height = (max_y_-min_y_)/resolution_;
   
@@ -236,7 +236,7 @@ bool parseMowingPlan()
       int num_to_write = 0;
       if (!inRegion) 
       { 
-        num_to_write = 100;
+        num_to_write = 95;
       }
       outline_map_resp_.map.data[MAP_IDX(outline_map_resp_.map.info.width,x,outline_map_resp_.map.info.height - y - 1)] = num_to_write;
       lines_map_resp_.map.data[MAP_IDX(lines_map_resp_.map.info.width,x,lines_map_resp_.map.info.height - y - 1)] = num_to_write; // erase previous lines map

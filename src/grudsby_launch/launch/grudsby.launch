@@ -7,8 +7,8 @@
   <include file="$(find grudsby_imu)/launch/grudsby_imu.launch"/>
 
   <!-- GPS launch file-->
-  <include file="$(find nmea_navsat_driver)/launch/launch_nmea_driver.launch"/> 
-<!--  <node pkg="grudsby_tools" type="gps_spoofer.py" name="gps_spoofer"/> -->
+<!--  <include file="$(find nmea_navsat_driver)/launch/launch_nmea_driver.launch"/> --> 
+  <node pkg="grudsby_tools" type="gps_spoofer.py" name="gps_spoofer"/> 
 
 
 <!-- Navigation nodes -->
