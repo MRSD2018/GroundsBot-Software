@@ -7,8 +7,8 @@
   <include file="$(find grudsby_imu)/launch/grudsby_imu.launch"/>
 
   <!-- GPS launch file-->
-<!--  <include file="$(find nmea_navsat_driver)/launch/launch_nmea_driver.launch"/> --> 
-  <node pkg="grudsby_tools" type="gps_spoofer.py" name="gps_spoofer"/> 
+  <include file="$(find nmea_navsat_driver)/launch/launch_nmea_driver.launch"/>  
+<!--  <node pkg="grudsby_tools" type="gps_spoofer.py" name="gps_spoofer"/> --> 
 
 
 <!-- Navigation nodes -->
@@ -19,7 +19,7 @@
 <!-- Bumblebee Vision nodes -->
 <!--  <include file="$(find grudsby_launch)/launch/vision.launch"/> -->
  
-  <include file="$(find grudsby_costmap)/launch/cost.launch"/>
+  <include file="$(find grudsby_costmap)/launch/cost.launch"/> 
   
 
   <!-- node name="grudsby_simple_planner" pkg="grudsby_simple_planner" type="grudsby_simple_planner">
@@ -36,11 +36,11 @@
   </node -->
  
   <remap from="/goal" to="/move_base_simple/goal"/>
-  <node name="grudsby_waypoint" pkg="grudsby_waypoint" type="grudsby_waypoint">
+<!--  <node name="grudsby_waypoint" pkg="grudsby_waypoint" type="grudsby_waypoint">
 <rosparam>
       wait_at_waypoint: true
     </rosparam>
-  </node>
+  </node>-->
   
   <!--<include file="$(find grudsby_sweeping)/launch/grudsby_sweeping.launch"/>-->
 
