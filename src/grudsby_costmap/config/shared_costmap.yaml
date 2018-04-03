@@ -20,8 +20,8 @@ static_map_lines:
   trinary_costmap: false
 
 obstacles_laser:
-  obstacle_range: 18
-  raytrace_range: 20
+  obstacle_range: 7.5
+  raytrace_range: 10
   enabled: true
   observation_sources: base_scan
   base_scan: {
