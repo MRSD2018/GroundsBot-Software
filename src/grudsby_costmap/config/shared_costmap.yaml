@@ -22,11 +22,11 @@ transform_tolerance: 0.2
 #  origin_x: -25
 #  origin_y: -25
 
-static_map_lines:
-  map_topic: /map_lines
-  subscribe_to_updates: true
-  enabled: true
-  trinary_costmap: false
+#static_map_lines:
+#  map_topic: /map_lines
+#  subscribe_to_updates: true
+#  enabled: true
+#  trinary_costmap: false
 #  height: 50
 #  width: 50
 #  origin_x: -25
