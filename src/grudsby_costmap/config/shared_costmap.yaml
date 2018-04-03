@@ -13,26 +13,11 @@ inf_is_valid: true
 resolution: 0.1 
 transform_tolerance: 0.2
 
-#static_map:
-#  map_topic: /map
-#  subscribe_to_updates: true
-#  enabled: true
-#  height: 50
-#  width: 50
-#  origin_x: -25
-#  origin_y: -25
-
-#static_map_lines:
-#  map_topic: /map_lines
-#  subscribe_to_updates: true
-#  enabled: true
-#  trinary_costmap: false
-#  height: 50
-#  width: 50
-#  origin_x: -25
-#  origin_y: -25
-
-
+static_map_lines:
+  map_topic: /map_lines
+  subscribe_to_updates: true
+  enabled: true
+  trinary_costmap: false
 
 obstacles_laser:
   obstacle_range: 5
