@@ -43,10 +43,10 @@ obstacles_laser:
       sensor_frame: /stereo_camera,
 #      data_type: PointCloud2, 
       data_type: LaserScan, 
-      topic: /scan, 
+      topic: /test/scan, 
       marking: true, 
       clearing: true,
-      inf_is_valid: true
+      inf_is_valid: false
   }
 
 inflation:

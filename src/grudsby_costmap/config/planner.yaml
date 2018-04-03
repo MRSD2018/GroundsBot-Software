@@ -13,7 +13,7 @@ TrajectoryPlannerROS:
   min_vel_x: 0.0
 
   max_vel_theta: 3
-  min_vel_theta: 10
+  min_vel_theta: 1
   min_in_place_vel_theta: 5 
 
   holonomic_robot: false
@@ -56,15 +56,15 @@ DWAPlannerROS:
   acc_lim_y: 0
   acc_lim_th: 3
 
-  max_vel_x: 3
-  min_vel_x: 0.0
+  max_vel_x: 5
+  min_vel_x: 1.0
   max_vel_y: 0
   min_vel_y: 0
 
   max_trans_vel: 3
   min_trans_vel: 0.1
   max_rot_vel: 3
-  min_rot_vel: 0
+  min_rot_vel: 1 
 
   # Goal Tolerance Parameters
   yaw_goal_tolerance: 0.1

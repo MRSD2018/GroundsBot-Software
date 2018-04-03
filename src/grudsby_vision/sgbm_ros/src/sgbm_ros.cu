@@ -54,8 +54,8 @@ cv::Mat image_left_, image_right_;
 ros::Time last_sync_image_stamp_;
 bool is_sync_image_ready_ = false;
 
-const int limit_left   = 0;
-const int limit_right  = 1023;
+const int limit_left   = 40;
+const int limit_right  = 983;
 const double max_depth = 20.0;
 
 int _p1, _p2;
