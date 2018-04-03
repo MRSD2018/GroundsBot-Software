@@ -1,11 +1,18 @@
 <launch>
 
 <!-- Navigation nodes -->
-<!--  <include file="$(find grudsby_launch)/launch/maze_gazebo.launch"/> -->
-  <include file="$(find grudsby_sweeping)/launch/grudsby_sweeping.launch"/>
-  <include file="$(find grudsby_costmap)/launch/cost.launch"/>
-  <include file="$(find grudsby_launch)/launch/gazebo.launch"/>)
+<!--  <include file="$(find grudsby_launch)/launch/maze_gazebo.launch"/> --> 
+<!--  <include file="$(find grudsby_sweeping)/launch/grudsby_sweeping.launch"/> -->
+  <include file="$(find grudsby_costmap)/launch/cost.launch"/> 
+  <include file="$(find grudsby_launch)/launch/gazebo.launch"/>
 
+<!--
+  <node name="grudsby_map_server" pkg="grudsby_map_server" type="grudsby_map_server" args = "">
+    <param name="frame_id" value="map"/>
+    <param name="resolution" value="0.05"/>
+    <param name="outer_edge_buffer" value="1"/>
+  </node>
+-->
 
  <param name="/use_sim_time" value="true"/>
 <!--  <node name="grudsby_simple_planner" pkg="grudsby_simple_planner" type="grudsby_simple_planner">

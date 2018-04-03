@@ -4,7 +4,7 @@
   
   <param name="/use_sim_time" value="true"/>
 
-  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+<!--  <include file="$(find gazebo_ros)/launch/empty_world.launch">
   <arg name="world_name" value="$(find grudsby_launch)/gazebo/maze.world"/> 
     <arg name="paused" value="false"/>
     <arg name="use_sim_time" value="true"/>
@@ -12,7 +12,7 @@
     <arg name="recording" value="false"/>
     <arg name="debug" value="false"/>
   </include> 
-
+-->
   <node pkg="grudsby_lowlevel" type="vel_to_odom.py" name="grudsby_lowlevel"/>
   <node pkg="sim_repeater" type="sim_repeater.py" name="sim_repeater"/>
   <node pkg="imu_repeater" type="imu_repeater.py" name="imu_repeater"/>

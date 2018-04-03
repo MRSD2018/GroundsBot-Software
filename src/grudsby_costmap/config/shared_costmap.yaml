@@ -3,8 +3,8 @@ footprint_padding: 0.1
 always_send_full_costmap: true
 
 
-update_frequency: 10.0
-publish_frequency: 5.0
+update_frequency: 1.0
+publish_frequency: 1.0
 robot_base_frame: base_link
 #static_map: false
 #rolling_window: true  
@@ -13,26 +13,11 @@ robot_base_frame: base_link
 resolution: 0.1 
 transform_tolerance: 0.2
 
-#static_map:
-#  map_topic: /map
-#  subscribe_to_updates: true
-#  enabled: true
-#  height: 50
-#  width: 50
-#  origin_x: -25
-#  origin_y: -25
-
 static_map_lines:
   map_topic: /map_lines
   subscribe_to_updates: true
   enabled: true
   trinary_costmap: false
-#  height: 50
-#  width: 50
-#  origin_x: -25
-#  origin_y: -25
-
-
 
 obstacles_laser:
   obstacle_range: 5

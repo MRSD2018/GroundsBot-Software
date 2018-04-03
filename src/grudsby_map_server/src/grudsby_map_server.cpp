@@ -50,12 +50,6 @@ double max_x_, min_x_;
 
 double max_y_, min_y_;
 
-ros::Publisher outline_map_pub_;
-
-ros::Publisher outline_metadata_pub_;
-
-ros::ServiceServer outline_service_;
-
 ros::Publisher lines_map_pub_;
 
 ros::Publisher lines_metadata_pub_;
@@ -68,21 +62,10 @@ std::string mower_region_;
 
 std::mutex map_mutex_;
 
-bool outlineMapCallback(nav_msgs::GetMap::Request  &req,
-                     nav_msgs::GetMap::Response &res )
-{
-  // request is empty; we ignore it
-  // = operator is overloaded to make deep copy (tricky!)
-  map_mutex_.lock(); 
-  res = outline_map_resp_;
-  map_mutex_.unlock(); 
-  ROS_INFO("Sending map");
-  return true;
-}
-
 bool linesMapCallback(nav_msgs::GetMap::Request  &req,
                      nav_msgs::GetMap::Response &res )
 {
+  //ROS_ERROR("Map Callback"); 
   // request is empty; we ignore it
   // = operator is overloaded to make deep copy (tricky!)
   map_mutex_.lock(); 
@@ -113,7 +96,6 @@ bool parseMowingPlan()
     double goal_easting_x = 0;
     double goal_northing_y = 0;
     std::string utm_zone_tmp;
-    //ROS_ERROR("input lat lng:%f,%f",goal_lat,goal_long);
     RobotLocalization::NavsatConversions::LLtoUTM(
       latlng[1],
       latlng[0],
@@ -149,7 +131,7 @@ bool parseMowingPlan()
   //ROS_ERROR("Got Transforms"); 
   // Push all edges out by "outer_edge_buffer"
   parsed_outline_.push_back(parsed_outline_[0]); 
-  
+  //ROS_ERROR("parsed_outline"); 
   max_x_ += 12*outer_edge_buffer_;
   min_x_ -= 12*outer_edge_buffer_;
   max_y_ += 12*outer_edge_buffer_;
@@ -159,52 +141,8 @@ bool parseMowingPlan()
   
   no_cols_ = std::ceil((max_x_-min_x_)/resolution_);
   no_rows_ = std::ceil((max_y_-min_y_)/resolution_);
- 
   map_mutex_.lock();
- 
-  outline_map_resp_.map.info.width = no_cols_; 
-  outline_map_resp_.map.info.height = no_rows_;
-  outline_map_resp_.map.info.resolution = resolution_;
-  outline_map_resp_.map.info.origin.position.x = min_x_;
-  outline_map_resp_.map.info.origin.position.y = min_y_;
-  outline_map_resp_.map.info.origin.position.z = 0;
-  outline_map_resp_.map.info.origin.orientation.x = 0;
-  outline_map_resp_.map.info.origin.orientation.y = 0;
-  outline_map_resp_.map.info.origin.orientation.z = 0;
-  outline_map_resp_.map.info.origin.orientation.w = 1;
-  outline_map_resp_.map.data.resize(no_cols_ * no_rows_);
-  
-  // for loop: j is height, i is width
-
-  outline_map_resp_.map.info.map_load_time = ros::Time::now();
-  outline_map_resp_.map.header.frame_id = frame_id_;
-  outline_map_resp_.map.header.stamp = ros::Time::now();
-  ROS_INFO("Read a %d X %d map @ %.3lf m/cell",
-            outline_map_resp_.map.info.width,
-            outline_map_resp_.map.info.height,
-            outline_map_resp_.map.info.resolution);
-  outline_meta_data_message_ = outline_map_resp_.map.info;
-
-
-  lines_map_resp_.map.info.width = no_cols_; 
-  lines_map_resp_.map.info.height = no_rows_;
-  lines_map_resp_.map.info.resolution = resolution_;
-  lines_map_resp_.map.info.origin.position.x = min_x_;
-  lines_map_resp_.map.info.origin.position.y = min_y_;
-  lines_map_resp_.map.info.origin.position.z = 0;
-  lines_map_resp_.map.info.origin.orientation.x = 0;
-  lines_map_resp_.map.info.origin.orientation.y = 0;
-  lines_map_resp_.map.info.origin.orientation.z = 0;
-  lines_map_resp_.map.info.origin.orientation.w = 1;
   lines_map_resp_.map.data.resize(no_cols_ * no_rows_);
-  
-  // for loop: j is height, i is width
-
-  lines_map_resp_.map.info.map_load_time = ros::Time::now();
-  lines_map_resp_.map.header.frame_id = frame_id_;
-  lines_map_resp_.map.header.stamp = ros::Time::now();
-  lines_meta_data_message_ = lines_map_resp_.map.info;
-
   for (int x = 0; x < no_cols_; x++)
   {
     for (int y = 0; y < no_rows_; y++)
@@ -215,7 +153,8 @@ bool parseMowingPlan()
       test_point.push_back(max_y_ - y*resolution_);
       bool inRegion = (winding_num::wn_PnPoly(test_point, parsed_outline_) != 0);
       for (int i = 0; i < parsed_outline_.size()-1; i++) 
-      {
+      { 
+        //ROS_ERROR("Checking parsed outline");
         double dist = sqrt(pow((parsed_outline_[i][0]-test_point[0]),2.0) + pow((parsed_outline_[i][1]-test_point[1]),2.0)); 
         inRegion = inRegion || (dist < outer_edge_buffer_);
         Vector2 fullVec;
@@ -231,22 +170,41 @@ bool parseMowingPlan()
           Vector2 orthVec = testVec - dotted*unitFull;
           inRegion = inRegion || (Vector2::Magnitude(orthVec) < outer_edge_buffer_);
         } 
-      }             
+      }            
+       
       // write to map if in region.
       int num_to_write = 0;
       if (!inRegion) 
       { 
         num_to_write = 95;
       }
-      outline_map_resp_.map.data[MAP_IDX(outline_map_resp_.map.info.width,x,outline_map_resp_.map.info.height - y - 1)] = num_to_write;
-      lines_map_resp_.map.data[MAP_IDX(lines_map_resp_.map.info.width,x,lines_map_resp_.map.info.height - y - 1)] = num_to_write; // erase previous lines map
+      //ROS_ERROR("Right before write"); 
+      lines_map_resp_.map.data[MAP_IDX(no_cols_,x,no_rows_ - y - 1)] = num_to_write; // erase previous lines map
     }
   }
+
+  lines_map_resp_.map.info.width = no_cols_; 
+  lines_map_resp_.map.info.height = no_rows_;
+  lines_map_resp_.map.info.resolution = resolution_;
+  lines_map_resp_.map.info.origin.position.x = min_x_;
+  lines_map_resp_.map.info.origin.position.y = min_y_;
+  lines_map_resp_.map.info.origin.position.z = 0;
+  lines_map_resp_.map.info.origin.orientation.x = 0;
+  lines_map_resp_.map.info.origin.orientation.y = 0;
+  lines_map_resp_.map.info.origin.orientation.z = 0;
+  lines_map_resp_.map.info.origin.orientation.w = 1;
+  
+  // for loop: j is height, i is width
+
+  lines_map_resp_.map.info.map_load_time = ros::Time::now();
+  lines_map_resp_.map.header.frame_id = frame_id_;
+  lines_map_resp_.map.header.stamp = ros::Time::now();
+  lines_meta_data_message_ = lines_map_resp_.map.info;
+
   map_mutex_.unlock();
-  outline_metadata_pub_.publish( outline_meta_data_message_ );
-  outline_map_pub_.publish( outline_map_resp_.map );
-  lines_metadata_pub_.publish( lines_meta_data_message_ );
+  
   lines_map_pub_.publish( lines_map_resp_.map );
+  lines_metadata_pub_.publish( lines_meta_data_message_ );
    
   //ROS_ERROR("Updated Map Outline");
   return true;
@@ -277,7 +235,7 @@ void parseKMLFile()
   if (!infile)
   { 
     // Print an error and exit
-    ROS_ERROR("Cannot open mower_path file for parsing at file location %s! No goal waypoints created!", mower_region_.c_str());
+    //ROS_ERROR("Cannot open mower_path file for parsing at file location %s! No goal waypoints created!", mower_region_.c_str());
     return; 
   }
   parsed_outline_.resize(0);
@@ -308,10 +266,13 @@ void parseKMLFile()
       new_point.push_back(atof(s_coord.c_str()));
       //ROS_ERROR("parsing: %s", s_coord.c_str());
     }
-    parsed_outline_.push_back(new_point);
+    if (new_point.size() > 1) 
+    {
+      parsed_outline_.push_back(new_point);
+    }
   }
   infile.close(); 
-  //ROS_ERROR("Ready to parse mowing plan (parseKMLFile).");
+  ROS_ERROR("Ready to parse mowing plan (parseKMLFile).");
   parseMowingPlan();
 }
 
@@ -338,7 +299,6 @@ void waypointLinesCallback(const grudsby_sweeping::MowingPlan& msg)
     double goal_easting_x = 0;
     double goal_northing_y = 0;
     std::string utm_zone_tmp;
-    //ROS_ERROR("input lat lng:%f,%f",goal_lat,goal_long);
     RobotLocalization::NavsatConversions::LLtoUTM(
       latlng[1],
       latlng[0],
@@ -369,6 +329,7 @@ void waypointLinesCallback(const grudsby_sweeping::MowingPlan& msg)
   // Push all edges out by "outer_edge_buffer"
   parsedLines.push_back(parsedLines[0]);
 
+  map_mutex_.lock(); 
   for (int x = 0; x < no_cols_; x++)
   {
     for (int y = 0; y < no_rows_; y++)
@@ -422,13 +383,12 @@ void waypointLinesCallback(const grudsby_sweeping::MowingPlan& msg)
       { 
         mapped = 100;
       }
-      map_mutex_.lock(); 
       lines_map_resp_.map.data[MAP_IDX(lines_map_resp_.map.info.width,x,lines_map_resp_.map.info.height - y - 1)] = mapped; // write new lines map
-      map_mutex_.unlock();
     }
   }
-  lines_metadata_pub_.publish( lines_meta_data_message_ );
+  map_mutex_.unlock();
   lines_map_pub_.publish( lines_map_resp_.map );
+  lines_metadata_pub_.publish( lines_meta_data_message_ );
   
   //ROS_ERROR("Updated Lines");
 }
@@ -461,17 +421,6 @@ int main(int argc, char** argv)
 
   ros::Subscriber waypoint_lines_sub;
   waypoint_lines_sub = n.subscribe("grudsby/waypoint_lines", 100, waypointLinesCallback);
-
-  // Service for outline
-  outline_service_ = n.advertiseService("static_map", &outlineMapCallback);
-  
-  // Latched publisher for metadata
-  outline_metadata_pub_ = n.advertise<nav_msgs::MapMetaData>("map_metadata", 1, true);
-  outline_metadata_pub_.publish( outline_meta_data_message_ );
-
-  // Latched publisher for data
-  outline_map_pub_ = n.advertise<nav_msgs::OccupancyGrid>("map", 1, true);
-  outline_map_pub_.publish( outline_map_resp_.map );
 
   // Service for waypoint lines
   lines_service_ = n.advertiseService("static_map_lines", &linesMapCallback);
