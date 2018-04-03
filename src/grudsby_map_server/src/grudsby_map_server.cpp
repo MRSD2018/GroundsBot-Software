@@ -83,11 +83,11 @@ bool parseMowingPlan()
     ROS_ERROR("Couldn't find utm to map transform. Mowing plan parsing failed."); 
     return false;
   }
+
   max_x_ = -9999999999;
   max_y_ = -9999999999;
   min_x_ = 9999999999;
   min_y_ = 9999999999; 
-  
   for (std::vector<double> &latlng : parsed_outline_)
   {
     double goal_easting_x = 0;
@@ -123,7 +123,18 @@ bool parseMowingPlan()
       ROS_ERROR("%s", ex.what());
     }
   }
-  // Push all edges out by "outer_edge_buffer"
+  if (parsed_outline_.size() < 1) 
+  {
+    std::vector<double> new_point;
+    new_point.push_back(0);
+    new_point.push_back(0);
+    parsed_outline_.push_back(new_point);
+    min_x_ = new_point[0];
+    max_x_ = new_point[0];
+    min_y_ = new_point[1];
+    max_y_ = new_point[1]; 
+  } 
+
   parsed_outline_.push_back(parsed_outline_[0]); 
   max_x_ += 12*outer_edge_buffer_;
   min_x_ -= 12*outer_edge_buffer_;
@@ -145,25 +156,27 @@ bool parseMowingPlan()
       test_point.push_back(min_x_ + x*resolution_);
       test_point.push_back(max_y_ - y*resolution_);
       bool inRegion = (winding_num::wn_PnPoly(test_point, parsed_outline_) != 0);
-      for (int i = 0; i < parsed_outline_.size()-1; i++) 
+      if (parsed_outline_.size() > 3) 
       { 
-        double dist = sqrt(pow((parsed_outline_[i][0]-test_point[0]),2.0) + pow((parsed_outline_[i][1]-test_point[1]),2.0)); 
-        inRegion = inRegion || (dist < outer_edge_buffer_);
-        Vector2 fullVec;
-        fullVec.X = parsed_outline_[i+1][0] - parsed_outline_[i][0];
-        fullVec.Y = parsed_outline_[i+1][1] - parsed_outline_[i][1];
-        Vector2 unitFull = Vector2::Normalized(fullVec);  
-        Vector2 testVec;
-        testVec.X = test_point[0] - parsed_outline_[i][0];
-        testVec.Y = test_point[1] - parsed_outline_[i][1];
-        double dotted = Vector2::Dot(testVec,unitFull);
-        if ((dotted > 0) && (dotted < Vector2::Magnitude(fullVec)))
-        {
-          Vector2 orthVec = testVec - dotted*unitFull;
-          inRegion = inRegion || (Vector2::Magnitude(orthVec) < outer_edge_buffer_);
-        } 
-      }            
-       
+        for (int i = 0; i < parsed_outline_.size()-1; i++) 
+        { 
+          double dist = sqrt(pow((parsed_outline_[i][0]-test_point[0]),2.0) + pow((parsed_outline_[i][1]-test_point[1]),2.0)); 
+          inRegion = inRegion || (dist < outer_edge_buffer_);
+          Vector2 fullVec;
+          fullVec.X = parsed_outline_[i+1][0] - parsed_outline_[i][0];
+          fullVec.Y = parsed_outline_[i+1][1] - parsed_outline_[i][1];
+          Vector2 unitFull = Vector2::Normalized(fullVec);  
+          Vector2 testVec;
+          testVec.X = test_point[0] - parsed_outline_[i][0];
+          testVec.Y = test_point[1] - parsed_outline_[i][1];
+          double dotted = Vector2::Dot(testVec,unitFull);
+          if ((dotted > 0) && (dotted < Vector2::Magnitude(fullVec)))
+          {
+            Vector2 orthVec = testVec - dotted*unitFull;
+            inRegion = inRegion || (Vector2::Magnitude(orthVec) < outer_edge_buffer_);
+          } 
+        }            
+      }    
       // write to map if in region.
       int num_to_write = 0;
       if (!inRegion) 
