@@ -2,7 +2,7 @@
   <node ns="test" pkg="laserscan_kinect" type="laserscan_kinect" name="laserscan_kinect" output="screen"> 
     <remap from="image" to="/stereo_camera/left/depth"/>
     <remap from="camera_info" to="/stereo_camera/left/camera_info" />
-    <param name="range_min" value="4"/>
+    <param name="range_min" value="0.5"/>
     <param name="range_max" value="1000"/>
     <param name="scan_height" value="211" />
     <param name="depth_image_row_step" value="22"/>
