@@ -23,7 +23,8 @@
 #include <algorithm>
 #include <cmath>
 #include "winding_num.h"
-
+#include <mutex>
+#include <iomanip>
 // compute linear index for given map coords
 #define MAP_IDX(sx, i, j) ((sx) * (j) + (i))
 
@@ -63,12 +64,18 @@ ros::ServiceServer lines_service_;
 
 std::vector<std::vector<double>> parsed_outline_;
 
+std::string mower_region_;
+
+std::mutex map_mutex_;
+
 bool outlineMapCallback(nav_msgs::GetMap::Request  &req,
                      nav_msgs::GetMap::Response &res )
 {
   // request is empty; we ignore it
   // = operator is overloaded to make deep copy (tricky!)
+  map_mutex_.lock(); 
   res = outline_map_resp_;
+  map_mutex_.unlock(); 
   ROS_INFO("Sending map");
   return true;
 }
@@ -78,34 +85,29 @@ bool linesMapCallback(nav_msgs::GetMap::Request  &req,
 {
   // request is empty; we ignore it
   // = operator is overloaded to make deep copy (tricky!)
+  map_mutex_.lock(); 
   res = lines_map_resp_;
+  map_mutex_.unlock();
   ROS_INFO("Sending map");
   return true;
 }
 
-
-void mowingPlanCallback(const grudsby_sweeping::MowingPlan& msg)
+bool parseMowingPlan()
 {
-  ROS_ERROR("Mowing plan callback");
-  parsed_outline_.resize(0);
-  for (grudsby_sweeping::SimpleLatLng waypoint : msg.waypoints)
-  {
-    std::vector<double> newPoint;
-    newPoint.push_back(waypoint.longitude);
-    newPoint.push_back(waypoint.latitude);
-    parsed_outline_.push_back(newPoint);
-  } 
-
   static tf::TransformListener listener;
 
-  if (!listener.waitForTransform("/map", "/utm", ros::Time::now(), ros::Duration(1.0)))
+  if (!listener.waitForTransform("/map", "/utm", ros::Time::now(), ros::Duration(100.0)))
   { 
-    return;
+    ROS_ERROR("Couldn't find utm to map transform. Mowing plan parsing failed."); 
+    return false;
   }
+  //ROS_ERROR("Got a map transform");
   max_x_ = -9999999999;
   max_y_ = -9999999999;
   min_x_ = 9999999999;
   min_y_ = 9999999999; 
+  
+  //ROS_ERROR("Size of parsed outline: %f", static_cast<double>(parsed_outline_.size())); 
   for (std::vector<double> &latlng : parsed_outline_)
   {
     double goal_easting_x = 0;
@@ -131,7 +133,7 @@ void mowingPlanCallback(const grudsby_sweeping::MowingPlan& msg)
       listener.transformPose("/map", coord, coord_in_map);
       latlng[0] = coord_in_map.pose.position.x;
       latlng[1] = coord_in_map.pose.position.y;
-      //ROS_ERROR("Lat %f Lng %f",latlng[0],latlng[1]);
+      //ROS_ERROR("X %f Y %f",latlng[0],latlng[1]);
       max_x_ = std::max(max_x_,latlng[0]);
       min_x_ = std::min(min_x_,latlng[0]);
       max_y_ = std::max(max_y_,latlng[1]);
@@ -144,20 +146,22 @@ void mowingPlanCallback(const grudsby_sweeping::MowingPlan& msg)
       ROS_ERROR("%s", ex.what());
     }
   }
-  ROS_INFO("Got Transforms"); 
+  //ROS_ERROR("Got Transforms"); 
   // Push all edges out by "outer_edge_buffer"
   parsed_outline_.push_back(parsed_outline_[0]); 
   
-  max_x_ += 2*outer_edge_buffer_;
-  min_x_ -= 2*outer_edge_buffer_;
-  max_y_ += 2*outer_edge_buffer_;
-  min_y_ -= 2*outer_edge_buffer_;      
+  max_x_ += 12*outer_edge_buffer_;
+  min_x_ -= 12*outer_edge_buffer_;
+  max_y_ += 12*outer_edge_buffer_;
+  min_y_ -= 12*outer_edge_buffer_;      
   double width = (max_x_-min_x_)/resolution_;
   double height = (max_y_-min_y_)/resolution_;
   
   no_cols_ = std::ceil((max_x_-min_x_)/resolution_);
   no_rows_ = std::ceil((max_y_-min_y_)/resolution_);
-  
+ 
+  map_mutex_.lock();
+ 
   outline_map_resp_.map.info.width = no_cols_; 
   outline_map_resp_.map.info.height = no_rows_;
   outline_map_resp_.map.info.resolution = resolution_;
@@ -232,22 +236,88 @@ void mowingPlanCallback(const grudsby_sweeping::MowingPlan& msg)
       int num_to_write = 0;
       if (!inRegion) 
       { 
-        num_to_write = 100;
+        num_to_write = 95;
       }
       outline_map_resp_.map.data[MAP_IDX(outline_map_resp_.map.info.width,x,outline_map_resp_.map.info.height - y - 1)] = num_to_write;
       lines_map_resp_.map.data[MAP_IDX(lines_map_resp_.map.info.width,x,lines_map_resp_.map.info.height - y - 1)] = num_to_write; // erase previous lines map
     }
   }
+  map_mutex_.unlock();
   outline_metadata_pub_.publish( outline_meta_data_message_ );
   outline_map_pub_.publish( outline_map_resp_.map );
   lines_metadata_pub_.publish( lines_meta_data_message_ );
   lines_map_pub_.publish( lines_map_resp_.map );
-  ROS_ERROR("Updated Map Outline");
+   
+  //ROS_ERROR("Updated Map Outline");
+  return true;
+}
+
+void mowingPlanCallback(const grudsby_sweeping::MowingPlan& msg)
+{
+  //ROS_ERROR("Mowing plan callback");
+  parsed_outline_.resize(0);
+  std::ofstream outf(mower_region_.c_str());
+  for (grudsby_sweeping::SimpleLatLng waypoint : msg.waypoints)
+  {
+    std::vector<double> newPoint;
+    newPoint.push_back(waypoint.longitude);
+    newPoint.push_back(waypoint.latitude);
+    parsed_outline_.push_back(newPoint);
+    outf << std::setprecision(10) << newPoint[0] << ',' << std::setprecision(10) << newPoint[1] << ',' << std::setprecision(10) << 0.0 << ' ' << std::endl;
+  } 
+  outf.close(); 
+  //ROS_ERROR("Ready to parse mowing plan (mowingPlanCallback)");
+  parseMowingPlan();
+}
+
+
+void parseKMLFile()
+{
+  std::ifstream infile(mower_region_.c_str());
+  if (!infile)
+  { 
+    // Print an error and exit
+    ROS_ERROR("Cannot open mower_path file for parsing at file location %s! No goal waypoints created!", mower_region_.c_str());
+    return; 
+  }
+  parsed_outline_.resize(0);
+  std::string line;
+  while (std::getline(infile, line))
+  {
+    ROS_INFO("Parsing mower_region file to get waypoints.");
+    std::stringstream ss;
+    ss << line;
+    char ch;
+    ss >> ch; 
+    if (ch == ('<'))
+    { 
+      continue;
+    }
+    
+    ss.putback(ch);
+    
+    char count = 0;
+    std::string combined_coords;
+    std::stringstream combined_ss;
+    std::getline(ss, combined_coords, ' ');
+    combined_ss << combined_coords;
+    std::vector<double> new_point;     
+    std::string s_coord;
+    while (std::getline(combined_ss, s_coord, ','))
+    {
+      new_point.push_back(atof(s_coord.c_str()));
+      //ROS_ERROR("parsing: %s", s_coord.c_str());
+    }
+    parsed_outline_.push_back(new_point);
+  }
+  infile.close(); 
+  //ROS_ERROR("Ready to parse mowing plan (parseKMLFile).");
+  parseMowingPlan();
 }
 
 void waypointLinesCallback(const grudsby_sweeping::MowingPlan& msg)
 {
-  ROS_ERROR("Waypoint lines callback");
+  //ROS_ERROR("Waypoint lines callback");
   std::vector<std::vector<double>> parsedLines;
   for (grudsby_sweeping::SimpleLatLng waypoint : msg.waypoints)
   {
@@ -352,14 +422,15 @@ void waypointLinesCallback(const grudsby_sweeping::MowingPlan& msg)
       { 
         mapped = 100;
       }
-
+      map_mutex_.lock(); 
       lines_map_resp_.map.data[MAP_IDX(lines_map_resp_.map.info.width,x,lines_map_resp_.map.info.height - y - 1)] = mapped; // write new lines map
+      map_mutex_.unlock();
     }
   }
   lines_metadata_pub_.publish( lines_meta_data_message_ );
   lines_map_pub_.publish( lines_map_resp_.map );
   
-  ROS_ERROR("Updated Lines");
+  //ROS_ERROR("Updated Lines");
 }
 
 int main(int argc, char** argv)
@@ -379,7 +450,11 @@ int main(int argc, char** argv)
   {
     frame_id_ = "map";
   }
-  
+  if (!n.getParam("grudsby_waypoint/mower_region_file", mower_region_))
+  {
+    mower_region_ = "/home/nvidia/GroundsBot-Software/data/mower_region.kml";
+  }
+ 
 
   ros::Subscriber mowing_plan_sub;
   mowing_plan_sub = n.subscribe("/grudsby/mowing_region", 100, mowingPlanCallback);
@@ -409,6 +484,7 @@ int main(int argc, char** argv)
   lines_map_pub_ = n.advertise<nav_msgs::OccupancyGrid>("map_lines", 1, true);
   lines_map_pub_.publish( lines_map_resp_.map );
 
+  parseKMLFile();
 
   ros::Rate loop_rate(10);
 

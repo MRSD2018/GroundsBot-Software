@@ -17,6 +17,8 @@ add_message_files(
   FILES
   Throttle.msg)
 
+catkin_python_setup()
+
 generate_messages(DEPENDENCIES std_msgs)
 
 catkin_package(

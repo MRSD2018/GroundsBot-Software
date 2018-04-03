@@ -1,0 +1,37 @@
+<launch>
+    <!-- vim: set ft=xml noet : -->
+
+<arg name="nodelet_manager_name" value="nodelet_manager" />
+    <!-- for more info on P1, P2 see http://www.sciencedirect.com/science/article/pii/S1877050916306561?via%3Dihub-->
+    <arg name="P1" default="600" /> <!-- Stereo matching param: Penalties for small disparity changes -->
+    <arg name="P2" default="2400" /> <!-- Stereo matching param: Penalties for large discontinuities -->
+
+<!-- p1 = 90 p2 = 100 is eh -->
+    <node pkg="nodelet" type="nodelet" name="$(arg nodelet_manager_name)" args="manager" output="screen">
+    </node>
+
+
+    <node
+            pkg="nodelet"
+            type="nodelet"
+            name="tegra_stereo"
+            output="screen"
+            args="load tegra_stereo/tegra_stereo_proc $(arg nodelet_manager_name)" >
+
+        <param name="P1" type="int" value="$(arg P1)" />
+        <param name="P2" type="int" value="$(arg P2)" />
+        <param name="rectify_images" type="bool" value="false" /> <!-- LIMITATION: if disparity is calculated it may limit the frame rate of rectified images -->
+        <param name="queue_size" type="int" value="1" /> <!-- input images queue size, set to 1 for realtime -->
+        <param name="out_frame_id" type="string" value="uav" /> <!-- override header frame id for output messages, if empty left input image frame id will be used -->
+
+        <!-- camera calibration can be supplied as files below or if files are not specified camera_info messages will be used -->
+        <param name="camera_calibration_file_left_" type="str" value="$(find tegra_stereo)/cfg/left.yaml" />
+        <param name="camera_calibration_file_right_" type="str" value="$(find tegra_stereo)/cfg/right.yaml" />
+
+        <remap to="/stereo_camera/left/camera_info" from="/stereo/left/camera_info"/>
+        <remap to="/stereo_camera/right/camera_info" from="/stereo/right/camera_info"/>
+        <remap to="/stereo_camera/left/image_rect" from="/stereo/left/image_raw"/>
+        <remap to="/stereo_camera/right/image_rect" from="/stereo/right/image_raw"/>
+
+    </node>
+</launch>

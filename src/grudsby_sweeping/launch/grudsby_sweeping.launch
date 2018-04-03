@@ -2,7 +2,7 @@
 <launch>
   <node name="grudsby_sweeping_planner" pkg="grudsby_sweeping" type="grudsby_sweeping_planner">
     <rosparam>
-      implement_width: 0.3 
+      implement_width: 0.2 
       app_url: "https://mowing.groundsbot.com"
       resolution: 0.05
       occupied_thresh: 0.65

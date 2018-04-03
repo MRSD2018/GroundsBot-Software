@@ -4,6 +4,7 @@
 // sudo apt-get install libi2c-dev i2c-tools
 #include "GrudsbyImu.h"
 #include "ros/ros.h"
+#include "ros/console.h"
 
 GrudsbyImuBase::GrudsbyImuBase(const unsigned int address)
 {
@@ -33,12 +34,14 @@ bool GrudsbyImuBase::init()
   myI2CFileDescriptor = open(file_name_buffer, O_RDWR);
   if (myI2CFileDescriptor < 0)
   {
+    ROS_ERROR("Could not open I2C file...");
     // Could not open the file
     myError = errno;
     return false;
   }
   if (ioctl(myI2CFileDescriptor, I2C_SLAVE, myAddr) < 0)
   {
+    ROS_ERROR("Could not open the devices on the bus...");
     // Could not open the devices on the bus
     myError = errno;
     return false;
