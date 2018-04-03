@@ -14,9 +14,7 @@
   </node>
 
 
-<node pkg="laser_filters" type="scan_to_scan_filter_chain" name="laser_filter">
-        <rosparam command="load" file="$(find sgbm_ros)/config/bumblebee.yaml" /> 
-        <remap from="infscan" to="scan" />
-</node>
+<!-- <include file="$(find grudsby_launch)/launch/scan_filter.launch"/> -->
+
 
 </launch>
