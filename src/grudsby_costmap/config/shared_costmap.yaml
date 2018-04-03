@@ -8,7 +8,7 @@ publish_frequency: 5.0
 robot_base_frame: base_link
 #static_map: false
 #rolling_window: true  
-#inf_is_valid: true
+inf_is_valid: true
 
 resolution: 0.1 
 transform_tolerance: 0.2
@@ -46,7 +46,7 @@ obstacles_laser:
       topic: /test/scan, 
       marking: true, 
       clearing: true,
-      inf_is_valid: false
+      inf_is_valid: true
   }
 
 inflation:
