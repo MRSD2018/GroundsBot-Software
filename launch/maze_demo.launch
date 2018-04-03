@@ -2,7 +2,7 @@
 
 <!-- Navigation nodes -->
 <!--  <include file="$(find grudsby_launch)/launch/maze_gazebo.launch"/> --> 
-<!--  <include file="$(find grudsby_sweeping)/launch/grudsby_sweeping.launch"/> -->
+  <include file="$(find grudsby_sweeping)/launch/grudsby_sweeping.launch"/> 
   <include file="$(find grudsby_costmap)/launch/cost.launch"/> 
   <include file="$(find grudsby_launch)/launch/gazebo.launch"/>
 
