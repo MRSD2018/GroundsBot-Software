@@ -1,9 +1,16 @@
 scan_filter_chain:
-- name: range
-  type: LaserScanRangeFilter
-  params:
-    use_message_range_limits: false
-    lower_threshold: 0.2
-    upper_threshold: .inf
-    lower_replacement_value: -.inf
-    upper_replacement_value: .inf
+- type: laser_filters/LaserArrayFilter
+  name: laser_median_filter
+  params: 
+    range_filter_chain:
+      - name: median_5
+        type: filters/MultiChannelMedianFilterFloat 
+        params:
+          number_of_observations: 5
+          unused: 10
+    intensity_filter_chain:
+      - name: median_5
+        type: filters/MultiChannelMedianFilterFloat 
+        params:
+          number_of_observations: 5
+          unused: 10
