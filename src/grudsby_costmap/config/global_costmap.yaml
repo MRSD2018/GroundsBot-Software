@@ -4,10 +4,10 @@ global_costmap:
   rolling_window: false
   track_unknown_space: false
   inf_is_valid: true
-#  height: 50
-#  width: 50
-#  origin_x: -25
-#  origin_y: -25
+#  height: 150
+#  width: 150
+#  origin_x: -75
+#  origin_y: -75
   plugins:
     - {name: static_map_lines,          type: "costmap_2d::StaticLayer"}
     - {name: inflation,                 type: "costmap_2d::InflationLayer"}

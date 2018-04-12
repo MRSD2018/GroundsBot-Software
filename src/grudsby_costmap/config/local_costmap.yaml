@@ -3,8 +3,8 @@ local_costmap:
   rolling_window: true
   track_unknown_space: false
   inf_is_valid: true
-  height: 30.0
-  width: 30.0
+  height: 5.0
+  width: 5.0
 
   plugins:
     - {name: obstacles_laser,           type: "costmap_2d::ObstacleLayer"}

@@ -50,6 +50,9 @@ double max_x_, min_x_;
 
 double max_y_, min_y_;
 
+double utm_z_ = 0;
+bool   utm_z_first_ = true;
+
 ros::Publisher lines_map_pub_;
 
 ros::Publisher lines_metadata_pub_;
@@ -104,7 +107,7 @@ bool parseMowingPlan()
     geometry_msgs::PoseStamped coord, coord_in_map;
     coord.pose.position.x = goal_easting_x;
     coord.pose.position.y = goal_northing_y;
-    coord.pose.position.z = 0;
+    coord.pose.position.z = utm_z_;
     coord.pose.orientation.w = 1; 
     coord.header.frame_id = "/utm";
     try
@@ -192,7 +195,7 @@ bool parseMowingPlan()
   lines_map_resp_.map.info.resolution = resolution_;
   lines_map_resp_.map.info.origin.position.x = min_x_;
   lines_map_resp_.map.info.origin.position.y = min_y_;
-  lines_map_resp_.map.info.origin.position.z = 0;
+  lines_map_resp_.map.info.origin.position.z = 0.0;
   lines_map_resp_.map.info.origin.orientation.x = 0;
   lines_map_resp_.map.info.origin.orientation.y = 0;
   lines_map_resp_.map.info.origin.orientation.z = 0;
@@ -311,7 +314,7 @@ void waypointLinesCallback(const grudsby_sweeping::MowingPlan& msg)
     geometry_msgs::PoseStamped coord, coord_in_map;
     coord.pose.position.x = goal_easting_x;
     coord.pose.position.y = goal_northing_y;
-    coord.pose.position.z = 0;
+    coord.pose.position.z = utm_z_;
     coord.pose.orientation.w = 1; 
     coord.header.frame_id = "/utm";
     try
@@ -392,6 +395,34 @@ void waypointLinesCallback(const grudsby_sweeping::MowingPlan& msg)
   
 }
 
+void findWaypointCallback(const nav_msgs::Odometry& msg) 
+{ 
+  geometry_msgs::PoseStamped mapPose; 
+  mapPose.pose.position = msg.pose.pose.position; 
+  mapPose.pose.orientation = msg.pose.pose.orientation; 
+  mapPose.header = msg.header; 
+  geometry_msgs::PoseStamped gpsPose; 
+ 
+  static tf::TransformListener listener; 
+  listener.waitForTransform("/utm", "/map", ros::Time::now(), ros::Duration(1.0)); 
+  try 
+  { 
+ 
+    listener.transformPose("/utm", mapPose, gpsPose); 
+    std::string utm_zone_tmp = "17T"; // Our UTM zone in pittsburgh 
+    utm_z_ = gpsPose.pose.position.z;  
+    if ( utm_z_first_ ) {
+      utm_z_first_ = false;
+      parseMowingPlan();
+      publishMowingPlan();
+    }
+  }
+  catch (tf::TransformException ex)  //NOLINT 
+  { 
+    ROS_ERROR("%s", ex.what()); 
+  }
+} 
+
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "grudsby_map_server");
@@ -421,6 +452,9 @@ int main(int argc, char** argv)
 
   ros::Subscriber waypoint_lines_sub;
   waypoint_lines_sub = n.subscribe("grudsby/waypoint_lines", 100, waypointLinesCallback);
+
+  ros::Subscriber map_sub;
+  map_sub = n.subscribe("/odometry/filtered_map", 100, findWaypointCallback);
 
   // Service for waypoint lines
   lines_service_ = n.advertiseService("static_map_lines", &linesMapCallback);
