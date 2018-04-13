@@ -13,7 +13,7 @@
   <!-- GPS launch file-->
   <!--<include file="$(find nmea_navsat_driver)/launch/launch_nmea_driver.launch"/>  -->
   <node pkg="grudsby_tools" type="gps_spoofer.py" name="gps_spoofer"/>
- <!-- <node pkg="grudsby_costmap" type="obstacles.py" name="obstacles"/> -->
+<node pkg="grudsby_costmap" type="obstacles.py" name="obstacles"/> -->
 
 <!-- Navigation nodes -->
   <include file="$(find grudsby_localization)/launch/grudsby_localization_ekf.launch"/>
@@ -60,8 +60,7 @@
     </rosparam>
   </node>
   
-  <!--<include file="$(find grudsby_sweeping)/launch/grudsby_sweeping.launch"/>-->
-
+  <node pkg="scan_filter" type="scan_inf_repeater.py" name="scan_inf_repeater"/>
 <!-- 
 	<node name="gucci_gang" pkg="gucci_gang" type="gucci_gang"/>
 -->
