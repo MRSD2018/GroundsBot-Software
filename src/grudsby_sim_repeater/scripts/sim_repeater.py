@@ -25,7 +25,7 @@ class DiffTf:
         rospy.init_node("sim_repeater")
         self.nodename = rospy.get_name()
         rospy.loginfo("-I- %s started" % self.nodename)
-
+        selt.init_time = rospy.get_rostime()
         #laser geometry projector#
         self.projector = LaserProjection()
         #### parameters #######
@@ -111,7 +111,14 @@ class DiffTf:
             imu_msg = Imu()
             imu_msg.header = msg.header
 	    imu_msg.header.frame_id = "imu_link"
-	    imu_msg.orientation = msg.orientation
+      time_since_start = rospy.get_rostime() - self.init_time
+      if time_since_start.to_sec() > 5:
+	      imu_msg.orientation = msg.orientation
+	    else:
+        imu_msg.orientation.w = 1
+        imu_msg.orientation.x = 0
+        imu_msg.orientation.y = 0
+        imu_msg.orientation.z = 0
 	    imu_msg.angular_velocity = msg.angular_velocity
 	    imu_msg.linear_acceleration = msg.linear_acceleration
 	    imu_msg.orientation_covariance[0] = 0.1
