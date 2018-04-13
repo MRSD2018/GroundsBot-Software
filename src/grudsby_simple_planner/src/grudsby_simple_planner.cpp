@@ -1,6 +1,6 @@
 /* Copyright 2018 Grudsbois */
 #include <math.h>
-
+#include <algorithm>
 #include <grudsby_simple_planner/SimplePlannerDebug.h>
 
 #include "Matrix3x3.hpp"
@@ -10,6 +10,7 @@
 #include "geometry_msgs/PoseStamped.h"
 #include "geometry_msgs/Twist.h"
 #include "nav_msgs/Odometry.h"
+#include "nav_msgs/Path.h"
 #include "ros/ros.h"
 #include "std_msgs/String.h"
 #include "std_msgs/Bool.h"
@@ -17,6 +18,7 @@
 
 geometry_msgs::PoseStamped goal_pose_in_odom;
 nav_msgs::Odometry curr_odom;
+nav_msgs::Path curr_path;
 
 double prev_goal_x = 0;
 double prev_goal_y = 0;
@@ -36,6 +38,7 @@ float ki_lin;
 float kd_lin;
 double total_lin_error = 0;
 double prev_x_towards_g = 0;
+int num_points_ahead;
 
 float kp_ang;
 float ki_ang;
@@ -60,6 +63,13 @@ void odomReceived(const nav_msgs::Odometry::ConstPtr& odom_msg)
 {
   curr_odom = *odom_msg;
 }
+
+void pathReceived(const nav_msgs::Path::ConstPtr& path_msg)
+{
+  curr_path = *path_msg;
+}
+
+
 
 /*
   goal_received: Callback function called when msg received on /goal topic.
@@ -180,9 +190,14 @@ int main(int argc, char** argv)
   {
     goal_noise = 1.0;
   }
+  if (!n.getParam("grudsby_simple_planner/num_points_ahead", num_points_ahead))
+  {
+    num_points_ahead = 10;
+  }
 
   ros::Publisher vel_pub = n.advertise<geometry_msgs::Twist>("cmd_vel", 100);
   ros::Subscriber odom_sub = n.subscribe("odometry/filtered_map", 100, odomReceived);
+  ros::Subscriber path_sub = n.subscribe("move_base/NavfnROS/plan", 100, pathReceived);
   ros::Subscriber goal_sub = n.subscribe("goal", 100, goalReceived);
   ros::Subscriber stop_sub = n.subscribe("grudsby/stop", 100, stopReceived);
 
@@ -192,25 +207,7 @@ int main(int argc, char** argv)
 
   while (ros::ok())
   {
-    // DEBUGGING
-    /*
-      goal_set = true;
-      //goal pose
-      goal_odom.pose.pose.position.x = 8;
-      goal_odom.pose.pose.position.y = 0;
-      goal_odom.pose.pose.position.z = 0;
-      //start pose
-      curr_odom.pose.pose.position.x = 2;
-      curr_odom.pose.pose.position.y = 4;
-      curr_odom.pose.pose.position.z = 0;
-
-      curr_odom.pose.pose.orientation.x = .146;
-      curr_odom.pose.pose.orientation.y = .354;
-      curr_odom.pose.pose.orientation.z = .354;
-      curr_odom.pose.pose.orientation.w = .854;
-    */
-
-    // Don't try to navigate unless a goal has been broadcasted
+   // Don't try to navigate unless a goal has been broadcasted
     if (goal_set)
     {
       // Determine current heading
@@ -222,8 +219,12 @@ int main(int argc, char** argv)
       Vector3 x_vec(cos(rpy.Z), sin(rpy.Z), 0);
 
       // Find vector between start and goal
-      double current_goal_x = goal_pose_in_odom.pose.position.x;
-      double current_goal_y = goal_pose_in_odom.pose.position.y;
+      // double current_goal_x = goal_pose_in_odom.pose.position.x;
+      // double current_goal_y = goal_pose_in_odom.pose.position.y;
+      int num_poses = curr_path.poses.size();
+      int selected_pose = std::min(num_poses-1,num_points_ahead);
+      double current_goal_x = curr_path.poses[selected_pose].pose.position.x;
+      double current_goal_y = curr_path.poses[selected_pose].pose.position.y;
       double delta_x = current_goal_x - curr_odom.pose.pose.position.x;
       double delta_y = current_goal_y - curr_odom.pose.pose.position.y;
 
