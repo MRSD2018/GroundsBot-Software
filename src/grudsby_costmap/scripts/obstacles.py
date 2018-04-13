@@ -27,12 +27,15 @@ class Obstacle_Range:
     self.threshold = threshold
 
 throttle_ranges = [ \
-  Obstacle_Range( name = 'dead', range_min = 0 , range_max = 2 , 
-                  throttle = 0.0 , threshold = 3 ) ] 
+  Obstacle_Range( name = 'dead', range_min = 0 , range_max = 2.5 , 
+                  throttle = 0.0 , threshold = 3 ) ]
 
-#  Obstacle_Range( name = 'near', range_min = 1 , range_max = 2 , 
+#  Obstacle_Range( name = 'dead', range_min = 0 , range_max = 1.2 , 
+#                  throttle = 0.0 , threshold = 3 ) ]
+
+#  Obstacle_Range( name = 'near', range_min = 1.2 , range_max = 1.8 , 
 #                  throttle = 0.2 , threshold = 5 ) ,
-#  Obstacle_Range( name = 'mid' , range_min = 2 , range_max = 3 , 
+#  Obstacle_Range( name = 'mid' , range_min = 1.8 , range_max = 2.5 , 
 #                  throttle = 0.5 , threshold = 10 ) ]
 #  Obstacle_Range( name = 'far' , range_min = 5 , range_max = 6 , 
 #                  throttle = 0.8 , threshold = 12) ]
