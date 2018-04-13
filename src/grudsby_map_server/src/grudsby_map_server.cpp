@@ -51,7 +51,10 @@ double max_x_, min_x_;
 double max_y_, min_y_;
 
 double utm_z_ = 0;
-bool   utm_z_first_ = true;
+
+bool   utm_z_init_ = true;
+
+bool   mowing_region_parsed_ = false;
 
 ros::Publisher lines_map_pub_;
 
@@ -59,7 +62,9 @@ ros::Publisher lines_metadata_pub_;
 
 ros::ServiceServer lines_service_;
 
-std::vector<std::vector<double>> parsed_outline_;
+std::vector<std::vector<double> > parsed_outline_;
+
+std::vector<std::vector<double> > parsed_gps_outline_;
 
 std::string mower_region_;
 
@@ -68,30 +73,39 @@ std::mutex map_mutex_;
 bool linesMapCallback(nav_msgs::GetMap::Request  &req,
                      nav_msgs::GetMap::Response &res )
 {
-  // request is empty; we ignore it
-  // = operator is overloaded to make deep copy (tricky!)
-  map_mutex_.lock(); 
-  res = lines_map_resp_;
-  map_mutex_.unlock();
-  ROS_INFO("Sending map");
-  return true;
+  if (mowing_region_parsed_)
+  { 
+    // request is empty; we ignore it
+    // = operator is overloaded to make deep copy (tricky!)
+    map_mutex_.lock(); 
+    res = lines_map_resp_;
+    map_mutex_.unlock();
+    ROS_INFO("Sending map");
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+
 }
 
 bool parseMowingPlan()
 {
+  map_mutex_.lock();
   static tf::TransformListener listener;
-
+  ROS_INFO("Parsing the mowing plan");
   if (!listener.waitForTransform("/map", "/utm", ros::Time::now(), ros::Duration(100.0)))
   { 
     ROS_ERROR("Couldn't find utm to map transform. Mowing plan parsing failed."); 
     return false;
   }
-
+  parsed_outline_.resize(0);
   max_x_ = -9999999999;
   max_y_ = -9999999999;
   min_x_ = 9999999999;
   min_y_ = 9999999999; 
-  for (std::vector<double> &latlng : parsed_outline_)
+  for (std::vector<double> &latlng : parsed_gps_outline_)
   {
     double goal_easting_x = 0;
     double goal_northing_y = 0;
@@ -113,19 +127,23 @@ bool parseMowingPlan()
     try
     {
       listener.transformPose("/map", coord, coord_in_map);
-      latlng[0] = coord_in_map.pose.position.x;
-      latlng[1] = coord_in_map.pose.position.y;
-      max_x_ = std::max(max_x_,latlng[0]);
-      min_x_ = std::min(min_x_,latlng[0]);
-      max_y_ = std::max(max_y_,latlng[1]);
-      min_y_ = std::min(min_y_,latlng[1]);
+      std::vector<double> newPoint;
+      newPoint.push_back(coord_in_map.pose.position.x);
+      newPoint.push_back(coord_in_map.pose.position.y);
+      parsed_outline_.push_back(newPoint);
+      max_x_ = std::max(max_x_,newPoint[0]);
+      min_x_ = std::min(min_x_,newPoint[0]);
+      max_y_ = std::max(max_y_,newPoint[1]);
+      min_y_ = std::min(min_y_,newPoint[1]);
     
     }
     catch (tf::TransformException ex)  //NOLINT
     {
       ROS_ERROR("%s", ex.what());
+      return false; 
     }
   }
+  ROS_INFO("Parsed an outline of size %d", int(parsed_outline_.size()));
   if (parsed_outline_.size() < 1) 
   {
     std::vector<double> new_point;
@@ -145,11 +163,12 @@ bool parseMowingPlan()
   min_y_ -= 12*outer_edge_buffer_;      
   double width = (max_x_-min_x_)/resolution_;
   double height = (max_y_-min_y_)/resolution_;
-  
+  ROS_INFO("Rendering the map"); 
   no_cols_ = std::ceil((max_x_-min_x_)/resolution_);
   no_rows_ = std::ceil((max_y_-min_y_)/resolution_);
-  map_mutex_.lock();
+  ROS_INFO("Number of columns %d, Number of rows %d", no_cols_, no_rows_); 
   lines_map_resp_.map.data.resize(no_cols_ * no_rows_);
+  ROS_INFO("Resized the lines"); 
   for (int x = 0; x < no_cols_; x++)
   {
     for (int y = 0; y < no_rows_; y++)
@@ -189,7 +208,7 @@ bool parseMowingPlan()
       lines_map_resp_.map.data[MAP_IDX(no_cols_,x,no_rows_ - y - 1)] = num_to_write; // erase previous lines map
     }
   }
-
+  ROS_INFO("Writing map information");
   lines_map_resp_.map.info.width = no_cols_; 
   lines_map_resp_.map.info.height = no_rows_;
   lines_map_resp_.map.info.resolution = resolution_;
@@ -214,23 +233,27 @@ bool parseMowingPlan()
 
 void publishMowingPlan()
 { 
+  map_mutex_.lock();
   lines_map_pub_.publish( lines_map_resp_.map );
   lines_metadata_pub_.publish( lines_meta_data_message_ );
+  map_mutex_.unlock();
 }
 
 void mowingPlanCallback(const grudsby_sweeping::MowingPlan& msg)
 {
-  parsed_outline_.resize(0);
+  ROS_INFO("Got a mowing plan");
+  parsed_gps_outline_.resize(0);
   std::ofstream outf(mower_region_.c_str());
   for (grudsby_sweeping::SimpleLatLng waypoint : msg.waypoints)
   {
     std::vector<double> newPoint;
     newPoint.push_back(waypoint.longitude);
     newPoint.push_back(waypoint.latitude);
-    parsed_outline_.push_back(newPoint);
+    parsed_gps_outline_.push_back(newPoint);
     outf << std::setprecision(10) << newPoint[0] << ',' << std::setprecision(10) << newPoint[1] << ',' << std::setprecision(10) << 0.0 << ' ' << std::endl;
   } 
-  outf.close(); 
+  outf.close();
+  ROS_INFO("Read to parse mowing plan"); 
   parseMowingPlan();
   publishMowingPlan();
 }
@@ -245,7 +268,7 @@ void parseKMLFile()
     ROS_ERROR("Cannot open mower_path file for parsing at file location %s! No goal waypoints created!", mower_region_.c_str());
     return; 
   }
-  parsed_outline_.resize(0);
+  parsed_gps_outline_.resize(0);
   std::string line;
   while (std::getline(infile, line))
   {
@@ -274,7 +297,7 @@ void parseKMLFile()
     }
     if (new_point.size() > 1) 
     {
-      parsed_outline_.push_back(new_point);
+      parsed_gps_outline_.push_back(new_point);
     }
   }
   infile.close(); 
@@ -283,6 +306,7 @@ void parseKMLFile()
 
 void waypointLinesCallback(const grudsby_sweeping::MowingPlan& msg)
 {
+  map_mutex_.lock(); 
   std::vector<std::vector<double>> parsedLines;
   for (grudsby_sweeping::SimpleLatLng waypoint : msg.waypoints)
   {
@@ -332,7 +356,6 @@ void waypointLinesCallback(const grudsby_sweeping::MowingPlan& msg)
   // Push all edges out by "outer_edge_buffer"
   parsedLines.push_back(parsedLines[0]);
 
-  map_mutex_.lock(); 
   for (int x = 0; x < no_cols_; x++)
   {
     for (int y = 0; y < no_rows_; y++)
@@ -389,38 +412,39 @@ void waypointLinesCallback(const grudsby_sweeping::MowingPlan& msg)
       lines_map_resp_.map.data[MAP_IDX(lines_map_resp_.map.info.width,x,lines_map_resp_.map.info.height - y - 1)] = mapped; // write new lines map
     }
   }
-  map_mutex_.unlock();
   lines_map_pub_.publish( lines_map_resp_.map );
   lines_metadata_pub_.publish( lines_meta_data_message_ );
-  
+  map_mutex_.unlock();
 }
 
 void findWaypointCallback(const nav_msgs::Odometry& msg) 
-{ 
-  geometry_msgs::PoseStamped mapPose; 
-  mapPose.pose.position = msg.pose.pose.position; 
-  mapPose.pose.orientation = msg.pose.pose.orientation; 
-  mapPose.header = msg.header; 
-  geometry_msgs::PoseStamped gpsPose; 
- 
-  static tf::TransformListener listener; 
-  listener.waitForTransform("/utm", "/map", ros::Time::now(), ros::Duration(1.0)); 
-  try 
+{
+  if (mowing_region_parsed_)
   { 
- 
-    listener.transformPose("/utm", mapPose, gpsPose); 
-    std::string utm_zone_tmp = "17T"; // Our UTM zone in pittsburgh 
-    utm_z_ = gpsPose.pose.position.z;  
-    if ( utm_z_first_ ) {
-      utm_z_first_ = false;
-      parseMowingPlan();
-      publishMowingPlan();
+    geometry_msgs::PoseStamped mapPose; 
+    mapPose.pose.position = msg.pose.pose.position; 
+    mapPose.pose.orientation = msg.pose.pose.orientation; 
+    mapPose.header = msg.header; 
+    geometry_msgs::PoseStamped gpsPose; 
+   
+    static tf::TransformListener listener; 
+    listener.waitForTransform("/utm", "/map", ros::Time::now(), ros::Duration(1.0)); 
+    try 
+    { 
+      listener.transformPose("/utm", mapPose, gpsPose); 
+      std::string utm_zone_tmp = "17T"; // Our UTM zone in pittsburgh 
+      if ( utm_z_init_ ) {
+        utm_z_ = gpsPose.pose.position.z;  
+        utm_z_init_ = false;
+        parseMowingPlan();
+        publishMowingPlan();
+      }
     }
-  }
-  catch (tf::TransformException ex)  //NOLINT 
-  { 
-    ROS_ERROR("%s", ex.what()); 
-  }
+    catch (tf::TransformException ex)  //NOLINT 
+    { 
+      ROS_ERROR("%s", ex.what()); 
+    }
+  } 
 } 
 
 int main(int argc, char** argv)
@@ -446,7 +470,7 @@ int main(int argc, char** argv)
   }
  
   parseKMLFile();
-  
+
   ros::Subscriber mowing_plan_sub;
   mowing_plan_sub = n.subscribe("/grudsby/mowing_region", 100, mowingPlanCallback);
 
@@ -456,6 +480,8 @@ int main(int argc, char** argv)
   ros::Subscriber map_sub;
   map_sub = n.subscribe("/odometry/filtered_map", 100, findWaypointCallback);
 
+  map_mutex_.lock(); 
+  
   // Service for waypoint lines
   lines_service_ = n.advertiseService("static_map_lines", &linesMapCallback);
   
@@ -466,8 +492,12 @@ int main(int argc, char** argv)
   // Latched publisher for data
   lines_map_pub_ = n.advertise<nav_msgs::OccupancyGrid>("map_lines", 1, true);
   lines_map_pub_.publish( lines_map_resp_.map );
+  
+  map_mutex_.unlock(); 
 
   publishMowingPlan();
+
+  mowing_region_parsed_ = true; 
 
   ros::Rate loop_rate(10);
 

@@ -36,7 +36,9 @@ double resolution_;
 double negate_;
 
 double utm_z_;
- 
+
+bool utm_z_init_ = true;
+  
 std::string map_directory_;
 
 int message_sequence_ = 0;
@@ -157,7 +159,11 @@ void findWaypointCallback(const nav_msgs::Odometry& msg)
 
     listener.transformPose("/utm", mapPose, gpsPose);
     std::string utm_zone_tmp = "17T"; // Our UTM zone in pittsburgh
-    utm_z_ = gpsPose.pose.position.z; 
+    if (utm_z_init_)
+    { 
+      utm_z_ = gpsPose.pose.position.z; 
+      utm_z_init_ = false; 
+    } 
     //ROS_ERROR("x,y,z: %f,%f,%f",gpsPoint.point.x,gpsPoint.point.y,gpsPoint.point.z);
 
     double grudsby_lat;

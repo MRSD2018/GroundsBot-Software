@@ -17,7 +17,7 @@
 
 <!-- Vision nodes -->
 <!--<include file="$(find grudsby_launch)/launch/vision.launch"/> -->
-<!--<include file="$(find grudsby_launch/launch/laser.launch" /> -->
+<include file="$(find grudsby_launch)/launch/laser.launch" />
  
   <include file="$(find grudsby_costmap)/launch/cost.launch"/> 
   
