@@ -34,20 +34,42 @@ static_map_lines:
 
 
 
-obstacles_laser:
+obstacles_laser_local:
   obstacle_range: 3 
   raytrace_range: 4 
   enabled: true
-  observation_sources: base_scan
-  base_scan: {
+  observation_sources: full_scan angle_filtered_scan
+  full_scan: {
       sensor_frame: /laser,
-#      data_type: PointCloud2, 
       data_type: LaserScan, 
       topic: /scan_clipped,
-      marking: true, 
+      clearing: true,
+      marking:  false,
+      inf_is_valid: true
+  }
+  angle_filtered_scan: {
+      sensor_frame: /laser,
+      data_type: LaserScan, 
+      topic: /scan_filtered,
+      marking:  true,
       clearing: true,
       inf_is_valid: true
   }
 
+obstacles_laser_global:
+  obstacle_range: 3 
+  raytrace_range: 4 
+  enabled: true
+  observation_sources: full_scan angle_filtered_scan
+  full_scan: {
+      sensor_frame: /laser,
+      data_type: LaserScan, 
+      topic: /scan_clipped,
+      clearing: true,
+      marking:  true,
+      inf_is_valid: true
+  }
+
+
 inflation:
-    inflation_radius: .25
+    inflation_radius: .75
