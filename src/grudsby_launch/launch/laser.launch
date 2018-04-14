@@ -1,6 +1,6 @@
 <launch>
   
-  <node pkg="tf2_ros" type="static_transform_publisher" name="bl_laser" args="0.93209511 0 0.1717 0 0 0 base_link laser"/> 
+  <node pkg="tf2_ros" type="static_transform_publisher" name="bl_laser" args="0.93209511 0 0.1717 0 0 3.1415 base_link laser"/> 
   <node pkg="scan_filter" type="scan_inf_repeater.py" name="scan_inf_repeater"/>
   <node name="urg_node" pkg="urg_node" type="urg_node" output="screen">
     <param name="ip_address" value="192.168.10.169"/>
@@ -14,5 +14,10 @@
     <param name="angle_max" value="1.5707963"/>
   </node>
 
+  <node pkg="laser_filters" type="scan_to_scan_filter_chain" output="screen" name="laser_filter">
+    <!--<remap from="scan" to="scan_max" /> -->
+    <rosparam command="load" file="$(find scan_filter)/config/scan_filter.yaml" />
+  </node>
 
 </launch>
+
