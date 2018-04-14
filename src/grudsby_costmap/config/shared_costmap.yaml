@@ -19,7 +19,7 @@ static_map_lines:
   enabled: true
   trinary_costmap: false
 
-obstacles_laser:
+obstacles_laser_local:
   obstacle_range: 3 
   raytrace_range: 4 
   enabled: true
@@ -41,6 +41,19 @@ obstacles_laser:
       inf_is_valid: true
   }
 
+obstacles_laser_global:
+  obstacle_range: 3 
+  raytrace_range: 4 
+  enabled: true
+  observation_sources: full_scan angle_filtered_scan
+  full_scan: {
+      sensor_frame: /laser,
+      data_type: LaserScan, 
+      topic: /scan_clipped,
+      clearing: true,
+      marking:  true,
+      inf_is_valid: true
+  }
 
 
 inflation:
