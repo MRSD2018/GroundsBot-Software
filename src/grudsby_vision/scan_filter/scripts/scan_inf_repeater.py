@@ -8,7 +8,7 @@ import math
 
 from sensor_msgs.msg import LaserScan
 
-MAX_RANGE = 3.5
+MAX_RANGE = 4.5
 
 class DiffTf:
     def __init__(self):
@@ -38,8 +38,8 @@ class DiffTf:
           if ranges [ i ] > MAX_RANGE:
             ranges [ i ] = MAX_RANGE
           
-        for i in range (  10    ): ranges[i] = MAX_RANGE
-        for i in range ( -10, 0 ): ranges[i] = MAX_RANGE
+        #for i in range (  10    ): ranges[i] = MAX_RANGE
+        #for i in range ( -10, 0 ): ranges[i] = MAX_RANGE
         cloud_out.ranges = tuple (ranges) 
         self.laserPub.publish(cloud_out)
 

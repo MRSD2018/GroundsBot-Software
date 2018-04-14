@@ -13,8 +13,9 @@
     <param name="angle_max" value="1.5707963"/>
   </node>
 
+  <node pkg="scan_filter" type="scan_inf_repeater.py" name="scan_inf_repeater"/>
   <node pkg="laser_filters" type="scan_to_scan_filter_chain" output="screen" name="laser_filter">
-    <!--<remap from="scan" to="scan_max" /> -->
+    <remap from="scan" to="scan_clipped" />
     <rosparam command="load" file="$(find scan_filter)/config/scan_filter.yaml" />
   </node>
 

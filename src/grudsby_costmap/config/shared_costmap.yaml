@@ -27,7 +27,7 @@ obstacles_laser:
   full_scan: {
       sensor_frame: /laser,
       data_type: LaserScan, 
-      topic: /scan,
+      topic: /scan_clipped,
       clearing: true,
       marking:  false,
       inf_is_valid: true
