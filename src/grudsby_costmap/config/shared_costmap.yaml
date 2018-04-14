@@ -37,11 +37,11 @@ obstacles_laser:
       data_type: LaserScan, 
       topic: /scan_filtered,
       marking:  true,
-      clearing: false,
+      clearing: true,
       inf_is_valid: true
   }
 
 
 
 inflation:
-    inflation_radius: .25
+    inflation_radius: .75
