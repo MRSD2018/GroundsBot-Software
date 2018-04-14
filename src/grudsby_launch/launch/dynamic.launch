@@ -1,12 +1,19 @@
-<launch>
+<!--
+Top level launch file to do dynamic obstacle test.
+In autonomous mode, Grudsby will drive straight forward.
+Grudsby will stop if an obstacle is encountered
+-->
 
+
+
+<launch>
 <!-- Low level Arduino launch file -->
   <include file="$(find grudsby_lowlevel)/launch/grudsby_arduino.launch"/>  
 
 <!-- Sensor nodes -->
   <include file="$(find grudsby_imu)/launch/grudsby_imu.launch"/>
 
-
+<!-- Direct GroundsBot straight forward at 1m/s  -->
 <node pkg="rostopic" type="rostopic" name="arbitrary_name" args="pub -r 5 /cmd_vel geometry_msgs/Twist '{linear:{x: 1.0, y: 0.0 ,z: 0.0 } ,  angular:{ x: 0.0 ,y: 0.0, z: 0.0}}'" output="screen"/> 
 
 
