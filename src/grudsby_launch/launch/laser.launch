@@ -1,0 +1,18 @@
+<launch>
+  
+  <node pkg="tf2_ros" type="static_transform_publisher" name="bl_laser" args="0.93209511 0 0.1717 0 0 0 base_link laser"/> 
+  <node pkg="scan_filter" type="scan_inf_repeater.py" name="scan_inf_repeater"/>
+  <node name="urg_node" pkg="urg_node" type="urg_node" output="screen">
+    <param name="ip_address" value="192.168.10.169"/>
+    <param name="serial_port" value=""/>
+    <param name="serial_baud" value="115200"/>
+    <param name="frame_id" value="laser"/>
+    <param name="calibrate_time" value="false"/>
+    <param name="publish_intensity" value="false"/>
+    <param name="publish_multiecho" value="false"/>
+    <param name="angle_min" value="-1.5707963"/>
+    <param name="angle_max" value="1.5707963"/>
+  </node>
+
+
+</launch>

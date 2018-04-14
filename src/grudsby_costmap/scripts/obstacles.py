@@ -27,14 +27,18 @@ class Obstacle_Range:
     self.threshold = threshold
 
 throttle_ranges = [ \
-  Obstacle_Range( name = 'dead', range_min = 5 , range_max = 6.5 , 
-                  throttle = 0.0 , threshold = 2 ) ,
-  Obstacle_Range( name = 'near', range_min = 7 , range_max = 8 , 
-                  throttle = 0.2 , threshold = 5 ) ,
-  Obstacle_Range( name = 'mid' , range_min = 8 , range_max = 9 , 
-                  throttle = 0.5 , threshold = 10 ) ,
-  Obstacle_Range( name = 'far' , range_min = 9 , range_max = 10 , 
-                  throttle = 0.8 , threshold = 12) ]
+  Obstacle_Range( name = 'dead', range_min = 0 , range_max = 2.5 , 
+                  throttle = 0.0 , threshold = 3 ) ]
+
+#  Obstacle_Range( name = 'dead', range_min = 0 , range_max = 1.2 , 
+#                  throttle = 0.0 , threshold = 3 ) ]
+
+#  Obstacle_Range( name = 'near', range_min = 1.2 , range_max = 1.8 , 
+#                  throttle = 0.2 , threshold = 5 ) ,
+#  Obstacle_Range( name = 'mid' , range_min = 1.8 , range_max = 2.5 , 
+#                  throttle = 0.5 , threshold = 10 ) ]
+#  Obstacle_Range( name = 'far' , range_min = 5 , range_max = 6 , 
+#                  throttle = 0.8 , threshold = 12) ]
 
 ################################################################################
 ## throttle_from_occupancy_grid ################################################
@@ -45,16 +49,22 @@ throttle_ranges = [ \
 def throttle_from_occupancy_grid ( grid , grid_resolution , ranges ):
   #assert all ( [ type ( r ) == Obstacle_Detection for r in ranges ] )
   throttle = 1
+  mid_grid = int ( grid.shape[0] / 2 )
   for r in ranges:
-    low  = int ( np.floor ( r.range_min / grid_resolution ) )
-    high = int ( np.ceil  ( r.range_max / grid_resolution ) )
+    low  = mid_grid + int ( np.floor ( r.range_min / grid_resolution ) )
+    high = mid_grid + int ( np.ceil  ( r.range_max / grid_resolution ) )
+    #mid  = low + int ( ( high - low )/ 2  )
+    print 'low: {} high:{} '.format ( low, high )
     try : 
+      #n_occupied = np.count_nonzero ( grid [ low : high , : ] )
       n_occupied = np.count_nonzero ( grid [ low : high , : ] )
+      print 'n_occupied : {}'.format ( n_occupied )
       if n_occupied > r.threshold :
         throttle = min ( throttle , r.throttle )
         #print '{} spaced occupied in {}'.format(n_occupied,r.name)
     except IndexError:
       print 'occupancy grid index out of range during obstacle check'
+  print throttle
   return throttle
 
 ################################################################################

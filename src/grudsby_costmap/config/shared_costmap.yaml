@@ -1,5 +1,5 @@
-footprint: [[-0.375, -0.225],  [0.375, -0.225],[0.375, 0.225],[-0.375, 0.225]]
-footprint_padding: 0.1
+footprint: [[-0.27, -0.3],  [0.93, -0.3],[0.93, 0.3],[-0.27, 0.3]]
+footprint_padding: 0.5
 always_send_full_costmap: true
 
 
@@ -8,15 +8,15 @@ publish_frequency: 5.0
 robot_base_frame: base_link
 #static_map: false
 #rolling_window: true  
-#inf_is_valid: true
+inf_is_valid: true
 
 resolution: 0.1 
 transform_tolerance: 0.2
 
-static_map:
-  map_topic: /map
-  subscribe_to_updates: true
-  enabled: true
+#static_map:
+#  map_topic: /map
+#  subscribe_to_updates: true
+#  enabled: true
 #  height: 50
 #  width: 50
 #  origin_x: -25
@@ -35,21 +35,19 @@ static_map_lines:
 
 
 obstacles_laser:
-  obstacle_range: 8
-  raytrace_range: 10
+  obstacle_range: 3 
+  raytrace_range: 4 
   enabled: true
   observation_sources: base_scan
   base_scan: {
-      sensor_frame: /stereo_camera,
+      sensor_frame: /laser,
 #      data_type: PointCloud2, 
       data_type: LaserScan, 
-      min_obstacle_height: -5,
-      max_obstacle_height: 100,
-      topic: /tegra_stereo/points2, 
+      topic: /scan_clipped,
       marking: true, 
       clearing: true,
       inf_is_valid: true
   }
 
 inflation:
-    inflation_radius: 2.0
+    inflation_radius: .25

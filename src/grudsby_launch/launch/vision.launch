@@ -7,11 +7,14 @@
 
   <node pkg="depthimage_to_laserscan" type="depthimage_to_laserscan" name="depthimage_to_laserscan" output="screen"> 
     <remap from="image" to="/stereo_camera/left/depth"/>
-    <param name="scan_height" value="30"/>
+    <param name="scan_height" value="2"/>
     <param name="range_min" value="0.45"/>
     <param name="range_max" value="1000"/>
     <param name="output_frame_id" value="stereo_camera"/>
   </node>
+
+
+<!-- <include file="$(find grudsby_launch)/launch/scan_filter.launch"/> -->
 
 
 </launch>

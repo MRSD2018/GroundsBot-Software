@@ -35,6 +35,10 @@ double resolution_;
 
 double negate_;
 
+double utm_z_;
+
+bool utm_z_init_ = true;
+  
 std::string map_directory_;
 
 int message_sequence_ = 0;
@@ -120,7 +124,7 @@ bool inThreshold(double lat, double lon, double goal_lat, double goal_lon)
   double c = 2 * atan2(sqrt(a), sqrt(1 - a));
   double d = r * c;  // Distance in km
   //ROS_ERROR("Dist: %f", d);
-  return d <= 0.0003;
+  return d <= 0.001;
 
   // Dumb version incase smart version doesn't work
   /*double glat_plus = goal_lat + 0.000003;
@@ -155,7 +159,11 @@ void findWaypointCallback(const nav_msgs::Odometry& msg)
 
     listener.transformPose("/utm", mapPose, gpsPose);
     std::string utm_zone_tmp = "17T"; // Our UTM zone in pittsburgh
-
+    if (utm_z_init_)
+    { 
+      utm_z_ = gpsPose.pose.position.z; 
+      utm_z_init_ = false; 
+    } 
     //ROS_ERROR("x,y,z: %f,%f,%f",gpsPoint.point.x,gpsPoint.point.y,gpsPoint.point.z);
 
     double grudsby_lat;
@@ -241,10 +249,27 @@ void findWaypointCallback(const nav_msgs::Odometry& msg)
 
         goal.pose.position.x = goal_easting_x;
         goal.pose.position.y = goal_northing_y;
-        goal.pose.position.z = grudsby_alt;
+        goal.pose.position.z = utm_z_;
         //ROS_ERROR("UTM Goal: Northing: %f, Easting: %f, zone: %s", goal_northing_y, goal_easting_x, utm_zone_tmp.c_str());
 
-        waypoint_pub.publish(goal);
+
+        geometry_msgs::PoseStamped mapPose;
+        static tf::TransformListener listener;
+        listener.waitForTransform("/map", "/utm", ros::Time::now(), ros::Duration(1.0));
+        try
+        {
+          listener.transformPose("/map", goal, mapPose);
+          mapPose.pose.position.z = 0.0; 
+          mapPose.pose.orientation.w = 1.0; 
+          mapPose.pose.orientation.x = 0.0; 
+          mapPose.pose.orientation.y = 0.0; 
+          mapPose.pose.orientation.z = 0.0; 
+          waypoint_pub.publish(mapPose);
+        }
+        catch (tf::TransformException ex)  //NOLINT
+        {
+          ROS_ERROR("%s", ex.what());
+        }
       }
       ros::Duration wait = ros::Time::now() - last_stop_update;
       std_msgs::Bool stop;
