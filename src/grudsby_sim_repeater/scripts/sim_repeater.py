@@ -25,7 +25,7 @@ class DiffTf:
         rospy.init_node("sim_repeater")
         self.nodename = rospy.get_name()
         rospy.loginfo("-I- %s started" % self.nodename)
-        selt.init_time = rospy.get_rostime()
+        self.init_time = rospy.get_rostime()
         #laser geometry projector#
         self.projector = LaserProjection()
         #### parameters #######
@@ -67,7 +67,8 @@ class DiffTf:
           if scan_in.ranges[i] == float('inf'):
             newRanges[i] = max_range
 
-        scan_in.ranges = tuple(newRanges)
+        scan:170
+_in.ranges = tuple(newRanges)
 
         for val in scan_in.ranges:
             rospy.logerr("%f", val)
@@ -106,32 +107,33 @@ class DiffTf:
     #############################################################################
     def imuResponseCallback(self, msg):
     #############################################################################
-        self.num_imu_packets += 1
-        if self.num_imu_packets > 100:
-            imu_msg = Imu()
-            imu_msg.header = msg.header
-	    imu_msg.header.frame_id = "imu_link"
-      time_since_start = rospy.get_rostime() - self.init_time
-      if time_since_start.to_sec() > 5:
-	      imu_msg.orientation = msg.orientation
-	    else:
-        imu_msg.orientation.w = 1
-        imu_msg.orientation.x = 0
-        imu_msg.orientation.y = 0
-        imu_msg.orientation.z = 0
-	    imu_msg.angular_velocity = msg.angular_velocity
-	    imu_msg.linear_acceleration = msg.linear_acceleration
-	    imu_msg.orientation_covariance[0] = 0.1
-	    imu_msg.orientation_covariance[4] = 0.1
-	    imu_msg.orientation_covariance[8] = 0.1
-	    imu_msg.angular_velocity_covariance[0] = 0.5
-	    imu_msg.angular_velocity_covariance[4] = 0.5
-	    imu_msg.angular_velocity_covariance[8] = 0.5
-	    imu_msg.linear_acceleration_covariance[0] = 0.1
-	    imu_msg.linear_acceleration_covariance[4] = 0.1
-	    imu_msg.linear_acceleration_covariance[8] = 0.1
-	
-	    self.imuPub.publish(imu_msg)
+      self.num_imu_packets += 1
+      if self.num_imu_packets > 100:
+        imu_msg = Imu()
+        imu_msg.header = msg.header
+        imu_msg.header.frame_id = "imu_link"
+        time_since_start = rospy.get_rostime() - self.init_time
+        if time_since_start.to_sec() > 5:
+	        imu_msg.orientation = msg.orientation
+        else:
+          imu_msg.orientation.w = 1
+          imu_msg.orientation.x = 0
+          imu_msg.orientation.y = 0
+          imu_msg.orientation.z = 0
+        imu_msg.angular_velocity = msg.angular_velocity
+        imu_msg.linear_acceleration = msg.linear_acceleration
+        imu_msg.orientation_covariance[0] = 0.1
+        imu_msg.orientation_covariance[4] = 0.1
+        imu_msg.orientation_covariance[8] = 0.1
+        imu_msg.angular_velocity_covariance[0] = 0.5
+        imu_msg.angular_velocity_covariance[4] = 0.5
+        imu_msg.angular_velocity_covariance[8] = 0.5
+        imu_msg.linear_acceleration_covariance[0] = 0.1
+        imu_msg.linear_acceleration_covariance[4] = 0.1
+        imu_msg.linear_acceleration_covariance[8] = 0.1
+      
+        self.imuPub.publish(imu_msg)
+
 
 
     #############################################################################

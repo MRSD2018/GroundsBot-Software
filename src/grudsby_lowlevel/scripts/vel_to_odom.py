@@ -43,7 +43,7 @@ class DiffTf:
         rospy.Subscriber("/grudsby/arduino_response",
                          ArduinoResponse, self.responseCallback)
 
-        rospy.Subscriber("/cmd_vel", Twist, self.cmdCallback)
+        rospy.Subscriber("/cmd_vel_simple", Twist, self.cmdCallback)
 
         self.odomPub = rospy.Publisher(
             "/grudsby/odometry", Odometry, queue_size=10)

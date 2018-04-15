@@ -1,5 +1,6 @@
 
 <launch>
+  <!--
   <param name="/use_sim_time" value="true"/>
   <node name="grudsby_simple_planner" pkg="grudsby_simple_planner" type="grudsby_simple_planner">
     <rosparam>
@@ -12,11 +13,11 @@
       wait_at_waypoint: true
       goal_noise: 2.0 
     </rosparam>
-  </node>
+  </node>-->
 
   <node name="grudsby_waypoint" pkg="grudsby_waypoint" type="grudsby_waypoint">
   <rosparam>
-      mower_path_file: '/media/joshjb17/Projects/GroundsBot-Software/data/mower_path.kml'
+      mower_path_file: '/home/nvidia/GroundsBot-Software/data/mower_path.kml'
       wait_at_waypoint: true
     </rosparam>
   </node>

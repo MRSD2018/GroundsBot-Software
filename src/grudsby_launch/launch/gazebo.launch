@@ -1,13 +1,14 @@
 <launch>
 
 <!-- Navigation nodes -->
-  
+ 
   <param name="/use_sim_time" value="true"/>
   <include file="$(find grudsby_gazebo)/launch/sim.launch"/>
   <node pkg="grudsby_lowlevel" type="vel_to_odom.py" name="grudsby_lowlevel"/>
   <node pkg="sim_repeater" type="sim_repeater.py" name="sim_repeater"/>
   <node pkg="imu_repeater" type="imu_repeater.py" name="imu_repeater"/>
-  <node pkg="imu_complementary_filter" type="complementary_filter_node" 
+ <include file="$(find grudsby_costmap)/launch/cost.launch"/>
+ <node pkg="imu_complementary_filter" type="complementary_filter_node" 
       name="complementary_filter_gain_node" output="screen">
     <param name="do_bias_estimation" value="true" />
     <param name="do_adaptive_gain" value="true" />
@@ -18,7 +19,14 @@
   <include file="$(find grudsby_localization)/launch/grudsby_localization_for_bag_playback.launch"/>
 
   <node pkg="tf" type="static_transform_publisher" name="stereo_camera_link_broadcaster" args="0.9321 0 0.1717 0 0 0 1 base_link stereo_camera 100" />  
-  
+ 
+  <remap from="/goal" to="/move_base_simple/goal"/>
+  <node name="grudsby_waypoint" pkg="grudsby_waypoint" type="grudsby_waypoint">
+  <rosparam>
+      wait_at_waypoint: true
+    </rosparam>
+  </node>
+
 <!-- 
 	<node name="gucci_gang" pkg="gucci_gang" type="gucci_gang"/>
 -->

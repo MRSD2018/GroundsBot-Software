@@ -66,6 +66,9 @@ void odomReceived(const nav_msgs::Odometry::ConstPtr& odom_msg)
 
 void pathReceived(const nav_msgs::Path::ConstPtr& path_msg)
 {
+  goal_set = true;
+
+  //ROS_ERROR("Path received");
   curr_path = *path_msg;
 }
 
@@ -196,6 +199,7 @@ int main(int argc, char** argv)
   }
 
   ros::Publisher vel_pub = n.advertise<geometry_msgs::Twist>("cmd_vel", 100);
+  ros::Publisher carrot_pub = n.advertise<geometry_msgs::PoseStamped>("local_carrot", 100);
   ros::Subscriber odom_sub = n.subscribe("odometry/filtered_map", 100, odomReceived);
   ros::Subscriber path_sub = n.subscribe("move_base/NavfnROS/plan", 100, pathReceived);
   ros::Subscriber goal_sub = n.subscribe("goal", 100, goalReceived);
@@ -208,7 +212,7 @@ int main(int argc, char** argv)
   while (ros::ok())
   {
    // Don't try to navigate unless a goal has been broadcasted
-    if (goal_set)
+    if (curr_path.poses.size() > 0)
     {
       // Determine current heading
       Quaternion q(curr_odom.pose.pose.orientation.x, curr_odom.pose.pose.orientation.y,
@@ -222,7 +226,10 @@ int main(int argc, char** argv)
       // double current_goal_x = goal_pose_in_odom.pose.position.x;
       // double current_goal_y = goal_pose_in_odom.pose.position.y;
       int num_poses = curr_path.poses.size();
+      
+      ROS_ERROR("Number of poses: %d",num_poses);
       int selected_pose = std::min(num_poses-1,num_points_ahead);
+      geometry_msgs::PoseStamped carrot = curr_path.poses[selected_pose];
       double current_goal_x = curr_path.poses[selected_pose].pose.position.x;
       double current_goal_y = curr_path.poses[selected_pose].pose.position.y;
       double delta_x = current_goal_x - curr_odom.pose.pose.position.x;
@@ -315,6 +322,7 @@ int main(int argc, char** argv)
 
       vel_pub.publish(msg);
 
+      carrot_pub.publish(carrot);
       // Publish debugs
       grudsby_simple_planner::SimplePlannerDebug debug_msg;
       debug_msg.theta_d = theta_d;
