@@ -18,7 +18,7 @@
   </node>
   <include file="$(find grudsby_localization)/launch/grudsby_localization_for_bag_playback.launch"/>
 
-  <node pkg="tf" type="static_transform_publisher" name="stereo_camera_link_broadcaster" args="0.9321 0 0.1717 0 0 0 1 base_link stereo_camera 100" />  
+  <node pkg="tf" type="static_transform_publisher" name="laser_link_broadcaster" args="0.9321 0 0.1717 0 0 0 1 base_link laser 100" />  
  
   <remap from="/goal" to="/move_base_simple/goal"/>
   <node name="grudsby_waypoint" pkg="grudsby_waypoint" type="grudsby_waypoint">

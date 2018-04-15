@@ -37,7 +37,7 @@ class DiffTf:
         self.imuPub = rospy.Publisher("/imu/data_raw", Imu, queue_size=10)
         self.magPub = rospy.Publisher("/imu/mag", MagneticField, queue_size=10)
         #self.laserPub = rospy.Publisher("/tegra_stereo/points2", PointCloud2, queue_size=10)
-        self.laserPub = rospy.Publisher("/tegra_stereo/points2", LaserScan, queue_size=10)
+        self.laserPub = rospy.Publisher("/scan_clipped", LaserScan, queue_size=10)
         self.odomPub = rospy.Publisher("/grudsby/arduino_response", ArduinoResponse, queue_size=10)
         rospy.Subscriber("/odom_sim", Odometry, self.odomResponseCallback) 
         rospy.Subscriber("/laser/scan_sim", LaserScan, self.laserResponseCallback) 
@@ -79,7 +79,7 @@ _in.ranges = tuple(newRanges)
         
         ################################################
         #cloud_out = self.projector.projectLaser(scan_in)
-        cloud_out.header.frame_id = "stereo_camera"
+        cloud_out.header.frame_id = "laser"
         self.laserPub.publish(cloud_out)
 
     #############################################################################
