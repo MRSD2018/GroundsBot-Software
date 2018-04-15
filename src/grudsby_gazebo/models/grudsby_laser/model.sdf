@@ -63,7 +63,7 @@
         <plugin name="laser_plugin" filename="libgazebo_ros_gpu_laser.so">
           <alwaysOn>true</alwaysOn>
           <bodyName>base_link_sim</bodyName>
-          <topicName>laser/scan_sim</topicName>
+          <topicName>/laser/scan_sim</topicName>
           <serviceName>laser_service</serviceName>
         </plugin>
         <visualize>true</visualize>

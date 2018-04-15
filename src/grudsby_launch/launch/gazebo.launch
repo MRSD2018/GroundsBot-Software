@@ -7,7 +7,6 @@
   <node pkg="grudsby_lowlevel" type="vel_to_odom.py" name="grudsby_lowlevel"/>
   <node pkg="sim_repeater" type="sim_repeater.py" name="sim_repeater"/>
   <node pkg="imu_repeater" type="imu_repeater.py" name="imu_repeater"/>
- <include file="$(find grudsby_costmap)/launch/cost.launch"/>
  <node pkg="imu_complementary_filter" type="complementary_filter_node" 
       name="complementary_filter_gain_node" output="screen">
     <param name="do_bias_estimation" value="true" />
@@ -16,9 +15,19 @@
     <param name="gain_acc" value="0.05" />
     <param name="gain_mag" value="0.03" />
   </node>
+
   <include file="$(find grudsby_localization)/launch/grudsby_localization_for_bag_playback.launch"/>
 
+  <node pkg="scan_filter" type="scan_inf_repeater.py" name="scan_inf_repeater"/>
+  <node pkg="laser_filters" type="scan_to_scan_filter_chain" output="screen" name="laser_filter">
+    <remap from="scan" to="scan_clipped" />
+    <rosparam command="load" file="$(find scan_filter)/config/scan_filter.yaml" />
+  </node>
+
+
   <node pkg="tf" type="static_transform_publisher" name="laser_link_broadcaster" args="0.9321 0 0.1717 0 0 0 1 base_link laser 100" />  
+
+  <include file="$(find grudsby_costmap)/launch/cost-eband.launch"/>
  
   <remap from="/goal" to="/move_base_simple/goal"/>
   <node name="grudsby_waypoint" pkg="grudsby_waypoint" type="grudsby_waypoint">
