@@ -317,7 +317,7 @@ int main(int argc, char** argv)
   }
   if (!n.getParam("grudsby_waypoint/mower_path_file", mower_path))
   {
-    mower_path = "/home/nvidia/GroundsBot-Software/data/mower_path.kml";
+    mower_path = "/home/henry/GroundsBot-Software/data/mower_path.kml";
   }
   else
   {

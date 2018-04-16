@@ -27,14 +27,14 @@
 
   <node pkg="tf" type="static_transform_publisher" name="laser_link_broadcaster" args="0.9321 0 0.1717 0 0 0 1 base_link laser 100" />  
 
-  <include file="$(find grudsby_costmap)/launch/cost-eband.launch"/>
+<!--  <include file="$(find grudsby_costmap)/launch/cost-eband.launch"/> -->
  
   <remap from="/goal" to="/move_base_simple/goal"/>
-  <node name="grudsby_waypoint" pkg="grudsby_waypoint" type="grudsby_waypoint">
+  <!-- <node name="grudsby_waypoint" pkg="grudsby_waypoint" type="grudsby_waypoint">
   <rosparam>
       wait_at_waypoint: true
     </rosparam>
-  </node>
+  </node> -->
 
 <!-- 
 	<node name="gucci_gang" pkg="gucci_gang" type="gucci_gang"/>

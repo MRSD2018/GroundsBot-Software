@@ -1,10 +1,10 @@
 local_costmap:
   global_frame: base_link
   rolling_window: true
-  track_unknown_space: false
+  track_unknown_space: true
   inf_is_valid: true
-  height: 5.0
-  width: 5.0
+  height: 3.0
+  width: 3.0
 
   plugins:
     - {name: obstacles_laser_local,           type: "costmap_2d::ObstacleLayer"}
