@@ -1,4 +1,4 @@
-controller_frequency: 5.0
+controller_frequency: 10.0
 recovery_behaviour_enabled: true
 
 NavfnROS:
@@ -14,7 +14,7 @@ TrajectoryPlannerROS:
 
   max_vel_theta: 3
   min_vel_theta: 1
-  min_in_place_vel_theta: 5 
+  min_in_place_vel_theta: 3 
 
   holonomic_robot: true
   escape_vel: -0.1
@@ -25,12 +25,12 @@ TrajectoryPlannerROS:
   latch_xy_goal_tolerance: false
 
   # Forward Simulation Parameters
-  sim_time: 2.0
+  sim_time: 0.5
   sim_granularity: 0.02
   angular_sim_granularity: 0.02
   vx_samples: 6
   vtheta_samples: 20
-  controller_frequency: 20.0
+  controller_frequency: 10.0
 
   # Trajectory scoring parameters
   meter_scoring: true # Whether the gdist_scale and pdist_scale parameters should assume that goal_distance and path_distance are expressed in units of meters or cells. Cells are assumed by default (false).
@@ -55,10 +55,10 @@ EBandPlannerROS:
 
 # Common params
  # Distance tolerance for reaching the goal pose
- xy_goal_tolerance: 0.1 
+ xy_goal_tolerance: 0.05 
 
  # Orientation tolerance for reaching the desired goal pose
- yaw_goal_tolerance: 0.75
+ yaw_goal_tolerance: 0.2
 
  # Angular velocity lower bound that determines if the robot should stop to avoid limit-cycles or locks
  rot_stopped_vel: 0.01
@@ -72,25 +72,25 @@ EBandPlannerROS:
  
 # Elastic Band Params
  # Min distnace that denotes connectivity between consecutive bubbles 
- eband_min_relative_overlap: 0.15
+ eband_min_relative_overlap: 0.30
 
  # Bubble geometric bound regarding tiny bubble distance 
  eband_tiny_bubble_distance: 0.01
 
  # Bubble geometric bound regarding tiny bubble expansion 
- eband_tiny_bubble_expansion: 0.5
+ eband_tiny_bubble_expansion: 0.03
 
  # Force gain of forces between consecutive bubbles that tend to stretch the elastic band 
- eband_internal_force_gain: 3.0
+ eband_internal_force_gain: 4.5
 
  # Force gain of forces that tend to move the bubbles away from obstacles 
- eband_external_force_gain: 2.0
+ eband_external_force_gain: 3.0
 
  # Number of iterations for eband expansion 
- num_iterations_eband_optimization: 5
+ num_iterations_eband_optimization: 3
 
  # Number of iterations for reaching the equilibrium between internal and external forces
- eband_equilibrium_approx_max_recursion_depth: 7
+ eband_equilibrium_approx_max_recursion_depth: 5
  
  # Maximum relative equilibrium overshoot 
  eband_equilibrium_relative_overshoot: 0.5
@@ -99,14 +99,14 @@ EBandPlannerROS:
  eband_significant_force_lower_bound: 0.075
  
  # Costmap weight factor used in calculation of distance to obstacles 
- costmap_weight: 10.0
+ costmap_weight: 0.5
  
  # Trajectory Controller Parameters 
  # Maximum linear velocity
- max_vel_lin: 1.5
+ max_vel_lin: 1
  
  # Maximum angular velocity 
- max_vel_th: 1
+ max_vel_th: 10
  
  # Minimum linear velocity 
  min_vel_lin: 0.3
@@ -115,19 +115,19 @@ EBandPlannerROS:
  min_vel_th: 0
 
  # Minimum in-place angular velocity 
- min_in_place_vel_th: 1.0
+ min_in_place_vel_th: 2.5
 
  # Minimum in-place linear velocity 
- in_place_trans_vel: 0.1
+ in_place_trans_vel: 0
 
  # Proportional gain of the PID ontroller 
- k_prop: 1.5
+ k_prop: 1.25
 
  # Damping gain of the PID controller 
- k_damp: 2.5
+ k_damp: 3
  
  # Control rate 
- Ctrl_Rate: 10.0
+ Ctrl_Rate: 20.0
 
  # Maximum allowable acceleration 
  max_acceleration: 4
@@ -142,7 +142,7 @@ EBandPlannerROS:
  max_rotational_acceleration: 5
 
  # Rotation correction threshold 
- rotation_correction_threshold: 0.7
+ rotation_correction_threshold: 5.4
 
  # Denotes whether or not to use diff drive mode 
  differential_drive: True
@@ -151,7 +151,7 @@ EBandPlannerROS:
  bubble_velocity_multiplier: 2.0
 
  # Multiplier of rotation threshold 
- rotation_threhsold_multiplier: 3
+ rotation_threhsold_multiplier: 2
 
  # Determines whether to try getting closer to the goal, in case of going past the tolerance 
  disallow_hysteresis: False

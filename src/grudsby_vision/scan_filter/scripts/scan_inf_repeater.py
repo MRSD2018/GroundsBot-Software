@@ -8,7 +8,7 @@ import math
 
 from sensor_msgs.msg import LaserScan
 
-MAX_RANGE = 4.5
+MAX_RANGE = 9
 
 class DiffTf:
     def __init__(self):

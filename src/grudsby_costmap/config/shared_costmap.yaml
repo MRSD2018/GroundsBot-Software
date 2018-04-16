@@ -1,16 +1,15 @@
 footprint: [[-0.27, -0.3],  [0.93, -0.3],[0.93, 0.3],[-0.27, 0.3]]
-footprint_padding: 0.5
-always_send_full_costmap: true
+footprint_padding: 0.3
+always_send_full_costmap: false
 
 
-update_frequency: 10.0
+update_frequency: 5.0
 publish_frequency: 5.0
 robot_base_frame: base_link
 #static_map: false
 #rolling_window: true  
 inf_is_valid: true
 
-resolution: 0.1 
 transform_tolerance: 0.2
 
 static_map_lines:
@@ -20,8 +19,8 @@ static_map_lines:
   trinary_costmap: false
 
 obstacles_laser_local:
-  obstacle_range: 3 
-  raytrace_range: 4 
+  obstacle_range: 7 
+  raytrace_range: 8 
   enabled: true
   observation_sources: full_scan angle_filtered_scan
   full_scan: {
@@ -42,8 +41,8 @@ obstacles_laser_local:
   }
 
 obstacles_laser_global:
-  obstacle_range: 3 
-  raytrace_range: 4 
+  obstacle_range: 7 
+  raytrace_range: 8 
   enabled: true
   observation_sources: full_scan angle_filtered_scan
   full_scan: {
@@ -57,4 +56,4 @@ obstacles_laser_global:
 
 
 inflation:
-    inflation_radius: .75
+    inflation_radius: .3

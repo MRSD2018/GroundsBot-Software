@@ -52,6 +52,10 @@ struct Waypoint
 
 static std::vector<Waypoint> goals;
 
+//keep track of previous sent goal with these
+double previous_x;
+double previous_y;
+
 void parseKMLFile()
 {
   std::ifstream infile(mower_path.c_str());
@@ -180,7 +184,7 @@ void findWaypointCallback(const nav_msgs::Odometry& msg)
     double grudsby_alt = 0;
 
     geometry_msgs::PoseStamped goal;
-
+    
     goal.header.stamp = ros::Time::now();
     goal.header.frame_id = "utm";
     goal.pose.orientation.w = 1.0;
@@ -264,7 +268,12 @@ void findWaypointCallback(const nav_msgs::Odometry& msg)
           mapPose.pose.orientation.x = 0.0; 
           mapPose.pose.orientation.y = 0.0; 
           mapPose.pose.orientation.z = 0.0; 
-          waypoint_pub.publish(mapPose);
+          //if (goal.pose.position.x != previous_x && goal.pose.position.y != previous_y)
+          //{
+            waypoint_pub.publish(mapPose);
+            //previous_x = goal.pose.position.x;
+            //previous_y = goal.pose.position.y;
+          //}  
         }
         catch (tf::TransformException ex)  //NOLINT
         {
