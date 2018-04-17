@@ -1,33 +1,55 @@
 footprint: [[-0.27, -0.3],  [0.93, -0.3],[0.93, 0.3],[-0.27, 0.3]]
 footprint_padding: 0.5
-always_send_full_costmap: true
+always_send_full_costmap: false
 
 
-update_frequency: 10.0
-publish_frequency: 5.0
+update_frequency: 1
+publish_frequency: 0.5
 robot_base_frame: base_link
 #static_map: false
 #rolling_window: true  
 inf_is_valid: true
 
-resolution: 0.1 
-transform_tolerance: 0.2
+transform_tolerance: 2
+
+#static_map:
+#  map_topic: /map
+#  subscribe_to_updates: true
+#  enabled: true
+#  height: 50
+#  width: 50
+#  origin_x: -25
+#  origin_y: -25
 
 static_map_lines:
   map_topic: /map_lines
   subscribe_to_updates: true
   enabled: true
   trinary_costmap: false
+#  height: 50
+#  width: 50
+#  origin_x: -25
+#  origin_y: -25
+
+
 
 obstacles_laser_local:
   obstacle_range: 3 
   raytrace_range: 4 
   enabled: true
-  observation_sources: full_scan angle_filtered_scan
-  full_scan: {
+  observation_sources: clear_scan_left clear_scan_right angle_filtered_scan
+  clear_scan_left: {
       sensor_frame: /laser,
       data_type: LaserScan, 
-      topic: /scan_clipped,
+      topic: /scan_left_edge,
+      clearing: true,
+      marking:  false,
+      inf_is_valid: true
+  }
+  clear_scan_right: {
+      sensor_frame: /laser,
+      data_type: LaserScan, 
+      topic: /scan_right_edge,
       clearing: true,
       marking:  false,
       inf_is_valid: true
@@ -45,11 +67,11 @@ obstacles_laser_global:
   obstacle_range: 3 
   raytrace_range: 4 
   enabled: true
-  observation_sources: full_scan angle_filtered_scan
+  observation_sources: full_scan
   full_scan: {
       sensor_frame: /laser,
       data_type: LaserScan, 
-      topic: /scan_clipped,
+      topic: /scan_filtered,
       clearing: true,
       marking:  true,
       inf_is_valid: true

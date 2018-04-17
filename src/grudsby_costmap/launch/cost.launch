@@ -5,6 +5,7 @@
 <!--  <node name="map_server" pkg="map_server" type="map_server" args = "$(find grudsby_costmap)/map/map.yaml"> 
     <param name="frame_id" value="map"/>
   </node> --> 
+ <remap from="/cmd_vel" to="/cmd_vel_trash"/>
 
  <node name="grudsby_map_server" pkg="grudsby_map_server" type="grudsby_map_server" args = "">
     <param name="frame_id" value="map"/>
@@ -14,7 +15,7 @@
 
 
   <arg  name="no_static_map"       default="false"/>
-  <arg  name="base_global_planner" default="navfn/NavfnROS"/>
+  <arg  name="base_global_planner" default="global_planner/GlobalPlanner"/>
   <arg  name="base_local_planner"  default="dwa_local_planner/DWAPlannerROS"/>
 
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">

@@ -14,7 +14,7 @@
 
 
   <arg  name="no_static_map"       default="false"/>
-  <arg  name="base_global_planner" default="navfn/NavfnROS"/>
+  <arg  name="base_global_planner" default="global_planner/GlobalPlanner"/>
   <arg  name="base_local_planner"  default="teb_local_planner/TebLocalPlannerROS"/>
 
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
