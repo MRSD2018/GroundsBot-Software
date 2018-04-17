@@ -1,15 +1,15 @@
 global_costmap:
   global_frame: map
-  static_map: true
+#  static_map: true
   rolling_window: false
-  track_unknown_space: true
+  track_unknown_space: false
   inf_is_valid: true
-  height: 150
-  width: 150
-  origin_x: -75
-  origin_y: -75
+#  height: 150
+#  width: 150
+#  origin_x: -75
+#  origin_y: -75
   plugins:
-#    - {name: static_map_lines,          type: "costmap_2d::StaticLayer"}
-    - {name: obstacles_laser_global,           type: "costmap_2d::ObstacleLayer"}
-    - {name: inflation,                 type: "costmap_2d::InflationLayer"}
+    - {name: static_map_lines,          type: "costmap_2d::StaticLayer"}
     - {name: obstacles_laser,           type: "costmap_2d::ObstacleLayer"}
+#    - {name: obstacles_laser_global,    type: "costmap_2d::ObstacleLayer"}
+    - {name: inflation,                 type: "costmap_2d::InflationLayer"}

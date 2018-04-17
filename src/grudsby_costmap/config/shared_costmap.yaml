@@ -1,4 +1,5 @@
-footprint: [[-0.27, -0.3],  [0.93, -0.3],[0.93, 0.3],[-0.27, 0.3]]
+#footprint: [[-0.27, -0.3],  [0.93, -0.3],[0.93, 0.3],[-0.27, 0.3]]
+footprint: [[-0.01, -0.01],  [0.01, -0.01],[0.01, 0.01],[-0.01, 0.01]]
 footprint_padding: 0.5
 always_send_full_costmap: true
 
@@ -20,7 +21,7 @@ transform_tolerance: 0.2
 #  height: 50
 #  width: 50
 #  origin_x: -25
-#  origin_y: -25
+# origin_y: -25
 
 static_map_lines:
   map_topic: /map_lines
@@ -69,7 +70,19 @@ obstacles_laser_global:
       marking:  true,
       inf_is_valid: true
   }
-
+obstacles_laser:
+  obstacle_range: 3 
+  raytrace_range: 4 
+  enabled: true
+  observation_sources: full_scan
+  full_scan: {
+      sensor_frame: /laser,
+      data_type: LaserScan, 
+      topic: /scan,
+      clearing: true,
+      marking:  true,
+      inf_is_valid: true
+  }
 
 inflation:
-    inflation_radius: .75
+    inflation_radius: 1 

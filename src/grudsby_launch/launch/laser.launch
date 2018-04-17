@@ -1,5 +1,4 @@
-
-  
+<launch>
   <node pkg="tf2_ros" type="static_transform_publisher" name="bl_laser" args="0.93209511 0 0.1717 0 0 3.1415 base_link laser"/> 
   <node name="urg_node" pkg="urg_node" type="urg_node" output="screen">
     <param name="ip_address" value="192.168.10.169"/>

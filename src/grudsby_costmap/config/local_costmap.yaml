@@ -1,7 +1,7 @@
 local_costmap:
   global_frame: base_link
   rolling_window: true
-  track_unknown_space: true
+  track_unknown_space: false
   inf_is_valid: true
   height: 3.0
   width: 3.0
