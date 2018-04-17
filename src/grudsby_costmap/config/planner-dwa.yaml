@@ -1,0 +1,138 @@
+# Move_base params 
+recovery_behaviors: 
+  - name: aggressive_reset
+    type: clear_costmap_recovery/ClearCostmapRecovery
+
+# Rate that controller will send command vels
+controller_frequency: 10
+
+# how long planner will wait in secs before space-clearing operations are performed
+planner_patience: 5.0
+
+# how long controller will wait to find a valid control
+controller_patience: 15
+
+# rate in hz to run global planning loop. if 0, will only run when a new goal is recevied or when local planner reports plan is blocked
+planner_frequency: 2.0
+
+# max times to try before recovery behavior
+max_planning_retries: -1
+
+recovery_behaviour_enabled: true
+
+# Global Planner params
+GlobalPlanner:
+  # if using obstacle layer, must set track_unknown_space to true
+  allow_unknown: false 
+  
+  default_tolerance: 5 
+  
+  # visualize potential area
+  visualize_potential: true  
+
+  # otherwise a*
+  use_dijkstra: false
+  
+  # use quadratic approx for potentials, otherwise use simpler
+  use_quadratic: true
+
+  # follow grid boundaries, otherwise gradient descent
+  use_grid_path: true
+
+  # use old style navfn behaviors
+  old_navfn_behavior: false
+
+
+TrajectoryPlannerROS:
+  # Robot configuration parameter
+  acc_lim_x: 2.5
+  acc_lim_y: 2.5
+  acc_lim_theta: 3.2
+
+  min_vel_x: 0.1
+  max_vel_x: 0.55
+
+  max_vel_theta: 1.0
+  min_vel_theta: -1.0
+
+  min_in_place_vel_theta: 0.4
+
+  escape_vel: -0.1
+
+  holonomic_robot: false
+
+   # Goal Tolerance Parameters
+  yaw_goal_tolerance: 0.05
+  xy_goal_tolerance: 0.10
+  latch_xy_goal_tolerance: false
+
+  # Forward Simulation Parameters
+  sim_time: 1.7
+  sim_granularity: 0.025
+  angular_sim_granularity: 0.001
+  vx_samples: 3
+  vtheta_samples: 20
+
+  # Trajectory scoring parameters
+  # Score in terms of meters or cells
+  meter_scoring: false  
+  
+  pdist_scale: 0.6
+  gdist_scale: 0.8
+  occdist_scale: 0.01
+  heading_lookahead: 0.325
+  # Use heading from path or distance from path
+  heading_scoring: false
+  heading_scoring_timestep: 0.8
+
+  dwa: true
+  publish_cost_grid_pc: true
+  global_frame_id: odom
+
+  oscillation_reset_dist: 0.05
+
+  prune_plan: true
+
+DWAPlannerROS:
+  # Robot configuration parameters  
+  acc_lim_x: 3
+  acc_lim_y: 0
+  acc_lim_th: 3
+
+  max_vel_x: 5
+  min_vel_x: 0
+  max_vel_y: 0
+  min_vel_y: 0
+
+  max_trans_vel: 3
+  min_trans_vel: 0.1
+  max_rot_vel: 3
+  min_rot_vel: -3 
+
+  # Goal Tolerance Parameters
+  yaw_goal_tolerance: 0.1
+  xy_goal_tolerance: 0.2
+  latch_xy_goal_tolerance: false
+
+  # Forward Simulation Parameters
+  sim_time: 1.3
+  sim_granularity: 0.02
+  vx_samples: 3
+  #vy_samples: 0
+  vtheta_samples: 20
+  penalize_negative_x: true
+
+  # Trajectory scoring parameters
+  path_distance_bias: 20.0 # The weighting for how much the controller should stay close to the path it was given
+  goal_distance_bias: 14.0 # The weighting for how much the controller should attempt to reach its local goal, also controls speed
+  occdist_scale: 0.0 # The weighting for how much the controller should attempt to avoid obstacles
+  forward_point_distance: 0.3 # The distance from the center point of the robot to place an additional scoring point, in meters
+  # stop_time_buffer: 0.2  # The amount of time that the robot must stThe absolute value of the veolicty at which to start scaling the robot's footprint, in m/sop before a collision in order for a trajectory to be considered valid in seconds
+  # scaling_speed: 0.25 # The absolute value of the veolicty at which to start scaling the robot's footprint, in m/s
+  # max_scaling_factor: 0.2 # The maximum factor to scale the robot's footprint by
+
+  # # Oscillation Prevention Parameters
+  # oscillation_reset_dist: 0.25 #How far the robot must travel in meters before oscillation flags are reset (double, default: 0.05)
+  publish_traj_pc : true
+  publish_cost_grid_pc: true
+  global_frame_id: odom
