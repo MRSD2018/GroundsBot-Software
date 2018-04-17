@@ -2,3 +2,5 @@ build/
 devel/
 /.catkin_workspace
 src/CMakeLists.txt
+src/web_server/privatekey.json
+*.swp

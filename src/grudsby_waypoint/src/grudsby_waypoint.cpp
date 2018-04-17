@@ -12,13 +12,36 @@
 #include <string>
 #include <math.h>
 #include <ros/console.h>  // for logging
+#include "grudsby_sweeping/SimpleLatLng.h"
+#include "grudsby_sweeping/MowingPlan.h"
+#include "tf/transform_listener.h"
+#include <tf/transform_datatypes.h>
+#include <png.h>
+#include "Vector2.hpp"
+#include <algorithm>
+#include <cmath>
+#include <iomanip>
 
 ros::Publisher waypoint_pub;
-
+ros::Publisher waypoint_lines_pub;
 ros::Publisher stop_pub;
 ros::Time last_stop_update;
+ros::Time last_goal_update;
 bool wait_at_waypoint;
 std::string mower_path;
+double goal_publish_rate = 2; // Rate in hertz to publish new goals.
+
+double resolution_;
+
+double negate_;
+
+double utm_z_;
+
+bool utm_z_init_ = true;
+  
+std::string map_directory_;
+
+int message_sequence_ = 0;
 
 struct Waypoint
 {
@@ -83,6 +106,7 @@ void parseKMLFile()
       ROS_INFO("Added GPS waypoint: %f, %f, %f", tmp.latitude, tmp.longitude, tmp.altitude);
     }
   }
+  infile.close();
 }
 
 double deg2rad(double deg)
@@ -99,8 +123,8 @@ bool inThreshold(double lat, double lon, double goal_lat, double goal_lon)
       sin(d_lat / 2) * sin(d_lat / 2) + cos(deg2rad(lat)) * cos(deg2rad(goal_lat)) * sin(d_lon / 2) * sin(d_lon / 2);
   double c = 2 * atan2(sqrt(a), sqrt(1 - a));
   double d = r * c;  // Distance in km
-  ROS_ERROR("Dist: %f", d);
-  return d <= 0.0009;
+  //ROS_ERROR("Dist: %f", d);
+  return d <= 0.001;
 
   // Dumb version incase smart version doesn't work
   /*double glat_plus = goal_lat + 0.000003;
@@ -117,66 +141,167 @@ bool inThreshold(double lat, double lon, double goal_lat, double goal_lon)
   return false;*/
 }
 
-void findWaypointCallback(const sensor_msgs::NavSatFix& msg)
+
+void findWaypointCallback(const nav_msgs::Odometry& msg)
 {
   ROS_INFO("Building new goal message");
-  double grudsby_lat = msg.latitude;
-  double grudsby_long = msg.longitude;
-  double grudsby_alt = msg.altitude;
+ 
+  geometry_msgs::PoseStamped mapPose;
+  mapPose.pose.position = msg.pose.pose.position;
+  mapPose.pose.orientation = msg.pose.pose.orientation;
+  mapPose.header = msg.header;
+  geometry_msgs::PoseStamped gpsPose;
 
-  geometry_msgs::PoseStamped goal;
-
-  goal.header.stamp = ros::Time::now();
-  goal.header.frame_id = "utm";
-  goal.pose.orientation.w = 1.0;
-
-  if (!goals.empty())
+  static tf::TransformListener listener;
+  listener.waitForTransform("/utm", "/map", ros::Time::now(), ros::Duration(1.0));
+  try
   {
-    double goal_lat = goals.front().latitude;
-    double goal_long = goals.front().longitude;
 
-    if (inThreshold(grudsby_lat, grudsby_long, goal_lat, goal_long))
+    listener.transformPose("/utm", mapPose, gpsPose);
+    std::string utm_zone_tmp = "17T"; // Our UTM zone in pittsburgh
+    if (utm_z_init_)
+    { 
+      utm_z_ = gpsPose.pose.position.z; 
+      utm_z_init_ = false; 
+    } 
+    //ROS_ERROR("x,y,z: %f,%f,%f",gpsPoint.point.x,gpsPoint.point.y,gpsPoint.point.z);
+
+    double grudsby_lat;
+    double grudsby_long;
+    RobotLocalization::NavsatConversions::UTMtoLL(
+        gpsPose.pose.position.y,
+        gpsPose.pose.position.x,
+        utm_zone_tmp,
+        grudsby_lat,
+        grudsby_long
+    );
+
+    //ROS_ERROR("lat: %f, lng: %f.",grudsby_lat, grudsby_long);
+    double grudsby_alt = 0;
+
+    geometry_msgs::PoseStamped goal;
+
+    goal.header.stamp = ros::Time::now();
+    goal.header.frame_id = "utm";
+    goal.pose.orientation.w = 1.0;
+
+    if (!goals.empty())
     {
-      ROS_INFO("Updating goal waypoint");
-      if (goals.size() > 1)
+      double goal_lat = goals.front().latitude;
+      double goal_long = goals.front().longitude;
+      
+      ros::Duration time_since_goal = ros::Time::now() - last_goal_update;
+      double time_duration = time_since_goal.toSec();
+ 
+      if (inThreshold(grudsby_lat, grudsby_long, goal_lat, goal_long))
       {
-        if (goals.front().altitude > 0.5)
+        ROS_INFO("Updating goal waypoint");
+        if (goals.size() > 1)
+        {
+          if (goals.front().altitude > 0.5)
+          {
+            last_stop_update = ros::Time::now();
+          }
+          goals.erase(goals.begin());
+          double old_lat = goal_lat;
+          double old_lng = goal_long;
+          goal_lat = goals.front().latitude;
+          goal_long = goals.front().longitude;
+          grudsby_sweeping::MowingPlan map_lines;
+          map_lines.header.seq = message_sequence_++;
+          map_lines.header.stamp = ros::Time::now();
+          map_lines.waypoints.resize(0);
+          grudsby_sweeping::SimpleLatLng line_point;
+          line_point.latitude = old_lat;
+          line_point.longitude = old_lng;
+          map_lines.waypoints.push_back(line_point); 
+          line_point.latitude = goal_lat;
+          line_point.longitude = goal_long;
+          map_lines.waypoints.push_back(line_point); 
+          waypoint_lines_pub.publish(map_lines);
+
+
+          time_duration = 100000; // Make sure new goals are sent immediately
+          
+        }
+        else
         {
           last_stop_update = ros::Time::now();
+          ROS_WARN("No new waypoints. Repeating previous waypoint.");
         }
-        goals.erase(goals.begin());
-        goal_lat = goals.front().latitude;
-        goal_long = goals.front().longitude;
       }
-      else
-      {
-        last_stop_update = ros::Time::now();
-        ROS_WARN("No new waypoints. Repeating previous waypoint.");
+
+
+      if (time_duration > 1.0/goal_publish_rate) 
+      {   
+        last_goal_update = ros::Time::now();
+        double goal_easting_x = 0;
+        double goal_northing_y = 0;
+        std::string utm_zone_tmp;
+        //ROS_ERROR("input lat lng:%f,%f",goal_lat,goal_long);
+        RobotLocalization::NavsatConversions::LLtoUTM(
+            goal_lat, 
+            goal_long, 
+            goal_northing_y, 
+            goal_easting_x, 
+            utm_zone_tmp
+        );
+
+        goal.pose.position.x = goal_easting_x;
+        goal.pose.position.y = goal_northing_y;
+        goal.pose.position.z = utm_z_;
+        //ROS_ERROR("UTM Goal: Northing: %f, Easting: %f, zone: %s", goal_northing_y, goal_easting_x, utm_zone_tmp.c_str());
+
+
+        geometry_msgs::PoseStamped mapPose;
+        static tf::TransformListener listener;
+        listener.waitForTransform("/map", "/utm", ros::Time::now(), ros::Duration(1.0));
+        try
+        {
+          listener.transformPose("/map", goal, mapPose);
+          mapPose.pose.position.z = 0.0; 
+          mapPose.pose.orientation.w = 1.0; 
+          mapPose.pose.orientation.x = 0.0; 
+          mapPose.pose.orientation.y = 0.0; 
+          mapPose.pose.orientation.z = 0.0; 
+          waypoint_pub.publish(mapPose);
+        }
+        catch (tf::TransformException ex)  //NOLINT
+        {
+          ROS_ERROR("%s", ex.what());
+        }
       }
+      ros::Duration wait = ros::Time::now() - last_stop_update;
+      std_msgs::Bool stop;
+      stop.data = (wait_at_waypoint && (wait.toSec() < 2.5));  //NOLINT
+      stop_pub.publish(stop);
     }
-
-    double goal_easting_x = 0;
-    double goal_northing_y = 0;
-    std::string utm_zone_tmp;
-
-    RobotLocalization::NavsatConversions::LLtoUTM(goal_lat, goal_long, goal_northing_y, goal_easting_x, utm_zone_tmp);
-
-    goal.pose.position.x = goal_easting_x;
-    goal.pose.position.y = goal_northing_y;
-    goal.pose.position.z = grudsby_alt;
-    ROS_INFO("UTM Goal: Northing: %f, Easting: %f", goal_northing_y, goal_easting_x);
-
-    waypoint_pub.publish(goal);
-
-    ros::Duration wait = ros::Time::now() - last_stop_update;
-    std_msgs::Bool stop;
-    stop.data = (wait_at_waypoint && (wait.toSec() < 2.5));  //NOLINT
-    stop_pub.publish(stop);
+    else
+    {
+      ROS_WARN("No waypoints in vector.");
+    }
   }
-  else
+  catch (tf::TransformException ex)  //NOLINT
+    {
+      ROS_ERROR("%s", ex.what());
+    }
+}
+
+
+void mowingPlanCallback(const grudsby_sweeping::MowingPlan& msg)
+{
+  goals.resize(0);
+  std::ofstream outf(mower_path.c_str());
+  for (grudsby_sweeping::SimpleLatLng waypoint : msg.waypoints)
   {
-    ROS_WARN("No waypoints in vector.");
+    Waypoint newPoint;
+    newPoint.latitude = waypoint.latitude;
+    newPoint.longitude = waypoint.longitude;
+    newPoint.altitude = 0;
+    outf << std::setprecision(10) << newPoint.longitude << std::setprecision(10) << ',' << newPoint.latitude << std::setprecision(10) << ',' << newPoint.altitude << ' ' << std::endl;
+    goals.push_back(newPoint);  
   }
+  outf.close();  
 }
 
 int main(int argc, char** argv)
@@ -204,9 +329,16 @@ int main(int argc, char** argv)
   waypoint_pub = n.advertise<geometry_msgs::PoseStamped>("/goal", 1000);
 
   stop_pub = n.advertise<std_msgs::Bool>("/grudsby/stop", 100);
+  
+  waypoint_lines_pub = n.advertise<grudsby_sweeping::MowingPlan>("grudsby/waypoint_lines", 1000);
 
-  ros::Subscriber navsat_sub;
-  navsat_sub = n.subscribe("/fix", 100, findWaypointCallback);
+  ros::Subscriber map_sub;
+  map_sub = n.subscribe("/odometry/filtered_map", 100, findWaypointCallback);
+
+
+  ros::Subscriber mowing_plan_sub;
+  mowing_plan_sub = n.subscribe("/grudsby/mowing_plan", 100, mowingPlanCallback);
+
 
   ros::Rate loop_rate(10);
 

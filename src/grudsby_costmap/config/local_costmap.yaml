@@ -1,9 +1,11 @@
 local_costmap:
-  width: 10 
-  height: 5
   global_frame: base_link
   rolling_window: true
+  track_unknown_space: false
+  inf_is_valid: true
+  height: 5.0
+  width: 5.0
 
   plugins:
-    - {name: obstacles,           type: "costmap_2d::ObstacleLayer"}
-  #  - {name: inflation,                 type: "costmap_2d::InflationLayer"}
+    - {name: obstacles_laser_local,           type: "costmap_2d::ObstacleLayer"}
+    - {name: inflation,                 type: "costmap_2d::InflationLayer"}

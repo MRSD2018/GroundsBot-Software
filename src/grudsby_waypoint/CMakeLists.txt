@@ -19,6 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_filters
   tf2_geometry_msgs
   geodesy
+  grudsby_sweeping
 )
 
 ## System dependencies are found with CMake's conventions
@@ -156,6 +157,7 @@ add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
+  png
 )
 
 #############

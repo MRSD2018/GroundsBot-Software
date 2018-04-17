@@ -1,5 +1,20 @@
 <launch>
-  <node pkg="tf2_ros" type="static_transform_publisher" name="bl_stereocamera" args="0.409575 0 0.485575 1.57079 3.14157 1.57079 base_link stereo_camera"/> 
-  <include file="$(find camera1394stereo)/launch/stereo_camera.launch"/>  
-  <include file="$(find tegra_stereo)/launch/tegra_stereo.launch" />
+  
+  <node pkg="tf2_ros" type="static_transform_publisher" name="bl_stereocamera" args="0.93209511 0 0.1717 0 0 0 base_link stereo_camera"/> 
+
+  <include file="$(find camera1394stereo)/launch/stereo_camera.launch" />  
+  <include file="$(find sgbm_ros)/launch/sgbm.launch" />
+
+  <node pkg="depthimage_to_laserscan" type="depthimage_to_laserscan" name="depthimage_to_laserscan" output="screen"> 
+    <remap from="image" to="/stereo_camera/left/depth"/>
+    <param name="scan_height" value="2"/>
+    <param name="range_min" value="0.45"/>
+    <param name="range_max" value="1000"/>
+    <param name="output_frame_id" value="stereo_camera"/>
+  </node>
+
+
+<!-- <include file="$(find grudsby_launch)/launch/scan_filter.launch"/> -->
+
+
 </launch>

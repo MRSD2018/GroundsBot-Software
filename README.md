@@ -53,6 +53,21 @@ sudo apt-get install libi2c-dev i2c-tools
 sudo apt-get install ros-kinetic-tf2-geometry-msgs 
 ```
 
+-unique identifier
+```bash
+sudo apt-get install ros-kinetic-unique-identifier 
+```
+
+-common messages
+```bash
+sudo apt-get install ros-kinetic-common-msgs 
+```
+
+-geographic info
+```bash
+sudo apt-get install ros-kinetic-geographic-info 
+```
+
 -unique-id
 ```bash
 sudo apt-get install ros-kinetic-unique-id
@@ -63,6 +78,17 @@ sudo apt-get install ros-kinetic-unique-id
 sudo apt-get install ros-kinetic-hector-gazebo-plugins 
 ```
 
+-grudsby_sweeping package
+```bash
+sudo apt install libcurl4-openssl-dev
+```
+
+-grudsby_navStack package
+```bash
+sudo apt install ros-kinetic-move-base
+sudo apt-get install ros-kinetic-dwa-local-planner
+sudo apt-get instlal ros-kinetic-laser-geometry
+```
 
 -catkin_pkg
 ```bash
@@ -92,6 +118,7 @@ The Gazebo models must be symlinked into the default ~/.gazebo/models folder for
 Given that the Groundsbot-Software folder is ~/Groundsbot-Software: 
 
 ```bash
+
 ln -s -d ~/Groundsbot-Software/src/grudsby_gazebo/models/grudsby_new/ ~/.gazebo/models/grudsby_new/
 ln -s -d ~/Groundsbot-Software/src/grudsby_gazebo/models/grudsby_caster/ ~/.gazebo/models/grudsby_caster/
 ln -s -d ~/Groundsbot-Software/src/grudsby_gazebo/models/grudsby_imu/ ~/.gazebo/models/grudsby_imu/

@@ -9,6 +9,11 @@
   <!-- GPS launch file-->
   <include file="$(find nmea_navsat_driver)/launch/launch_nmea_driver.launch"/>:
 
+<!-- Obstacle detection nodes -->
+  <include file="$(find grudsby_launch)/launch/vision.launch"/>  
+  <include file="$(find grudsby_costmap)/launch/cost.launch"/>  
+
+
 <!-- Navigation nodes -->
   <include file="$(find grudsby_localization)/launch/grudsby_localization_ekf.launch"/>
 
