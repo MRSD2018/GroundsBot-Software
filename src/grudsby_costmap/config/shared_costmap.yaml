@@ -1,6 +1,6 @@
 #footprint: [[-0.27, -0.3],  [0.93, -0.3],[0.93, 0.3],[-0.27, 0.3]]
 footprint: [[-0.01, -0.01],  [0.01, -0.01],[0.01, 0.01],[-0.01, 0.01]]
-footprint_padding: 0.5
+footprint_padding: 0.6
 always_send_full_costmap: true
 
 
@@ -73,6 +73,7 @@ obstacles_laser:
   enabled: true
   observation_sources: full_scan
   full_scan: {
+      max_obstacle_height: 200.0,
       sensor_frame: /laser,
       data_type: LaserScan, 
       topic: /scan,
@@ -82,4 +83,4 @@ obstacles_laser:
   }
 
 inflation:
-    inflation_radius: 1 
+    inflation_radius: 0.3 

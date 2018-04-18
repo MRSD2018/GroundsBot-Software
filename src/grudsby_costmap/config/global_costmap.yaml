@@ -3,11 +3,13 @@ global_costmap:
   update_frequency: 2
   publish_frequency: .5 
 
-  global_frame: map
+  global_frame: costmap
 #  static_map: true
   rolling_window: false
   track_unknown_space: false
   inf_is_valid: true
+  max_obstacle_height: 200.0
+
 #  height: 150
 #  width: 150
 #  origin_x: -75
@@ -15,5 +17,5 @@ global_costmap:
   plugins:
     - {name: static_map_lines,          type: "costmap_2d::StaticLayer"}
     - {name: obstacles_laser,           type: "costmap_2d::ObstacleLayer"}
-#    - {name: obstacles_laser_global,    type: "costmap_2d::ObstacleLayer"}
     - {name: inflation,                 type: "costmap_2d::InflationLayer"}
+#    - {name: obstacles_laser_global,    type: "costmap_2d::ObstacleLayer"}

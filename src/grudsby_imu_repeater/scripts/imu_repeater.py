@@ -31,6 +31,7 @@ class DiffTf:
         self.rate = 200
         self.w = 0.508 #wheelbase len
         # subscriptions
+        self.num_published = 0 
         self.slipPub = rospy.Publisher("/grudsby/wheel_slip", Bool, queue_size = 0)
         self.imuPub = rospy.Publisher("/imu/data_filtered_covariance", Imu, queue_size=10)
         rospy.Subscriber("/imu/data", Imu, self.imuResponseCallback)
@@ -59,6 +60,12 @@ class DiffTf:
         
         imu_msg = Imu()
         imu_msg.header = msg.header
+        if self.num_published < 30:
+            imu_msg.orientation.x = 0
+            imu_msg.orientation.y = 0
+            imu_msg.orientation.z = 0
+            imu_msg.orientation.w = 1
+            self.num_published += 1 
         imu_msg.orientation = msg.orientation
         imu_msg.angular_velocity = msg.angular_velocity
         imu_msg.linear_acceleration = msg.linear_acceleration

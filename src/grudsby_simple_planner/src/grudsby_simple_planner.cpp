@@ -227,7 +227,7 @@ int main(int argc, char** argv)
       // double current_goal_y = goal_pose_in_odom.pose.position.y;
       int num_poses = curr_path.poses.size();
       
-      ROS_ERROR("Number of poses: %d",num_poses);
+      //ROS_ERROR("Number of poses: %d",num_poses);
       int selected_pose = std::min(num_poses-1,num_points_ahead);
       geometry_msgs::PoseStamped carrot = curr_path.poses[selected_pose];
       double current_goal_x = curr_path.poses[selected_pose].pose.position.x;
