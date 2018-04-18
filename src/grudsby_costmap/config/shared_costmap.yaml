@@ -1,7 +1,7 @@
 #footprint: [[-0.27, -0.3],  [0.93, -0.3],[0.93, 0.3],[-0.27, 0.3]]
 footprint: [[-0.2, -0.01],  [-0.19, -0.01],[-0.19, 0.01],[-0.2, 0.01]]
 footprint_padding: 0.5
-always_send_full_costmap: true
+always_send_full_costmap: false
 
 
 robot_base_frame: base_link
@@ -38,6 +38,8 @@ obstacles_laser_local:
   enabled: true
   observation_sources: full_scan angle_filtered_scan
   full_scan: {
+      max_obstacle_height: 20000.0,
+      min_obstacle_height: -1,
       sensor_frame: /laser,
       data_type: LaserScan, 
       topic: /scan,
@@ -46,6 +48,8 @@ obstacles_laser_local:
       inf_is_valid: true
   }
   angle_filtered_scan: {
+      max_obstacle_height: 20000.0,
+      min_obstacle_height: -1,
       sensor_frame: /laser,
       data_type: LaserScan, 
       topic: /scan_filtered,
@@ -60,6 +64,8 @@ obstacles_laser_global:
   enabled: true
   observation_sources: full_scan angle_filtered_scan
   full_scan: {
+      max_obstacle_height: 20000.0,
+      min_obstacle_height: -1,
       sensor_frame: /laser,
       data_type: LaserScan, 
       topic: /scan,
@@ -73,7 +79,8 @@ obstacles_laser:
   enabled: true
   observation_sources: full_scan
   full_scan: {
-      max_obstacle_height: 200.0,
+      max_obstacle_height: 20000.0,
+      min_obstacle_height: -1,
       sensor_frame: /laser,
       data_type: LaserScan, 
       topic: /scan,
