@@ -1,4 +1,8 @@
 global_costmap:
+  resolution: 0.5
+  update_frequency: 2
+  publish_frequency: .5 
+
   global_frame: map
 #  static_map: true
   rolling_window: false

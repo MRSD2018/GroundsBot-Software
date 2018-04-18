@@ -1,10 +1,14 @@
 local_costmap:
+  resolution: 0.1
+  update_frequency: 4
+  publish_frequency: 2 
+
   global_frame: base_link
   rolling_window: true
   track_unknown_space: false
   inf_is_valid: true
-  height: 3.0
-  width: 3.0
+  height: 6.0
+  width: 6.0
 
   plugins:
     - {name: obstacles_laser_local,           type: "costmap_2d::ObstacleLayer"}
