@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+
+<launch>
+
+<!--  <node name="map_server" pkg="map_server" type="map_server" args = "$(find grudsby_costmap)/map/map.yaml"> 
+    <param name="frame_id" value="map"/>
+  </node> --> 
+ <remap from="/cmd_vel" to="/cmd_vel_trash"/>
+
+ <node name="grudsby_map_server" pkg="grudsby_map_server" type="grudsby_map_server" args = "">
+    <param name="frame_id" value="map"/>
+    <param name="resolution" value="0.1"/>
+    <param name="outer_edge_buffer" value="1"/>
+  </node> 
+
+
+  <arg  name="no_static_map"       default="false"/>
+  <arg  name="base_global_planner" default="global_planner/GlobalPlanner"/>
+  <arg  name="base_local_planner"  default="dwa_local_planner/DWAPlannerROS"/>
+
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+
+    <param    name="base_global_planner" value="$(arg base_global_planner)"/>
+    <param    name="base_local_planner"  value="$(arg base_local_planner)"/>  
+    <rosparam file="$(find grudsby_costmap)/config/planner.yaml" command="load"/>
+
+    <rosparam file="$(find grudsby_costmap)/config/shared_costmap.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find grudsby_costmap)/config/shared_costmap.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find grudsby_costmap)/config/local_costmap.yaml" command="load" />
+    <rosparam file="$(find grudsby_costmap)/config/global_costmap.yaml" command="load" />
+    
+  </node>
+</launch>
+
+
+<!-- Test and debug tools -->
+<!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find grudsby_costmap)/rviz/robot.rviz" output="screen"/> -->
+<!-- node pkg="tf" type="static_transform_publisher" name="stereomap"  args="0 0 0 0 0 3.14  map odom 100" /> -->
+<!--  <node pkg="tf" type="static_transform_publisher" name="baseodom"  args="0 0 0 0 0 0  odom base_link 100" /> -->
+<!-- <node pkg="tf" type="static_transform_publisher" name="stereomapx" args="0 0 1 0 1.57 3.14  base_link stereo_camera 100" /> -->
+
