@@ -385,8 +385,8 @@ void ObstacleLayer::updateBounds(double robot_x, double robot_y, double robot_ya
       }
 
       // compute the squared distance from the hitpoint to the pointcloud's origin
-      double sq_dist = (px - obs.origin_.x) * (px - obs.origin_.x) + (py - obs.origin_.y) * (py - obs.origin_.y)
-          + (pz - obs.origin_.z) * (pz - obs.origin_.z);
+      double sq_dist = (px - obs.origin_.x) * (px - obs.origin_.x) + (py - obs.origin_.y) * (py - obs.origin_.y); // only x and y
+      //    + (pz - obs.origin_.z) * (pz - obs.origin_.z);
 
       // if the point is far enough away... we won't consider it
       if (sq_dist >= sq_obstacle_range)
