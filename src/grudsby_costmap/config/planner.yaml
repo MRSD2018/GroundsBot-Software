@@ -4,7 +4,7 @@ recovery_behaviors:
     type: clear_costmap_recovery/ClearCostmapRecovery
 
 # Rate that controller will send command vels
-controller_frequency: 15.0
+controller_frequency: 4.0
 
 # how long planner will wait in secs before space-clearing operations are performed
 planner_patience: 5.0

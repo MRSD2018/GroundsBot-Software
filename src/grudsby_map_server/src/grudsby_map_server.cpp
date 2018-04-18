@@ -16,6 +16,7 @@
 #include "grudsby_sweeping/MowingPlan.h"
 #include "nav_msgs/MapMetaData.h"
 #include "nav_msgs/GetMap.h"
+#include "nav_msgs/OccupancyGrid.h"
 #include "tf/transform_listener.h"
 #include <tf/transform_datatypes.h>
 #include <png.h>
@@ -36,6 +37,10 @@ nav_msgs::MapMetaData lines_meta_data_message_;
     
 nav_msgs::GetMap::Response lines_map_resp_;
 
+nav_msgs::OccupancyGrid cached_map_;
+
+nav_msgs::OccupancyGrid next_line_map_;
+
 double resolution_;
 
 double outer_edge_buffer_;
@@ -51,6 +56,10 @@ double max_x_, min_x_;
 double max_y_, min_y_;
 
 double utm_z_ = 0;
+
+double map_grey_ = 70;
+ 
+double map_collision_ = 95;
 
 bool   utm_z_init_ = true;
 
@@ -87,7 +96,6 @@ bool linesMapCallback(nav_msgs::GetMap::Request  &req,
   {
     return false;
   }
-
 }
 
 bool parseMowingPlan()
@@ -157,17 +165,17 @@ bool parseMowingPlan()
   } 
 
   parsed_outline_.push_back(parsed_outline_[0]); 
-  max_x_ += 12*outer_edge_buffer_;
-  min_x_ -= 12*outer_edge_buffer_;
-  max_y_ += 12*outer_edge_buffer_;
-  min_y_ -= 12*outer_edge_buffer_;      
+  max_x_ += 12+outer_edge_buffer_;
+  min_x_ -= 12+outer_edge_buffer_;
+  max_y_ += 12+outer_edge_buffer_;
+  min_y_ -= 12+outer_edge_buffer_;      
   double width = (max_x_-min_x_)/resolution_;
   double height = (max_y_-min_y_)/resolution_;
   ROS_INFO("Rendering the map"); 
   no_cols_ = std::ceil((max_x_-min_x_)/resolution_);
   no_rows_ = std::ceil((max_y_-min_y_)/resolution_);
   ROS_INFO("Number of columns %d, Number of rows %d", no_cols_, no_rows_); 
-  lines_map_resp_.map.data.resize(no_cols_ * no_rows_);
+  cached_map_.data.resize(no_cols_ * no_rows_); 
   ROS_INFO("Resized the lines"); 
   for (int x = 0; x < no_cols_; x++)
   {
@@ -200,15 +208,17 @@ bool parseMowingPlan()
         }            
       }    
       // write to map if in region.
-      int num_to_write = 0;
+      int num_to_write = map_grey_;
       if (!inRegion) 
       { 
-        num_to_write = 95;
+        num_to_write = map_collision_;
       }
-      lines_map_resp_.map.data[MAP_IDX(no_cols_,x,no_rows_ - y - 1)] = num_to_write; // erase previous lines map
+      cached_map_.data[MAP_IDX(no_cols_,x,no_rows_ - y - 1)] = num_to_write; // erase previous lines map
     }
   }
   ROS_INFO("Writing map information");
+  lines_map_resp_.map.data = cached_map_.data; 
+  next_line_map_.data = cached_map_.data;  
   lines_map_resp_.map.info.width = no_cols_; 
   lines_map_resp_.map.info.height = no_rows_;
   lines_map_resp_.map.info.resolution = resolution_;
@@ -307,22 +317,34 @@ void parseKMLFile()
 void waypointLinesCallback(const grudsby_sweeping::MowingPlan& msg)
 {
   map_mutex_.lock(); 
-  std::vector<std::vector<double>> parsedLines;
+  lines_map_resp_.map.data = next_line_map_.data; 
+  lines_map_pub_.publish( lines_map_resp_.map );
+  lines_metadata_pub_.publish( lines_meta_data_message_ );
+  map_mutex_.unlock();
+
+  std::vector<std::vector<double> > parsedGPSLines;
   for (grudsby_sweeping::SimpleLatLng waypoint : msg.waypoints)
   {
     std::vector<double> newPoint;
     newPoint.push_back(waypoint.longitude);
     newPoint.push_back(waypoint.latitude);
-    parsedLines.push_back(newPoint);
+    parsedGPSLines.push_back(newPoint);
   } 
 
   static tf::TransformListener listener;
-
+  
+  double max_line_x = -9999999999;
+  double max_line_y = -9999999999;
+  double min_line_x = 9999999999;
+  double min_line_y = 9999999999; 
+  
+  std::vector<std::vector<double> > parsedLines;
+  
   if (!listener.waitForTransform("/map", "/utm", ros::Time::now(), ros::Duration(1.0)))
   { 
     return;
   }
-  for (std::vector<double> &latlng : parsedLines)
+  for (std::vector<double> &latlng : parsedGPSLines)
   {
     double goal_easting_x = 0;
     double goal_northing_y = 0;
@@ -344,21 +366,40 @@ void waypointLinesCallback(const grudsby_sweeping::MowingPlan& msg)
     try
     {
       listener.transformPose("/map", coord, coord_in_map);
-      latlng[0] = coord_in_map.pose.position.x;
-      latlng[1] = coord_in_map.pose.position.y;
+      std::vector<double> newPoint;
+      newPoint.push_back(coord_in_map.pose.position.x);
+      newPoint.push_back(coord_in_map.pose.position.y);
+      parsedLines.push_back(newPoint);
+
+      max_line_x = std::max(max_line_x,newPoint[0]);
+      min_line_x = std::min(min_line_x,newPoint[0]);
+      max_line_y = std::max(max_line_y,newPoint[1]);
+      min_line_y = std::min(min_line_y,newPoint[1]);
     }
     catch (tf::TransformException ex)  //NOLINT
     {
       ROS_ERROR("%s", ex.what());
     }
   }
+ 
+  max_line_x += 2;
+  min_line_x -= 2;
+  max_line_y += 2;
+  min_line_y -= 2;      
+ 
+  int x_start = std::max(static_cast<int>(round((min_line_x - min_x_)/resolution_)),0);
+  int y_start = std::max(static_cast<int>(round((-max_line_y + max_y_)/resolution_)),0);
+  int x_end = std::min(static_cast<int>(round((max_line_x - min_x_)/resolution_) + 1), no_cols_);
+  int y_end = std::min(static_cast<int>(round((-min_line_y + max_y_)/resolution_) + 1), no_rows_);
+
   ROS_INFO("Got Transforms"); 
   // Push all edges out by "outer_edge_buffer"
   parsedLines.push_back(parsedLines[0]);
 
-  for (int x = 0; x < no_cols_; x++)
+  next_line_map_.data = cached_map_.data;  
+  for (int x = x_start; x < x_end; x++)
   {
-    for (int y = 0; y < no_rows_; y++)
+    for (int y = y_start; y < y_end; y++)
     {
       std::vector<double> test_point;
       test_point.push_back(min_x_ + x*resolution_);
@@ -382,39 +423,13 @@ void waypointLinesCallback(const grudsby_sweeping::MowingPlan& msg)
           minDist = std::min(minDist, Vector2::Magnitude(orthVec));
         } 
       }      
-      double mapped = std::min(pow(minDist,0.5)*5.0,5.0)*15.0;
-
-      bool inRegion = (winding_num::wn_PnPoly(test_point, parsed_outline_) != 0);
-      for (int i = 0; i < parsed_outline_.size()-1; i++) 
+      double mapped = std::min(pow(minDist,0.5)*5.0,5.0)*map_grey_/5.0;
+      if (mapped < (map_grey_-0.1))
       {
-        double dist = sqrt(pow((parsed_outline_[i][0]-test_point[0]),2.0) + pow((parsed_outline_[i][1]-test_point[1]),2.0)); 
-        inRegion = inRegion || (dist < outer_edge_buffer_);
-        Vector2 fullVec;
-        fullVec.X = parsed_outline_[i+1][0] - parsed_outline_[i][0];
-        fullVec.Y = parsed_outline_[i+1][1] - parsed_outline_[i][1];
-        Vector2 unitFull = Vector2::Normalized(fullVec);  
-        Vector2 testVec;
-        testVec.X = test_point[0] - parsed_outline_[i][0];
-        testVec.Y = test_point[1] - parsed_outline_[i][1];
-        double dotted = Vector2::Dot(testVec,unitFull);
-        if ((dotted > 0) && (dotted < Vector2::Magnitude(fullVec)))
-        {
-          Vector2 orthVec = testVec - dotted*unitFull;
-          inRegion = inRegion || (Vector2::Magnitude(orthVec) < outer_edge_buffer_);
-        } 
-      }             
-      // write to map if in region.
-      
-      if (!inRegion) 
-      { 
-        mapped = 100;
-      }
-      lines_map_resp_.map.data[MAP_IDX(lines_map_resp_.map.info.width,x,lines_map_resp_.map.info.height - y - 1)] = mapped; // write new lines map
+        next_line_map_.data[MAP_IDX(lines_map_resp_.map.info.width,x,lines_map_resp_.map.info.height - y - 1)] = mapped; // write new lines map
+      } 
     }
   }
-  lines_map_pub_.publish( lines_map_resp_.map );
-  lines_metadata_pub_.publish( lines_meta_data_message_ );
-  map_mutex_.unlock();
 }
 
 void findWaypointCallback(const nav_msgs::Odometry& msg) 

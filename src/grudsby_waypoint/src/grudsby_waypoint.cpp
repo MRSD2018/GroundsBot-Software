@@ -42,6 +42,7 @@ bool utm_z_init_ = true;
 std::string map_directory_;
 
 int message_sequence_ = 0;
+double waypoint_threshold;
 
 struct Waypoint
 {
@@ -50,11 +51,9 @@ struct Waypoint
   double altitude;
 };
 
-static std::vector<Waypoint> goals;
+bool first_goal_ = false;
 
-//keep track of previous sent goal with these
-double previous_x;
-double previous_y;
+static std::vector<Waypoint> goals;
 
 void parseKMLFile()
 {
@@ -111,6 +110,7 @@ void parseKMLFile()
     }
   }
   infile.close();
+  first_goal_ = true;
 }
 
 double deg2rad(double deg)
@@ -128,7 +128,7 @@ bool inThreshold(double lat, double lon, double goal_lat, double goal_lon)
   double c = 2 * atan2(sqrt(a), sqrt(1 - a));
   double d = r * c;  // Distance in km
   //ROS_ERROR("Dist: %f", d);
-  return d <= 0.001;
+  return d <= waypoint_threshold;
 
   // Dumb version incase smart version doesn't work
   /*double glat_plus = goal_lat + 0.000003;
@@ -184,7 +184,7 @@ void findWaypointCallback(const nav_msgs::Odometry& msg)
     double grudsby_alt = 0;
 
     geometry_msgs::PoseStamped goal;
-    
+
     goal.header.stamp = ros::Time::now();
     goal.header.frame_id = "utm";
     goal.pose.orientation.w = 1.0;
@@ -197,7 +197,7 @@ void findWaypointCallback(const nav_msgs::Odometry& msg)
       ros::Duration time_since_goal = ros::Time::now() - last_goal_update;
       double time_duration = time_since_goal.toSec();
  
-      if (inThreshold(grudsby_lat, grudsby_long, goal_lat, goal_long))
+      if (inThreshold(grudsby_lat, grudsby_long, goal_lat, goal_long) || first_goal_)
       {
         ROS_INFO("Updating goal waypoint");
         if (goals.size() > 1)
@@ -206,9 +206,18 @@ void findWaypointCallback(const nav_msgs::Odometry& msg)
           {
             last_stop_update = ros::Time::now();
           }
-          goals.erase(goals.begin());
-          double old_lat = goal_lat;
-          double old_lng = goal_long;
+          if (!first_goal_)
+          {
+            goals.erase(goals.begin());
+          } 
+          first_goal_ = false; 
+          double goal_lat_next = goal_lat;
+          double goal_long_next = goal_long;
+          if (goals.size() > 1)
+          {
+            goal_lat_next = goals[1].latitude;
+            goal_long_next = goals[1].longitude;
+          } 
           goal_lat = goals.front().latitude;
           goal_long = goals.front().longitude;
           grudsby_sweeping::MowingPlan map_lines;
@@ -216,8 +225,8 @@ void findWaypointCallback(const nav_msgs::Odometry& msg)
           map_lines.header.stamp = ros::Time::now();
           map_lines.waypoints.resize(0);
           grudsby_sweeping::SimpleLatLng line_point;
-          line_point.latitude = old_lat;
-          line_point.longitude = old_lng;
+          line_point.latitude = goal_lat_next;
+          line_point.longitude = goal_long_next;
           map_lines.waypoints.push_back(line_point); 
           line_point.latitude = goal_lat;
           line_point.longitude = goal_long;
@@ -268,12 +277,7 @@ void findWaypointCallback(const nav_msgs::Odometry& msg)
           mapPose.pose.orientation.x = 0.0; 
           mapPose.pose.orientation.y = 0.0; 
           mapPose.pose.orientation.z = 0.0; 
-          if (goal.pose.position.x != previous_x && goal.pose.position.y != previous_y)
-          {
-            waypoint_pub.publish(mapPose);
-            previous_x = goal.pose.position.x;
-            previous_y = goal.pose.position.y;
-          }  
+          waypoint_pub.publish(mapPose);
         }
         catch (tf::TransformException ex)  //NOLINT
         {
@@ -311,6 +315,7 @@ void mowingPlanCallback(const grudsby_sweeping::MowingPlan& msg)
     goals.push_back(newPoint);  
   }
   outf.close();  
+  first_goal_ = true;
 }
 
 int main(int argc, char** argv)
@@ -323,7 +328,12 @@ int main(int argc, char** argv)
   if (!n.getParam("grudsby_waypoint/wait_at_point", wait_at_waypoint)) 
   {
     wait_at_waypoint = true;
+  } 
+  if (!n.getParam("grudsby_simple_planner/waypoint_threshold", waypoint_threshold))
+  {
+    waypoint_threshold = 0.001;
   }
+
   if (!n.getParam("grudsby_waypoint/mower_path_file", mower_path))
   {
     mower_path = "/home/nvidia/GroundsBot-Software/data/mower_path.kml";
