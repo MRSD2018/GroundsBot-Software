@@ -5,6 +5,7 @@ local_costmap:
 
   global_frame: base_link
   rolling_window: true
+  static_map: false
   track_unknown_space: false
   inf_is_valid: true
   height: 6.0
