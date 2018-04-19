@@ -482,7 +482,7 @@
       <wheelDiameter>0.254</wheelDiameter>
       <wheelAcceleration>10</wheelAcceleration>
       <publishTf>1</publishTf>
-      <wheelTorque>50000</wheelTorque>
+      <wheelTorque>10</wheelTorque>
       <commandTopic>cmd_vel</commandTopic>
       <odometryTopic>odom_sim</odometryTopic>
       <odometryFrame>odom_sim</odometryFrame>
