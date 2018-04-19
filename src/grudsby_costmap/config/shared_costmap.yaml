@@ -1,12 +1,10 @@
 #footprint: [[-0.27, -0.3],  [0.93, -0.3],[0.93, 0.3],[-0.27, 0.3]]
 footprint: [[-0.01, -0.01],  [0.01, -0.01],[0.01, 0.01],[-0.01, 0.01]]
 footprint_padding: 0.6
-always_send_full_costmap: true
+always_send_full_costmap: false
 
 
 robot_base_frame: base_link
-#static_map: false
-#rolling_window: true  
 inf_is_valid: true
 
 transform_tolerance: 2

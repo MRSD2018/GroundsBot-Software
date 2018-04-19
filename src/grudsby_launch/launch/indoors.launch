@@ -18,11 +18,11 @@
 <!-- Vision nodes -->
 <!--<include file="$(find grudsby_launch)/launch/vision.launch"/> -->
 <include file="$(find grudsby_launch)/launch/laser.launch"/>
-<include file="$(find grudsby_costmap)/launch/cost.launch"/> 
+<include file="$(find grudsby_costmap)/launch/cost-dwa.launch"/> 
 <!--  <include file="$(find grudsby_costmap)/launch/cost-eband.launch"/> -->
   <!-- <include file="$(find grudsby_costmap)/launch/cost-eband.launch" /> --> 
 
-  <node name="grudsby_simple_planner" pkg="grudsby_simple_planner" type="grudsby_simple_planner">
+<!--  <node name="grudsby_simple_planner" pkg="grudsby_simple_planner" type="grudsby_simple_planner">
     <rosparam>
       sp_kp_lin: 1
       sp_ki_lin: 0.0
@@ -34,15 +34,15 @@
       goal_noise: 2.0 
       num_points_ahead: 10
     </rosparam>
-  </node>
+  </node> -->
  
-  <remap from="/goal" to="/move_base_simple/goal"/> 
-  <node name="grudsby_waypoint" pkg="grudsby_waypoint" type="grudsby_waypoint">
-  <rosparam>
-      waypoint_threshold: 0.0005
-      wait_at_waypoint: true
-    </rosparam>
-  </node> 
+  <!-- <remap from="/goal" to="/move_base_simple/goal"/>  -->
+  <!-- <node name="grudsby_waypoint" pkg="grudsby_waypoint" type="grudsby_waypoint"> -->
+  <!-- <rosparam> -->
+  <!--     waypoint_threshold: 0.0005 -->
+  <!--     wait_at_waypoint: true -->
+  <!--   </rosparam> -->
+  <!-- </node>  -->
   
   <!--<include file="$(find grudsby_sweeping)/launch/grudsby_sweeping.launch"/>-->
 
