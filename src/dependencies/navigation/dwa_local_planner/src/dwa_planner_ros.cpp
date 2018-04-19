@@ -206,10 +206,19 @@ namespace dwa_local_planner {
     ROS_INFO("Cycle time: %.9f", t_diff);
     */
 
+    base_local_planner::LocalPlannerLimits limits = planner_util_.getCurrentLimits();
+
     //pass along drive commands
     cmd_vel.linear.x = drive_cmds.getOrigin().getX();
     cmd_vel.linear.y = drive_cmds.getOrigin().getY();
     cmd_vel.angular.z = tf::getYaw(drive_cmds.getRotation());
+
+    //raise angular vel to minimum for in place turns
+    if ((std::fabs(cmd_vel.angular.z) > 0.0001)
+        && (std::fabs(cmd_vel.linear.x) <= 0.5)) {
+      int sgn = (cmd_vel.angular.z > 0) - (cmd_vel.angular.z < 0);
+      cmd_vel.angular.z = 1.2 * sgn; 
+    }
 
     //if we cannot move... tell someone
     std::vector<geometry_msgs::PoseStamped> local_plan;
