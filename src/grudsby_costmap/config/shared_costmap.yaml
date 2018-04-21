@@ -32,63 +32,30 @@ static_map_lines:
 
 
 
-obstacles_laser_local:
-  obstacle_range: 3 
-  raytrace_range: 4 
-  enabled: true
-  observation_sources: full_scan angle_filtered_scan
-  full_scan: {
-      max_obstacle_height: 20000.0,
-      min_obstacle_height: -1,
-      sensor_frame: /laser,
-      data_type: LaserScan, 
-      topic: /scan,
-      clearing: true,
-      marking:  false,
-      inf_is_valid: true
-  }
-  angle_filtered_scan: {
-      max_obstacle_height: 20000.0,
-      min_obstacle_height: -1,
-      sensor_frame: /laser,
-      data_type: LaserScan, 
-      topic: /scan_filtered,
-      marking:  true,
-      clearing: true,
-      inf_is_valid: true
-  }
-
-obstacles_laser_global:
-  obstacle_range: 3 
-  raytrace_range: 4 
-  enabled: true
-  observation_sources: full_scan angle_filtered_scan
-  full_scan: {
-      max_obstacle_height: 20000.0,
-      min_obstacle_height: -1,
-      sensor_frame: /laser,
-      data_type: LaserScan, 
-      topic: /scan,
-      clearing: true,
-      marking:  true,
-      inf_is_valid: true
-  }
 obstacles_laser:
   obstacle_range: 3 
   raytrace_range: 4 
   enabled: true
   observation_sources: full_scan
   full_scan: {
-      max_obstacle_height: 100.0,
-      min_obstacle_height: -100.0,
+      max_obstacle_height: 200.0,
+      min_obstacle_height: -200.0,
       sensor_frame: /laser,
       data_type: LaserScan, 
-      topic: /scan,
+      topic: /scan_median,
       clearing: true,
       marking:  true,
-      inf_is_valid: true,
-      observation_persistence: 2.0,
-      expected_update_rate: 5.0
+      inf_is_valid: true
+  }
+  angle_filtered_scan: {
+      max_obstacle_height: 200.0,
+      min_obstacle_height: -200.0,
+      sensor_frame: /laser,
+      data_type: LaserScan, 
+      topic: /scan_filtered,
+      marking:  true,
+      clearing: false,
+      inf_is_valid: true
   }
 
 inflation:

@@ -8,7 +8,7 @@ import math
 
 from sensor_msgs.msg import LaserScan
 
-MAX_RANGE = 4.5
+MAX_RANGE =  8
 
 class DiffTf:
     def __init__(self):
@@ -16,7 +16,7 @@ class DiffTf:
         self.nodename = rospy.get_name()
         rospy.loginfo("-I- %s started" % self.nodename)
         self.rate = 100
-        self.laserPub = rospy.Publisher("scan_clipped", LaserScan, queue_size=10)
+        self.laserPub = rospy.Publisher("scan_median", LaserScan, queue_size=10)
         rospy.Subscriber("/scan", LaserScan, self.laserResponseCallback) 
     #############################################################################
     def spin(self):
@@ -30,19 +30,31 @@ class DiffTf:
     #############################################################################
         pass
 
+    #############################################################################
     def laserResponseCallback(self, msg):
-    ## Clip to MAX_RANGE, and set  edges to MAX_RANGE to avoid stuck pixels######
+    #############################################################################
+        window_size = 20
+        
+        cloud_out = LaserScan()
         cloud_out = msg
-        ranges = list ( msg.ranges )
-        for i in range ( len ( ranges ) ) :
-          if ranges [ i ] > MAX_RANGE:
-            ranges [ i ] = MAX_RANGE
-          
-        #for i in range (  10    ): ranges[i] = MAX_RANGE
-        #for i in range ( -10, 0 ): ranges[i] = MAX_RANGE
-        cloud_out.ranges = tuple (ranges) 
-        self.laserPub.publish(cloud_out)
+        #cloud_out.ranges = list ( cloud_out.ranges )
+        #for i in range ( len ( cloud_out.ranges ) ):
+        fix_nans = range ( len ( cloud_out.ranges ) )
+        for i in range ( len ( cloud_out.ranges ) ):
+            if math.isnan ( msg.ranges[ i ] ) :
+                fix_nans [ i ] = MAX_RANGE
+            else:
+                fix_nans [ i ] = msg.ranges [ i ]
 
+        output = [ MAX_RANGE for i in range ( len ( fix_nans ) ) ]
+        #for i in range ( 200 , len ( fix_nans )-200 ):
+        for i in range ( window_size , len ( fix_nans )-window_size ):
+            neighborhood = fix_nans [ i-window_size : i + window_size + 1] 
+            neighborhood.sort ( )
+            output [ i ] = neighborhood [ int (  math.floor ( window_size / 2 )  ) ]
+
+        cloud_out.ranges = tuple (output) 
+        self.laserPub.publish(cloud_out)
 
 if __name__ == '__main__':
     """ main """

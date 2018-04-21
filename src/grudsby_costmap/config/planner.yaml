@@ -1,5 +1,47 @@
-controller_frequency: 3.0
+# Move_base params 
+recovery_behaviors:
+  name: aggressive_reset
+  type: clear_costmap_recovery/ClearCostmapRecovery
+ 
+ # Rate that controller will send command vels
+controller_frequency: 10
+ 
+ # how long planner will wait in secs before space-clearing operations are performed
+planner_patience: 5.0
+
+# how long controller will wait to find a valid control
+controller_patience: 15
+
+# rate in hz to run global planning loop. if 0, will only run when a new goal is recevied or when local planner reports plan is blocked
+planner_frequency: 3.0
+
+# max times to try before recovery behavior
+max_planning_retries: 10
+
 recovery_behaviour_enabled: true
+
+# Global Planner params
+GlobalPlanner:
+  # if using obstacle layer, must set track_unknown_space to true
+  allow_unknown: false
+
+  default_tolerance: 5
+
+  # visualize potential area
+  visualize_potential: true
+
+  # otherwise a*
+  use_dijkstra: false
+
+  # use quadratic approx for potentials, otherwise use simpler
+  use_quadratic: true
+
+  # follow grid boundaries, otherwise gradient descent
+  use_grid_path: true
+
+  # use old style navfn behaviors
+  old_navfn_behavior: false
+
 
 NavfnROS:
   allow_unknown: true # Specifies whether or not to allow navfn to create plans that traverse unknown space.

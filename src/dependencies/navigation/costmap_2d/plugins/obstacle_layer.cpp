@@ -375,7 +375,7 @@ void ObstacleLayer::updateBounds(double robot_x, double robot_y, double robot_ya
 
     for (unsigned int i = 0; i < cloud.points.size(); ++i)
     {
-      double px = cloud.points[i].x, py = cloud.points[i].y, pz = 0;//cloud.points[i].z;
+      double px = cloud.points[i].x, py = cloud.points[i].y, pz = 1.0;//cloud.points[i].z;
 
       // if the obstacle is too high or too far away from the robot we won't add it
     //  if (pz > max_obstacle_height_)

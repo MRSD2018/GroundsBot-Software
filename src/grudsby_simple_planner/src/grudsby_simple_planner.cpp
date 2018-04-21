@@ -24,6 +24,7 @@ double prev_goal_x = 0;
 double prev_goal_y = 0;
 
 double max_x_vel = 1.5;
+double min_x_vel = 0.4;
 double max_theta_vel = 3;
 double max_vel_delta = 0.08;
 double max_theta_vel_delta = 0.4;
@@ -312,7 +313,7 @@ int main(int argc, char** argv)
       prev_theta_vel = theta_vel_bound;
       // Publish /cmd_vel
       geometry_msgs::Twist msg;
-      msg.linear.x = x_vel_bound;
+      msg.linear.x = std::max(x_vel_bound, min_x_vel);
       msg.linear.y = 0;
       msg.linear.z = 0;
 
