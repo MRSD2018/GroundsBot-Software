@@ -8,11 +8,12 @@ import math
 
 from sensor_msgs.msg import LaserScan
 
-MAX_RANGE =  8
+MAX_RANGE =  4.1
 
 class DiffTf:
     def __init__(self):
         rospy.init_node("scan_repeater")
+        self.clip_range = rospy.get_param("clip_scan",False)
         self.nodename = rospy.get_name()
         rospy.loginfo("-I- %s started" % self.nodename)
         self.rate = 100
@@ -51,7 +52,11 @@ class DiffTf:
         for i in range ( window_size , len ( fix_nans )-window_size ):
             neighborhood = fix_nans [ i-window_size : i + window_size + 1] 
             neighborhood.sort ( )
-            output [ i ] = neighborhood [ int (  math.floor ( window_size / 2 )  ) ]
+            if self.clip_range:
+              output [ i ] = min ( MAX_RANGE , 
+                neighborhood [ int (  math.floor ( window_size / 2 )  ) ] )
+            else:
+              output [ i ] = neighborhood [ int (  math.floor ( window_size / 2 )  ) ]
 
         cloud_out.ranges = tuple (output) 
         self.laserPub.publish(cloud_out)
