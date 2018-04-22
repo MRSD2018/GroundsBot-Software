@@ -1,7 +1,7 @@
 #footprint: [[-0.27, -0.3],  [0.93, -0.3],[0.93, 0.3],[-0.27, 0.3]]
 footprint: [[-0.01, -0.01],[0.01, -0.01],[0.01, 0.01],[-0.01, 0.01]]
 footprint_padding: 0.5
-always_send_full_costmap: false
+always_send_full_costmap: true
 
 
 robot_base_frame: base_link
@@ -57,6 +57,34 @@ obstacles_laser:
       clearing: false,
       inf_is_valid: true
   }
+
+obstacles_laser_local:
+  obstacle_range: 3 
+  raytrace_range: 4 
+  enabled: true
+  observation_sources: full_scan angle_filtered_scan
+  full_scan: {
+      max_obstacle_height: 200.0,
+      min_obstacle_height: -200.0,
+      sensor_frame: /laser,
+      data_type: LaserScan, 
+      topic: /scan_median,
+      clearing: true,
+      marking:  true,
+      inf_is_valid: true
+  }
+  angle_filtered_scan: {
+      max_obstacle_height: 200.0,
+      min_obstacle_height: -200.0,
+      sensor_frame: /laser,
+      data_type: LaserScan, 
+      topic: /scan_filtered,
+      marking:  true,
+      clearing: false,
+      inf_is_valid: true
+  }
+
+
 
 inflation:
     inflation_radius: 1.0
