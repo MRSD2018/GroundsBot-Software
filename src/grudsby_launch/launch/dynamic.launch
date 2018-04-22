@@ -20,7 +20,7 @@ Grudsby will stop if an obstacle is encountered
   <!-- GPS launch file-->
   <!--<include file="$(find nmea_navsat_driver)/launch/launch_nmea_driver.launch"/>  -->
   <node pkg="grudsby_tools" type="gps_spoofer.py" name="gps_spoofer"/>
-<node pkg="grudsby_costmap" type="obstacles.py" name="obstacles"/> -->
+  <node pkg="grudsby_costmap" type="obstacles.py" name="obstacles"/> -->
 
 <!-- Navigation nodes -->
   <include file="$(find grudsby_localization)/launch/grudsby_localization_ekf.launch"/>
@@ -68,6 +68,9 @@ Grudsby will stop if an obstacle is encountered
   </node>
   
   <node pkg="scan_filter" type="scan_inf_repeater.py" name="scan_inf_repeater"/>
+  <rosparam>
+    clip_scan : True
+  </rosparam>
 <!-- 
 	<node name="gucci_gang" pkg="gucci_gang" type="gucci_gang"/>
 -->

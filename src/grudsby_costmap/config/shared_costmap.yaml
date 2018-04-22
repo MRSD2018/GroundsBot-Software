@@ -61,3 +61,7 @@ obstacles_laser:
 inflation:
     inflation_radius: 1.0
     cost_scaling_factor: 1.0 
+
+inflation_dynamic:
+    inflation_radius: 0.1
+    cost_scaling_factor: 1.0 
