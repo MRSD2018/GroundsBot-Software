@@ -54,6 +54,7 @@ def throttle_from_occupancy_grid ( grid , grid_resolution , ranges ):
     low  = mid_grid + int ( np.floor ( r.range_min / grid_resolution ) )
     high = mid_grid + int ( np.ceil  ( r.range_max / grid_resolution ) )
     #mid  = low + int ( ( high - low )/ 2  )
+    print 'low: {} high:{} '.format ( low, high )
     try : 
       #n_occupied = np.count_nonzero ( grid [ low : high , : ] )
       n_occupied = np.count_nonzero ( grid [ low : high , : ] )
