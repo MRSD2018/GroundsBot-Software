@@ -13,13 +13,13 @@
           rel='stylesheet' type='text/css'>
 
     <!-- Custom CSS styles for our application. -->
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/admin.css">
 
     <!-- The Google JavaScript loader tool (for the Maps, Charts APIs). -->
     <script src="https://www.google.com/jsapi"></script>
 
     <!-- Our custom JavaScript for grudsby Lights. -->
-    <script src="/static/script.js"></script>
+    <script src="/static/admin.js"></script>
 
   </head>
   <body>
@@ -28,13 +28,16 @@
     <div class="grudsby">
 
       <!-- The title of the application. -->
-      <h1>GroundsBot Mowing Selection</h1>
+      <h1>GroundsBot Admin</h1>
 
       <!-- The button to draw a polygon. -->
-      <button class="drawRegion">Draw New Region</button>
+      <button class="addObstacle">Add New Obstacle</button>
 
       <!-- The button to draw a polygon. -->
-      <button class="approvePlan">Approve Mowing Plan</button>
+      <button class="clearObstacles">Clear All Obstacles</button>
+
+      <!-- The button to draw a polygon. -->
+      <button class="drawRegion">Draw New Geofence</button>
 
       <!-- A container which the Maps API will populate with a map. -->
       <div class="map"></div>

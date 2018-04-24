@@ -27,6 +27,45 @@ class MainHandler(webapp2.RequestHandler):
     template = JINJA2_ENVIRONMENT.get_template('index.html')
     self.response.out.write(template.render(template_values))
 
+class AdminHandler(webapp2.RequestHandler):
+  """A servlet to handle requests to load the main grudsby web page."""
+  def get(self, path=''):
+    mapid = GetgrudsbyMapId()
+    template_values = {
+        'eeMapId': mapid['mapid'],
+        'eeToken': mapid['token']
+    }
+    template = JINJA2_ENVIRONMENT.get_template('admin.html')
+    self.response.out.write(template.render(template_values))
+
+class GeofenceHandler(webapp2.RequestHandler):
+  """A servlet to handle requests for details about a Geofence."""
+  def get(self):
+    polygon_id = self.request.get('polygon_id')
+    loadedPath = getString(polygon_id + "_geofence")
+    try:
+      content = json.dumps(json.loads(loadedPath), sort_keys=True, indent=2)
+    except ValueError, e:
+      content = json.dumps({'error': 'Stored data not formatted correctly'})
+    self.response.headers['Content-Type'] = 'application/json'
+    self.response.out.write(content)
+
+class SaveGeofenceHandler(webapp2.RequestHandler):
+  """A servlet to save details about a Region."""
+  def get(self):
+    rawJson = str(self.request.get('jsonData'))
+    try:
+      polygonData = json.loads(rawJson)
+    except ValueError, e:
+      False  
+    if ('coordinates' in polygonData and 'regionID' in polygonData):
+      content = json.dumps({'result': 'Successfully received region ' + polygonData['regionID']}) 
+      setString(polygonData['regionID']+"_geofence", json.dumps(polygonData, ensure_ascii=False))
+    else:
+      content = json.dumps({'error': 'Request not formatted correctly'})
+    self.response.headers['Content-Type'] = 'application/json'
+    self.response.out.write(content)
+
 
 class RegionHandler(webapp2.RequestHandler):
   """A servlet to handle requests for details about a Region."""
@@ -155,13 +194,61 @@ class SetMowerPosHandler(webapp2.RequestHandler):
     self.response.out.write(content)
 
 
+class ObstaclesHandler(webapp2.RequestHandler):
+  """A servlet to handle requests for details about an Approval."""
+  def get(self):
+    loadedPath = getString("obstacles")
+    try:
+      content = json.dumps(json.loads(loadedPath), sort_keys=True, indent=2)
+    except ValueError, e:
+      content = json.dumps({'error': 'Stored data not formatted correctly'})
+    self.response.headers['Content-Type'] = 'application/json'
+    self.response.out.write(content)
+
+
+class ClearObstaclesHandler(webapp2.RequestHandler):
+  """A servlet to handle requests for details about an Approval."""
+  def get(self):
+    setString('obstacles',"{\"obstacles\":[]}")
+    content = json.dumps({'result':'cleared the obstacles'})
+    self.response.headers['Content-Type'] = 'application/json'
+    self.response.out.write(content)
+
+
+
+class AddObstacleHandler(webapp2.RequestHandler):
+  """A servlet to add an Obstacle."""
+  def get(self):
+    rawJson = str(self.request.get('jsonData'))
+    try:
+      obstaclePos = json.loads(rawJson)
+    except ValueError, e:
+      False
+    if ('lat' in obstaclePos and 'lng' in obstaclePos):
+      content = json.dumps({'result': 'Successfully received obstacle position.'}) 
+      obstacles = getString("obstacles")
+      try:
+        obstaclesJSON = json.loads(obstacles)
+        obstaclesJSON["obstacles"].append({"lat":obstaclePos['lat'],"lng":obstaclePos['lng']})
+        setString("obstacles", json.dumps(obstaclesJSON)) 
+      except ValueError, e:
+        setString('obstacles',"{\"obstacles\":[{\"lat\":"+str(obstaclePos['lat'])+",\"lng\":"+str(obstaclePos['lng'])+"}]}")
+        content = json.dumps({'error': 'Stored data not formatted correctly. Added new obstacles object'})
+      
+    else: 
+      content = json.dumps({'error': ' Received data not formatted correctly'})
+    self.response.headers['Content-Type'] = 'application/json'
+    self.response.out.write(content)
+
 
 
 # Define webapp2 routing from URL paths to web request handlers. See:
 # http://webapp-improved.appspot.com/tutorials/quickstart.html
 app = webapp2.WSGIApplication([
-    #('/details', DetailsHandler),
     ('/', MainHandler),
+    ('/admin', AdminHandler),
+    ('/geofence', GeofenceHandler),
+    ('/saveGeofence', SaveGeofenceHandler),
     ('/region', RegionHandler),
     ('/saveRegion', SaveRegionHandler),
     ('/plan', MowingPlanHandler),
@@ -170,6 +257,9 @@ app = webapp2.WSGIApplication([
     ('/setApproval', SetApprovalHandler),
     ('/mowerPos', MowerPosHandler),
     ('/setMowerPos', SetMowerPosHandler),
+    ('/obstacles', ObstaclesHandler),
+    ('/clearObstacles', ClearObstaclesHandler),
+    ('/addObstacle', AddObstacleHandler)
 ])
 
 
