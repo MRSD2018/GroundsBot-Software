@@ -24,7 +24,7 @@ double prev_goal_x = 0;
 double prev_goal_y = 0;
 
 double max_x_vel = 1.5;
-double min_x_vel = 0.4;
+double min_x_vel = 0.65;
 double max_theta_vel = 3;
 double max_vel_delta = 0.08;
 double max_theta_vel_delta = 0.4;

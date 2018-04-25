@@ -74,8 +74,8 @@ class DiffTf:
         if self.rtkEnabled == 0:
             imu_msg.orientation_covariance[8] = msg.orientation_covariance[8]
         else:
-            imu_msg.orientation_covariance[8] = msg.orientation_covariance[8] + 99999/(1+math.exp(-8*(abs(self.totalVel) - 2))) # sigmoid function to mix yaw from the IMU
-        
+           # imu_msg.orientation_covariance[8] = msg.orientation_covariance[8] + 99999/(1+math.exp(-8*(abs(self.totalVel) - 2))) # sigmoid function to mix yaw from the IMU
+           imu_msg.orientation_covariance[8] = 999999 
         imu_msg.angular_velocity_covariance[0] = msg.angular_velocity_covariance[0]
         imu_msg.angular_velocity_covariance[4] = msg.angular_velocity_covariance[4]
         imu_msg.angular_velocity_covariance[8] = msg.angular_velocity_covariance[8]
